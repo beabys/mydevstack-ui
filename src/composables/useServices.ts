@@ -1,19 +1,5 @@
 // Service definitions and helpers
-import type { Service, ServiceCategoryInfo, ServiceCategory } from '@/types/services'
-
-// Service category definitions with icons and ordering
-export const SERVICE_CATEGORIES: ServiceCategoryInfo[] = [
-  { id: 'compute', name: 'Compute', icon: 'ServerIcon', order: 1 },
-  { id: 'storage', name: 'Storage', icon: 'CubeIcon', order: 2 },
-  { id: 'database', name: 'Database', icon: 'DatabaseIcon', order: 3 },
-  { id: 'messaging', name: 'Messaging', icon: 'PaperAirplaneIcon', order: 4 },
-  { id: 'security', name: 'Security', icon: 'LockClosedIcon', order: 5 },
-  { id: 'networking', name: 'Networking', icon: 'GlobeAltIcon', order: 6 },
-  { id: 'analytics', name: 'Analytics', icon: 'ChartBarIcon', order: 7 },
-  { id: 'orchestration', name: 'Orchestration', icon: 'ArrowsRightLeftIcon', order: 8 },
-  { id: 'monitoring', name: 'Monitoring', icon: 'EyeIcon', order: 9 },
-  { id: 'parameters', name: 'Parameters', icon: 'Cog6ToothIcon', order: 10 }
-]
+import type { Service } from '@/types/services'
 
 // All AWS services defined
 export const SERVICES: Service[] = [
@@ -51,35 +37,15 @@ export const SERVICES: Service[] = [
   // { id: 'cloudformation', name: 'CloudFormation', category: 'orchestration', icon: 'CloudIcon', route: '/services/cloudformation' },
   
   // Monitoring
-  { id: 'cloudwatch-logs', name: 'CloudWatch Logs', category: 'monitoring', icon: 'DocumentTextIcon', route: '/services/cloudwatch-logs' },
-  { id: 'cloudwatch-metrics', name: 'CloudWatch Metrics', category: 'monitoring', icon: 'ChartBarIcon', route: '/services/cloudwatch-metrics' },
+  { id: 'cloudwatch', name: 'CloudWatch', category: 'monitoring', icon: 'ChartBarIcon', route: '/services/cloudwatch' },
   
   // Parameters
   { id: 'ssm', name: 'SSM Parameter Store', category: 'parameters', icon: 'Cog6ToothIcon', route: '/services/ssm' }
 ]
 
-// Get services grouped by category
-export function getServicesByCategory(): Map<ServiceCategory, Service[]> {
-  const grouped = new Map<ServiceCategory, Service[]>()
-  
-  for (const category of SERVICE_CATEGORIES) {
-    grouped.set(
-      category.id,
-      SERVICES.filter(s => s.category === category.id)
-    )
-  }
-  
-  return grouped
-}
-
 // Get service by ID
 export function getServiceById(id: string): Service | undefined {
   return SERVICES.find(s => s.id === id)
-}
-
-// Get category info
-export function getCategoryInfo(categoryId: ServiceCategory): ServiceCategoryInfo | undefined {
-  return SERVICE_CATEGORIES.find(c => c.id === categoryId)
 }
 
 // Search services

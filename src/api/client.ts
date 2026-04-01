@@ -124,21 +124,12 @@ function createApiClient(): AxiosInstance {
   // Request interceptor
   client.interceptors.request.use(
     (config: InternalAxiosRequestConfig) => {
-      // Add AWS headers for local development
       const signer = new AWSSigV4Signer(
         settingsStore.accessKey,
         settingsStore.secretKey,
         settingsStore.region,
         extractService(config.url || '')
       )
-
-      const payload = config.data ? JSON.stringify(config.data) : ''
-      let _host = 'localhost'
-      try {
-        _host = new URL(settingsStore.endpoint || 'http://localhost:4566').host
-      } catch {
-        // Use default host if URL parsing fails
-      }
 
       const signedHeaders = signer.sign()
 
