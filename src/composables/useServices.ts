@@ -35,7 +35,7 @@ export const SERVICES: Service[] = [
   { id: 'eventbridge', name: 'EventBridge', category: 'messaging', icon: 'BoltIcon', route: '/services/eventbridge' },
   
   // Security
-  { id: 'iam', name: 'IAM', category: 'security', icon: 'UserGroupIcon', route: '/services/iam' },
+  // { id: 'iam', name: 'IAM', category: 'security', icon: 'UserGroupIcon', route: '/services/iam' },
   { id: 'kms', name: 'KMS', category: 'security', icon: 'KeyIcon', route: '/services/kms' },
   { id: 'secrets-manager', name: 'Secrets Manager', category: 'security', icon: 'ShieldCheckIcon', route: '/services/secrets-manager' },
   { id: 'cognito', name: 'Cognito', category: 'security', icon: 'IdentificationIcon', route: '/services/cognito' },
@@ -48,7 +48,7 @@ export const SERVICES: Service[] = [
   
   // Orchestration
   { id: 'step-functions', name: 'Step Functions', category: 'orchestration', icon: 'ArrowsRightLeftIcon', route: '/services/step-functions' },
-  { id: 'cloudformation', name: 'CloudFormation', category: 'orchestration', icon: 'CloudIcon', route: '/services/cloudformation' },
+  // { id: 'cloudformation', name: 'CloudFormation', category: 'orchestration', icon: 'CloudIcon', route: '/services/cloudformation' },
   
   // Monitoring
   { id: 'cloudwatch-logs', name: 'CloudWatch Logs', category: 'monitoring', icon: 'DocumentTextIcon', route: '/services/cloudwatch-logs' },

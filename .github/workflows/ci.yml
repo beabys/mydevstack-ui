@@ -54,6 +54,13 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Get tag version
+        id: get_version
+        run: echo ::set-output name=VERSION::${GITHUB_REF#refs/tags/}
+
+      - name: Create VERSION file
+        run: echo "$VERSION" > VERSION
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:

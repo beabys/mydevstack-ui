@@ -81,7 +81,7 @@ const allServices = ref<ServiceHealth[]>([
   { id: 'cognito', name: 'Cognito', icon: 'IdentificationIcon', count: 0, status: 'unknown', loading: false },
   { id: 'secretsmanager', name: 'Secrets Manager', icon: 'LockClosedIcon', count: 0, status: 'unknown', loading: false },
   { id: 'kms', name: 'KMS', icon: 'KeyIcon', count: 0, status: 'unknown', loading: false },
-  { id: 'cloudformation', name: 'CloudFormation', icon: 'DocumentTextIcon', count: 0, status: 'unknown', loading: false },
+  // { id: 'cloudformation', name: 'CloudFormation', icon: 'DocumentTextIcon', count: 0, status: 'unknown', loading: false },
   { id: 'elasticache', name: 'ElastiCache', icon: 'ServerIcon', count: 0, status: 'unknown', loading: false },
   { id: 'ssm', name: 'SSM', icon: 'Cog6ToothIcon', count: 0, status: 'unknown', loading: false },
 ])

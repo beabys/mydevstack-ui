@@ -50,12 +50,12 @@ const routes: RouteRecordRaw[] = [
     meta: { title: 'SNS', service: 'sns' },
   },
   // IAM
-  {
-    path: '/services/iam',
-    name: 'IAM',
-    component: () => import('@/views/services/IAM.vue'),
-    meta: { title: 'IAM', service: 'iam' },
-  },
+  // {
+  //   path: '/services/iam',
+  //   name: 'IAM',
+  //   component: () => import('@/views/services/IAM.vue'),
+  //   meta: { title: 'IAM', service: 'iam' },
+  // },
   // KMS
   {
     path: '/services/kms',
@@ -113,12 +113,12 @@ const routes: RouteRecordRaw[] = [
     meta: { title: 'Kinesis', service: 'kinesis' },
   },
   // CloudFormation
-  {
-    path: '/services/cloudformation',
-    name: 'CloudFormation',
-    component: () => import('@/views/services/CloudFormation.vue'),
-    meta: { title: 'CloudFormation', service: 'cloudformation' },
-  },
+  // {
+  //   path: '/services/cloudformation',
+  //   name: 'CloudFormation',
+  //   component: () => import('@/views/services/CloudFormation.vue'),
+  //   meta: { title: 'CloudFormation', service: 'cloudformation' },
+  // },
   // SSM
   {
     path: '/services/ssm',
