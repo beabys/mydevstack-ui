@@ -230,7 +230,10 @@ watch(() => settingsStore.secretKey, (newVal) => {
   <div class="space-y-6">
     <!-- Header -->
     <div>
-      <h1 class="text-2xl font-bold" :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'">
+      <h1
+        class="text-2xl font-bold"
+        :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'"
+      >
         Settings
       </h1>
       <p :class="settingsStore.darkMode ? 'text-dark-muted' : 'text-light-muted'">
@@ -239,16 +242,19 @@ watch(() => settingsStore.secretKey, (newVal) => {
     </div>
 
     <!-- Tabs -->
-    <div class="border-b" :class="settingsStore.darkMode ? 'border-dark-border' : 'border-light-border'">
+    <div
+      class="border-b"
+      :class="settingsStore.darkMode ? 'border-dark-border' : 'border-light-border'"
+    >
       <nav class="flex space-x-8">
         <button
           v-for="tab in tabs"
           :key="tab.id"
-          @click="activeTab = tab.id"
           class="py-4 px-1 border-b-2 font-medium text-sm transition-colors"
           :class="activeTab === tab.id
             ? 'border-primary-500 text-primary-600 dark:text-primary-400'
             : 'border-transparent hover:text-gray-700 hover:border-gray-300 dark:text-dark-muted dark:hover:text-dark-text'"
+          @click="activeTab = tab.id"
         >
           {{ tab.label }}
         </button>
@@ -256,16 +262,28 @@ watch(() => settingsStore.secretKey, (newVal) => {
     </div>
 
     <!-- AWS Credentials Tab -->
-    <div v-if="activeTab === 'connection'" class="space-y-6">
+    <div
+      v-if="activeTab === 'connection'"
+      class="space-y-6"
+    >
       <!-- AWS Credentials Card -->
-      <div class="rounded-lg border p-6" :class="settingsStore.darkMode ? 'bg-dark-surface border-dark-border' : 'bg-light-surface border-light-border'">
-        <h2 class="text-lg font-semibold mb-4" :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'">
+      <div
+        class="rounded-lg border p-6"
+        :class="settingsStore.darkMode ? 'bg-dark-surface border-dark-border' : 'bg-light-surface border-light-border'"
+      >
+        <h2
+          class="text-lg font-semibold mb-4"
+          :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'"
+        >
           AWS Credentials
         </h2>
         
         <div class="space-y-4 max-w-lg">
           <div>
-            <label class="block text-sm font-medium mb-1" :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'">
+            <label
+              class="block text-sm font-medium mb-1"
+              :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'"
+            >
               AWS Access Key ID
             </label>
             <input
@@ -276,14 +294,20 @@ watch(() => settingsStore.secretKey, (newVal) => {
               :class="settingsStore.darkMode 
                 ? 'bg-dark-bg border-dark-border text-dark-text' 
                 : 'bg-light-bg border-light-border text-light-text'"
-            />
-            <p :class="settingsStore.darkMode ? 'text-dark-muted' : 'text-light-muted'" class="text-xs mt-1">
+            >
+            <p
+              :class="settingsStore.darkMode ? 'text-dark-muted' : 'text-light-muted'"
+              class="text-xs mt-1"
+            >
               Your AWS access key or "test" for local emulators
             </p>
           </div>
 
           <div>
-            <label class="block text-sm font-medium mb-1" :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'">
+            <label
+              class="block text-sm font-medium mb-1"
+              :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'"
+            >
               AWS Secret Access Key
             </label>
             <div class="relative">
@@ -295,21 +319,27 @@ watch(() => settingsStore.secretKey, (newVal) => {
                 :class="settingsStore.darkMode 
                   ? 'bg-dark-bg border-dark-border text-dark-text' 
                   : 'bg-light-bg border-light-border text-light-text'"
-              />
+              >
               <button
-                @click="showSecretKey = !showSecretKey"
                 class="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+                @click="showSecretKey = !showSecretKey"
               >
                 {{ showSecretKey ? '👁️' : '👁️‍🗨️' }}
               </button>
             </div>
-            <p :class="settingsStore.darkMode ? 'text-dark-muted' : 'text-light-muted'" class="text-xs mt-1">
+            <p
+              :class="settingsStore.darkMode ? 'text-dark-muted' : 'text-light-muted'"
+              class="text-xs mt-1"
+            >
               Your AWS secret key or "test" for local emulators
             </p>
           </div>
 
           <div>
-            <label class="block text-sm font-medium mb-1" :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'">
+            <label
+              class="block text-sm font-medium mb-1"
+              :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'"
+            >
               AWS Region
             </label>
             <select
@@ -319,11 +349,18 @@ watch(() => settingsStore.secretKey, (newVal) => {
                 ? 'bg-dark-bg border-dark-border text-dark-text' 
                 : 'bg-light-bg border-light-border text-light-text'"
             >
-              <option v-for="r in regions" :key="r.value" :value="r.value">
+              <option
+                v-for="r in regions"
+                :key="r.value"
+                :value="r.value"
+              >
                 {{ r.label }} ({{ r.value }})
               </option>
             </select>
-            <p :class="settingsStore.darkMode ? 'text-dark-muted' : 'text-light-muted'" class="text-xs mt-1">
+            <p
+              :class="settingsStore.darkMode ? 'text-dark-muted' : 'text-light-muted'"
+              class="text-xs mt-1"
+            >
               The AWS region to use
             </p>
           </div>
@@ -331,14 +368,23 @@ watch(() => settingsStore.secretKey, (newVal) => {
       </div>
 
       <!-- Endpoint Configuration Card -->
-      <div class="rounded-lg border p-6" :class="settingsStore.darkMode ? 'bg-dark-surface border-dark-border' : 'bg-light-surface border-light-border'">
-        <h2 class="text-lg font-semibold mb-4" :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'">
+      <div
+        class="rounded-lg border p-6"
+        :class="settingsStore.darkMode ? 'bg-dark-surface border-dark-border' : 'bg-light-surface border-light-border'"
+      >
+        <h2
+          class="text-lg font-semibold mb-4"
+          :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'"
+        >
           Endpoint Configuration
         </h2>
         
         <div class="space-y-4 max-w-lg">
           <div>
-            <label class="block text-sm font-medium mb-1" :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'">
+            <label
+              class="block text-sm font-medium mb-1"
+              :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'"
+            >
               Endpoint URL
             </label>
             <input
@@ -352,52 +398,63 @@ watch(() => settingsStore.secretKey, (newVal) => {
                   ? 'bg-dark-bg border-dark-border text-dark-text' 
                   : 'bg-light-bg border-light-border text-light-text'
               ]"
-            />
-            <p v-if="endpointError" class="text-red-500 text-xs mt-1">{{ endpointError }}</p>
-            <p :class="settingsStore.darkMode ? 'text-dark-muted' : 'text-light-muted'" class="text-xs mt-1">
+            >
+            <p
+              v-if="endpointError"
+              class="text-red-500 text-xs mt-1"
+            >
+              {{ endpointError }}
+            </p>
+            <p
+              :class="settingsStore.darkMode ? 'text-dark-muted' : 'text-light-muted'"
+              class="text-xs mt-1"
+            >
               Leave empty for default AWS, or specify a custom endpoint (local emulator)
             </p>
           </div>
 
           <!-- Quick presets -->
           <div>
-            <label class="block text-sm font-medium mb-2" :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'">
+            <label
+              class="block text-sm font-medium mb-2"
+              :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'"
+            >
               Quick Presets
             </label>
             <div class="flex flex-wrap gap-2">
               <button
-                @click="endpointUrl = 'https://dynamodb.us-east-1.amazonaws.com'"
                 class="px-3 py-1 text-xs rounded-lg border transition-colors"
                 :class="settingsStore.darkMode 
                   ? 'border-dark-border text-dark-muted hover:bg-dark-border hover:text-dark-text' 
                   : 'border-light-border text-light-muted hover:bg-light-border hover:text-light-text'"
+                @click="endpointUrl = 'https://dynamodb.us-east-1.amazonaws.com'"
               >
                 DynamoDB (AWS)
               </button>
               <button
-                @click="endpointUrl = 'http://localhost:4566'"
                 class="px-3 py-1 text-xs rounded-lg border transition-colors"
                 :class="settingsStore.darkMode 
                   ? 'border-dark-border text-dark-muted hover:bg-dark-border hover:text-dark-text' 
                   : 'border-light-border text-light-muted hover:bg-light-border hover:text-light-text'"
+                @click="endpointUrl = 'http://localhost:4566'"
               >
                 Local Emulator
               </button>
               <button
-                @click="endpointUrl = 'http://localhost:4566'"
                 class="px-3 py-1 text-xs rounded-lg border transition-colors"
                 :class="settingsStore.darkMode 
                   ? 'border-dark-border text-dark-muted hover:bg-dark-border hover:text-dark-text' 
                   : 'border-light-border text-light-muted hover:bg-light-border hover:text-light-text'"
+                @click="endpointUrl = 'http://localhost:4566'"
               >
                 LocalStack (Local)
               </button>
               <button
-                @click="endpointUrl = ''"
                 class="px-3 py-1 text-xs rounded-lg border transition-colors"
                 :class="settingsStore.darkMode 
                   ? 'border-dark-border text-dark-muted hover:bg-dark-border hover:text-dark-text' 
                   : 'border-light-border text-light-muted hover:bg-light-border hover:text-light-text'"
+                @click="endpointUrl = ''"
               >
                 Clear (AWS Default)
               </button>
@@ -406,44 +463,62 @@ watch(() => settingsStore.secretKey, (newVal) => {
 
           <div class="flex items-center gap-4 pt-4">
             <button
-              @click="testConnection"
               :disabled="connectionStatus === 'testing' || !!endpointError"
               class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed text-sm font-medium transition-colors"
+              @click="testConnection"
             >
               {{ connectionStatus === 'testing' ? 'Testing...' : 'Test Connection' }}
             </button>
 
             <button
-              @click="saveConnection"
               :disabled="!hasConnectionChanges"
               class="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed text-sm font-medium transition-colors"
+              @click="saveConnection"
             >
               Save Credentials
             </button>
           </div>
 
           <!-- Connection Status -->
-          <div v-if="connectionMessage" class="mt-4 p-3 rounded-lg text-sm" :class="{
-            'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400': connectionStatus === 'success',
-            'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400': connectionStatus === 'error',
-            'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400': connectionStatus === 'testing',
-          }">
+          <div
+            v-if="connectionMessage"
+            class="mt-4 p-3 rounded-lg text-sm"
+            :class="{
+              'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400': connectionStatus === 'success',
+              'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400': connectionStatus === 'error',
+              'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400': connectionStatus === 'testing',
+            }"
+          >
             {{ connectionMessage }}
           </div>
         </div>
       </div>
 
       <!-- Local Emulator Guide -->
-      <div class="rounded-lg border p-6" :class="settingsStore.darkMode ? 'bg-dark-surface border-dark-border' : 'bg-light-surface border-light-border'">
-        <h3 class="text-lg font-semibold mb-3" :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'">
+      <div
+        class="rounded-lg border p-6"
+        :class="settingsStore.darkMode ? 'bg-dark-surface border-dark-border' : 'bg-light-surface border-light-border'"
+      >
+        <h3
+          class="text-lg font-semibold mb-3"
+          :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'"
+        >
           Local AWS Emulators
         </h3>
-        <p :class="settingsStore.darkMode ? 'text-dark-muted' : 'text-light-muted'" class="text-sm mb-4">
+        <p
+          :class="settingsStore.darkMode ? 'text-dark-muted' : 'text-light-muted'"
+          class="text-sm mb-4"
+        >
           For local development, use emulators like MiniStack or LocalStack. Start them with Docker:
         </p>
         <div class="space-y-3">
           <div>
-            <p class="text-sm font-medium mb-1" :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'">MiniStack (Recommended - Free & Open Source)</p>
+            <p
+              class="text-sm font-medium mb-1"
+              :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'"
+            >
+              MiniStack (Recommended - Free & Open Source)
+            </p>
             <div class="bg-gray-900 rounded-lg p-3 overflow-x-auto">
               <code class="text-green-400 text-xs font-mono">
                 docker run --rm -p 4566:4566 ghcr.io/ministack/ministack:latest
@@ -451,7 +526,12 @@ watch(() => settingsStore.secretKey, (newVal) => {
             </div>
           </div>
           <div>
-            <p class="text-sm font-medium mb-1" :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'">LocalStack</p>
+            <p
+              class="text-sm font-medium mb-1"
+              :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'"
+            >
+              LocalStack
+            </p>
             <div class="bg-gray-900 rounded-lg p-3 overflow-x-auto">
               <code class="text-green-400 text-xs font-mono">
                 docker run --rm -p 4566:4566 localstack/localstack
@@ -463,15 +543,27 @@ watch(() => settingsStore.secretKey, (newVal) => {
     </div>
 
     <!-- Advanced Tab -->
-    <div v-if="activeTab === 'advanced'" class="space-y-6">
-      <div class="rounded-lg border p-6" :class="settingsStore.darkMode ? 'bg-dark-surface border-dark-border' : 'bg-light-surface border-light-border'">
-        <h2 class="text-lg font-semibold mb-4" :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'">
+    <div
+      v-if="activeTab === 'advanced'"
+      class="space-y-6"
+    >
+      <div
+        class="rounded-lg border p-6"
+        :class="settingsStore.darkMode ? 'bg-dark-surface border-dark-border' : 'bg-light-surface border-light-border'"
+      >
+        <h2
+          class="text-lg font-semibold mb-4"
+          :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'"
+        >
           Advanced
         </h2>
         
         <div class="space-y-4 max-w-lg">
           <div>
-            <label class="block text-sm font-medium mb-1" :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'">
+            <label
+              class="block text-sm font-medium mb-1"
+              :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'"
+            >
               Request Timeout (seconds)
             </label>
             <input
@@ -483,11 +575,14 @@ watch(() => settingsStore.secretKey, (newVal) => {
               :class="settingsStore.darkMode 
                 ? 'bg-dark-bg border-dark-border text-dark-text' 
                 : 'bg-light-bg border-light-border text-light-text'"
-            />
+            >
           </div>
 
           <div>
-            <label class="block text-sm font-medium mb-1" :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'">
+            <label
+              class="block text-sm font-medium mb-1"
+              :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'"
+            >
               Max Retries
             </label>
             <input
@@ -499,22 +594,28 @@ watch(() => settingsStore.secretKey, (newVal) => {
               :class="settingsStore.darkMode 
                 ? 'bg-dark-bg border-dark-border text-dark-text' 
                 : 'bg-light-bg border-light-border text-light-text'"
-            />
+            >
           </div>
 
           <div class="flex items-center justify-between">
             <div>
-              <label class="text-sm font-medium" :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'">
+              <label
+                class="text-sm font-medium"
+                :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'"
+              >
                 Debug Mode
               </label>
-              <p :class="settingsStore.darkMode ? 'text-dark-muted' : 'text-light-muted'" class="text-xs">
+              <p
+                :class="settingsStore.darkMode ? 'text-dark-muted' : 'text-light-muted'"
+                class="text-xs"
+              >
                 Enable detailed logging
               </p>
             </div>
             <button
-              @click="debugMode = !debugMode"
               class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors"
               :class="debugMode ? 'bg-primary-600' : 'bg-gray-300 dark:bg-gray-600'"
+              @click="debugMode = !debugMode"
             >
               <span
                 class="inline-block h-4 w-4 transform rounded-full bg-white transition-transform"
@@ -525,8 +626,8 @@ watch(() => settingsStore.secretKey, (newVal) => {
 
           <div class="pt-4">
             <button
-              @click="saveAdvanced"
               class="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 text-sm font-medium transition-colors"
+              @click="saveAdvanced"
             >
               Save Advanced
             </button>
@@ -534,13 +635,16 @@ watch(() => settingsStore.secretKey, (newVal) => {
         </div>
       </div>
 
-      <div class="rounded-lg border p-6 border-red-200 dark:border-red-900" :class="settingsStore.darkMode ? 'bg-red-900/10' : 'bg-red-50'">
+      <div
+        class="rounded-lg border p-6 border-red-200 dark:border-red-900"
+        :class="settingsStore.darkMode ? 'bg-red-900/10' : 'bg-red-50'"
+      >
         <h2 class="text-lg font-semibold mb-4 text-red-600 dark:text-red-400">
           Danger Zone
         </h2>
         <button
-          @click="clearLocalStorage"
           class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 text-sm font-medium transition-colors"
+          @click="clearLocalStorage"
         >
           Clear All Settings
         </button>
@@ -548,27 +652,48 @@ watch(() => settingsStore.secretKey, (newVal) => {
     </div>
 
     <!-- About Tab -->
-    <div v-if="activeTab === 'about'" class="space-y-6">
-      <div class="rounded-lg border p-6" :class="settingsStore.darkMode ? 'bg-dark-surface border-dark-border' : 'bg-light-surface border-light-border'">
-        <h2 class="text-lg font-semibold mb-4" :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'">
+    <div
+      v-if="activeTab === 'about'"
+      class="space-y-6"
+    >
+      <div
+        class="rounded-lg border p-6"
+        :class="settingsStore.darkMode ? 'bg-dark-surface border-dark-border' : 'bg-light-surface border-light-border'"
+      >
+        <h2
+          class="text-lg font-semibold mb-4"
+          :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'"
+        >
           About MyDevStack
         </h2>
         
         <div class="space-y-4">
           <div>
-            <h3 class="font-medium" :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'">
+            <h3
+              class="font-medium"
+              :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'"
+            >
               MyDevStack
             </h3>
-            <p :class="settingsStore.darkMode ? 'text-dark-muted' : 'text-light-muted'" class="text-sm">
+            <p
+              :class="settingsStore.darkMode ? 'text-dark-muted' : 'text-light-muted'"
+              class="text-sm"
+            >
               Version 1.0.0 - AWS Service Manager
             </p>
           </div>
 
           <div>
-            <h3 class="font-medium" :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'">
+            <h3
+              class="font-medium"
+              :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'"
+            >
               Supported Services
             </h3>
-            <p :class="settingsStore.darkMode ? 'text-dark-muted' : 'text-light-muted'" class="text-sm">
+            <p
+              :class="settingsStore.darkMode ? 'text-dark-muted' : 'text-light-muted'"
+              class="text-sm"
+            >
               S3, Lambda, DynamoDB, SQS, SNS, IAM, KMS, Secrets Manager, EventBridge, CloudWatch, Step Functions, Cognito, API Gateway, and more.
             </p>
           </div>
@@ -604,9 +729,18 @@ watch(() => settingsStore.secretKey, (newVal) => {
     </div>
 
     <!-- Shortcuts Tab -->
-    <div v-if="activeTab === 'shortcuts'" class="space-y-6">
-      <div class="rounded-lg border p-6" :class="settingsStore.darkMode ? 'bg-dark-surface border-dark-border' : 'bg-light-surface border-light-border'">
-        <h2 class="text-lg font-semibold mb-4" :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'">
+    <div
+      v-if="activeTab === 'shortcuts'"
+      class="space-y-6"
+    >
+      <div
+        class="rounded-lg border p-6"
+        :class="settingsStore.darkMode ? 'bg-dark-surface border-dark-border' : 'bg-light-surface border-light-border'"
+      >
+        <h2
+          class="text-lg font-semibold mb-4"
+          :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'"
+        >
           Keyboard Shortcuts
         </h2>
         
@@ -616,10 +750,16 @@ watch(() => settingsStore.secretKey, (newVal) => {
             :key="shortcut.keys"
             class="flex items-center justify-between py-2"
           >
-            <span :class="settingsStore.darkMode ? 'text-dark-muted' : 'text-light-muted'" class="text-sm">
+            <span
+              :class="settingsStore.darkMode ? 'text-dark-muted' : 'text-light-muted'"
+              class="text-sm"
+            >
               {{ shortcut.action }}
             </span>
-            <kbd class="px-2 py-1 bg-gray-100 dark:bg-dark-bg rounded text-xs font-mono" :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'">
+            <kbd
+              class="px-2 py-1 bg-gray-100 dark:bg-dark-bg rounded text-xs font-mono"
+              :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'"
+            >
               {{ shortcut.keys }}
             </kbd>
           </div>

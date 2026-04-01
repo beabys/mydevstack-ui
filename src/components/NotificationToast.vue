@@ -43,27 +43,57 @@ const colorMap = {
         :class="settingsStore.darkMode ? 'bg-dark-surface border-dark-border' : 'bg-light-surface border-light-border'"
       >
         <div class="flex-shrink-0">
-          <div class="w-8 h-8 rounded-full flex items-center justify-center" :class="colorMap[notification.type]">
-            <svg class="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" :d="iconMap[notification.type]" />
+          <div
+            class="w-8 h-8 rounded-full flex items-center justify-center"
+            :class="colorMap[notification.type]"
+          >
+            <svg
+              class="w-5 h-5 text-white"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                :d="iconMap[notification.type]"
+              />
             </svg>
           </div>
         </div>
         <div class="flex-1 min-w-0">
-          <p class="text-sm font-medium" :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'">
+          <p
+            class="text-sm font-medium"
+            :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'"
+          >
             {{ notification.title }}
           </p>
-          <p v-if="notification.message" class="mt-1 text-sm" :class="settingsStore.darkMode ? 'text-dark-muted' : 'text-light-muted'">
+          <p
+            v-if="notification.message"
+            class="mt-1 text-sm"
+            :class="settingsStore.darkMode ? 'text-dark-muted' : 'text-light-muted'"
+          >
             {{ notification.message }}
           </p>
         </div>
         <button
-          @click="uiStore.removeNotification(notification.id)"
           class="flex-shrink-0 p-1 rounded hover:bg-opacity-10 transition-colors"
           :class="settingsStore.darkMode ? 'hover:bg-dark-border text-dark-muted' : 'hover:bg-light-border text-light-muted'"
+          @click="uiStore.removeNotification(notification.id)"
         >
-          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          <svg
+            class="w-4 h-4"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M6 18L18 6M6 6l12 12"
+            />
           </svg>
         </button>
       </div>

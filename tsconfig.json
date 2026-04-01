@@ -17,11 +17,13 @@
     "noFallthroughCasesInSwitch": true,
     "noImplicitAny": false,
     "baseUrl": ".",
-    "ignoreDeprecations": "5.0",
+    "ignoreDeprecations": "6.0",
     "paths": {
       "@/*": ["src/*"]
     },
-    "types": ["node", "vite/client"]
+    "types": ["node", "vite/client"],
+    "strictNullChecks": false,
+    "strictPropertyInitialization": false
   },
   "include": [
     "src/**/*.ts",

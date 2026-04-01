@@ -80,9 +80,9 @@ provide('toggleSidebar', toggleSidebar)
     >
       <!-- Header -->
       <AppHeader
+        :is-dark="isDark"
         @toggle-mobile-sidebar="toggleMobileSidebar"
         @toggle-theme="toggleTheme"
-        :is-dark="isDark"
       />
 
       <!-- Main Content Slot -->

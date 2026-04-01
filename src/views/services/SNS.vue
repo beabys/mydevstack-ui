@@ -452,10 +452,23 @@ onMounted(() => {
           </span>
         </div>
         <div class="flex items-center gap-2">
-          <Button variant="primary" @click="showCreateTopicModal = true">
+          <Button
+            variant="primary"
+            @click="showCreateTopicModal = true"
+          >
             <template #icon>
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+              <svg
+                class="w-4 h-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M12 4v16m8-8H4"
+                />
               </svg>
             </template>
             Create Topic
@@ -468,33 +481,48 @@ onMounted(() => {
     <div class="flex-1 overflow-auto p-6">
       <!-- Usage Examples -->
       <div class="mb-6">
-        <h2 class="text-lg font-semibold mb-4" :class="settingsStore.darkMode ? 'text-white' : 'text-gray-900'">
+        <h2
+          class="text-lg font-semibold mb-4"
+          :class="settingsStore.darkMode ? 'text-white' : 'text-gray-900'"
+        >
           Usage Examples
         </h2>
-        <div class="rounded-lg border overflow-hidden" :class="settingsStore.darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'">
-          <div class="flex border-b" :class="settingsStore.darkMode ? 'border-gray-700' : 'border-gray-200'">
+        <div
+          class="rounded-lg border overflow-hidden"
+          :class="settingsStore.darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'"
+        >
+          <div
+            class="flex border-b"
+            :class="settingsStore.darkMode ? 'border-gray-700' : 'border-gray-200'"
+          >
             <button
               v-for="(example, index) in codeExamples"
               :key="example.language"
-              @click="selectedExample = index"
               class="px-4 py-2 text-sm font-medium transition-colors"
               :class="[
                 selectedExample === index
                   ? settingsStore.darkMode ? 'bg-gray-700 text-white' : 'bg-gray-100 text-gray-900'
                   : settingsStore.darkMode ? 'text-gray-400 hover:text-white hover:bg-gray-700' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
               ]"
+              @click="selectedExample = index"
             >
               {{ example.label }}
             </button>
           </div>
           <div class="p-4 overflow-x-auto">
-            <pre class="text-sm font-mono" :class="settingsStore.darkMode ? 'text-gray-300' : 'text-gray-700'">{{ codeExamples[selectedExample].code }}</pre>
+            <pre
+              class="text-sm font-mono"
+              :class="settingsStore.darkMode ? 'text-gray-300' : 'text-gray-700'"
+            >{{ codeExamples[selectedExample].code }}</pre>
           </div>
         </div>
       </div>
 
       <!-- Loading State -->
-      <div v-if="loading" class="flex items-center justify-center py-12">
+      <div
+        v-if="loading"
+        class="flex items-center justify-center py-12"
+      >
         <LoadingSpinner size="lg" />
       </div>
 
@@ -519,8 +547,18 @@ onMounted(() => {
       >
         <template #cell-TopicName="{ value, row }">
           <div class="flex items-center gap-2">
-            <svg class="w-5 h-5 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H5a4 4 0 110-6z" />
+            <svg
+              class="w-5 h-5 text-orange-500"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H5a4 4 0 110-6z"
+              />
             </svg>
             <span class="font-medium text-light-text dark:text-dark-text">{{ value }}</span>
           </div>
@@ -584,8 +622,15 @@ onMounted(() => {
       </div>
       <template #footer>
         <div class="flex justify-end gap-2">
-          <Button variant="secondary" @click="showCreateTopicModal = false">Cancel</Button>
-          <Button @click="createTopic">Create</Button>
+          <Button
+            variant="secondary"
+            @click="showCreateTopicModal = false"
+          >
+            Cancel
+          </Button>
+          <Button @click="createTopic">
+            Create
+          </Button>
         </div>
       </template>
     </Modal>
@@ -611,8 +656,15 @@ onMounted(() => {
       </div>
       <template #footer>
         <div class="flex justify-end gap-2">
-          <Button variant="secondary" @click="showSubscribeModal = false">Cancel</Button>
-          <Button @click="subscribe">Subscribe</Button>
+          <Button
+            variant="secondary"
+            @click="showSubscribeModal = false"
+          >
+            Cancel
+          </Button>
+          <Button @click="subscribe">
+            Subscribe
+          </Button>
         </div>
       </template>
     </Modal>
@@ -644,8 +696,15 @@ onMounted(() => {
       </div>
       <template #footer>
         <div class="flex justify-end gap-2">
-          <Button variant="secondary" @click="showPublishModal = false">Cancel</Button>
-          <Button @click="publishMessage">Publish</Button>
+          <Button
+            variant="secondary"
+            @click="showPublishModal = false"
+          >
+            Cancel
+          </Button>
+          <Button @click="publishMessage">
+            Publish
+          </Button>
         </div>
       </template>
     </Modal>
@@ -656,7 +715,10 @@ onMounted(() => {
       title="Topic Subscriptions"
       size="lg"
     >
-      <div v-if="loadingSubscriptions" class="flex justify-center py-8">
+      <div
+        v-if="loadingSubscriptions"
+        class="flex justify-center py-8"
+      >
         <LoadingSpinner />
       </div>
       <EmptyState
@@ -673,7 +735,10 @@ onMounted(() => {
         empty-text="No subscriptions found."
       >
         <template #cell-Protocol="{ value }">
-          <StatusBadge status="active" :label="value" />
+          <StatusBadge
+            status="active"
+            :label="value"
+          />
         </template>
         <template #cell-Endpoint="{ value }">
           <span class="text-light-text dark:text-dark-text truncate">{{ value }}</span>
@@ -686,7 +751,12 @@ onMounted(() => {
         </template>
       </DataTable>
       <template #footer>
-        <Button variant="secondary" @click="showSubscriptionsModal = false">Close</Button>
+        <Button
+          variant="secondary"
+          @click="showSubscriptionsModal = false"
+        >
+          Close
+        </Button>
       </template>
     </Modal>
 
@@ -698,8 +768,18 @@ onMounted(() => {
     >
       <div class="space-y-4">
         <div class="flex items-start gap-3 p-4 rounded-lg bg-red-50 dark:bg-red-900/20">
-          <svg class="h-5 w-5 text-red-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+          <svg
+            class="h-5 w-5 text-red-500 flex-shrink-0 mt-0.5"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+            />
           </svg>
           <div>
             <p class="text-sm text-red-800 dark:text-red-200">
@@ -713,8 +793,18 @@ onMounted(() => {
       </div>
       <template #footer>
         <div class="flex justify-end gap-2">
-          <Button variant="secondary" @click="showDeleteModal = false">Cancel</Button>
-          <Button variant="danger" @click="deleteTopic">Delete</Button>
+          <Button
+            variant="secondary"
+            @click="showDeleteModal = false"
+          >
+            Cancel
+          </Button>
+          <Button
+            variant="danger"
+            @click="deleteTopic"
+          >
+            Delete
+          </Button>
         </div>
       </template>
     </Modal>

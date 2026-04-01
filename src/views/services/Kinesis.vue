@@ -304,16 +304,30 @@ onMounted(() => {
       :class="settingsStore.darkMode ? 'bg-dark-surface border-dark-border' : 'bg-light-surface border-light-border'"
     >
       <div class="flex items-center gap-3">
-        <QueueListIcon class="h-6 w-6" :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'" />
-        <h1 class="text-xl font-semibold" :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'">
+        <QueueListIcon
+          class="h-6 w-6"
+          :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'"
+        />
+        <h1
+          class="text-xl font-semibold"
+          :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'"
+        >
           Kinesis
         </h1>
       </div>
       <div class="flex items-center gap-2">
-        <Button variant="secondary" size="sm" :loading="loading" @click="loadStreams">
+        <Button
+          variant="secondary"
+          size="sm"
+          :loading="loading"
+          @click="loadStreams"
+        >
           <ArrowPathIcon class="h-4 w-4" />
         </Button>
-        <Button size="sm" @click="showCreateModal = true">
+        <Button
+          size="sm"
+          @click="showCreateModal = true"
+        >
           <PlusIcon class="h-4 w-4 mr-1" />
           Create Stream
         </Button>
@@ -334,7 +348,10 @@ onMounted(() => {
       <template v-else>
         <!-- Stream List -->
         <div class="mb-6">
-          <h2 class="text-lg font-medium mb-4" :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'">
+          <h2
+            class="text-lg font-medium mb-4"
+            :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'"
+          >
             Data Streams
           </h2>
           
@@ -354,7 +371,10 @@ onMounted(() => {
             </template>
             
             <template #cell-StreamStatus="{ value }">
-              <StatusBadge :status="getStatus(value)" :label="value" />
+              <StatusBadge
+                :status="getStatus(value)"
+                :label="value"
+              />
             </template>
             
             <template #row-actions="{ row }">
@@ -381,11 +401,20 @@ onMounted(() => {
         </div>
         
         <!-- Stream Details -->
-        <div v-if="selectedStream" class="space-y-6">
+        <div
+          v-if="selectedStream"
+          class="space-y-6"
+        >
           <!-- Stream Info -->
-          <div class="p-6 rounded-lg border" :class="settingsStore.darkMode ? 'bg-dark-surface border-dark-border' : 'bg-light-surface border-light-border'">
+          <div
+            class="p-6 rounded-lg border"
+            :class="settingsStore.darkMode ? 'bg-dark-surface border-dark-border' : 'bg-light-surface border-light-border'"
+          >
             <div class="flex items-center justify-between mb-4">
-              <h3 class="text-lg font-semibold" :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'">
+              <h3
+                class="text-lg font-semibold"
+                :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'"
+              >
                 Stream: {{ selectedStream.StreamName }}
               </h3>
               <Button 
@@ -400,32 +429,56 @@ onMounted(() => {
             
             <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
               <div>
-                <p class="text-sm" :class="settingsStore.darkMode ? 'text-dark-muted' : 'text-light-muted'">
+                <p
+                  class="text-sm"
+                  :class="settingsStore.darkMode ? 'text-dark-muted' : 'text-light-muted'"
+                >
                   Status
                 </p>
-                <StatusBadge :status="getStatus(selectedStream.StreamStatus)" class="mt-1" />
+                <StatusBadge
+                  :status="getStatus(selectedStream.StreamStatus)"
+                  class="mt-1"
+                />
               </div>
               <div>
-                <p class="text-sm" :class="settingsStore.darkMode ? 'text-dark-muted' : 'text-light-muted'">
+                <p
+                  class="text-sm"
+                  :class="settingsStore.darkMode ? 'text-dark-muted' : 'text-light-muted'"
+                >
                   Shards
                 </p>
-                <p class="mt-1 font-medium" :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'">
+                <p
+                  class="mt-1 font-medium"
+                  :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'"
+                >
                   {{ selectedStream.ShardCount }}
                 </p>
               </div>
               <div>
-                <p class="text-sm" :class="settingsStore.darkMode ? 'text-dark-muted' : 'text-light-muted'">
+                <p
+                  class="text-sm"
+                  :class="settingsStore.darkMode ? 'text-dark-muted' : 'text-light-muted'"
+                >
                   Retention Period
                 </p>
-                <p class="mt-1 font-medium" :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'">
+                <p
+                  class="mt-1 font-medium"
+                  :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'"
+                >
                   {{ selectedStream.RetentionPeriodHours }} hours
                 </p>
               </div>
               <div>
-                <p class="text-sm" :class="settingsStore.darkMode ? 'text-dark-muted' : 'text-light-muted'">
+                <p
+                  class="text-sm"
+                  :class="settingsStore.darkMode ? 'text-dark-muted' : 'text-light-muted'"
+                >
                   Encryption
                 </p>
-                <p class="mt-1 font-medium" :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'">
+                <p
+                  class="mt-1 font-medium"
+                  :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'"
+                >
                   {{ selectedStream.EncryptionType }}
                 </p>
               </div>
@@ -433,8 +486,14 @@ onMounted(() => {
           </div>
           
           <!-- Shards -->
-          <div class="p-6 rounded-lg border" :class="settingsStore.darkMode ? 'bg-dark-surface border-dark-border' : 'bg-light-surface border-light-border'">
-            <h3 class="text-lg font-semibold mb-4" :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'">
+          <div
+            class="p-6 rounded-lg border"
+            :class="settingsStore.darkMode ? 'bg-dark-surface border-dark-border' : 'bg-light-surface border-light-border'"
+          >
+            <h3
+              class="text-lg font-semibold mb-4"
+              :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'"
+            >
               Shards
             </h3>
             
@@ -480,8 +539,15 @@ onMounted(() => {
           </div>
           
           <!-- Records -->
-          <div v-if="selectedShard" class="p-6 rounded-lg border" :class="settingsStore.darkMode ? 'bg-dark-surface border-dark-border' : 'bg-light-surface border-light-border'">
-            <h3 class="text-lg font-semibold mb-4" :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'">
+          <div
+            v-if="selectedShard"
+            class="p-6 rounded-lg border"
+            :class="settingsStore.darkMode ? 'bg-dark-surface border-dark-border' : 'bg-light-surface border-light-border'"
+          >
+            <h3
+              class="text-lg font-semibold mb-4"
+              :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'"
+            >
               Records from Shard: {{ selectedShard.ShardId }}
             </h3>
             
@@ -552,8 +618,18 @@ onMounted(() => {
       
       <template #footer>
         <div class="flex justify-end gap-2">
-          <Button variant="secondary" @click="showCreateModal = false">Cancel</Button>
-          <Button :loading="loading" @click="createStream">Create</Button>
+          <Button
+            variant="secondary"
+            @click="showCreateModal = false"
+          >
+            Cancel
+          </Button>
+          <Button
+            :loading="loading"
+            @click="createStream"
+          >
+            Create
+          </Button>
         </div>
       </template>
     </Modal>
@@ -573,14 +649,17 @@ onMounted(() => {
           help-text="Used to distribute records across shards"
         />
         <div>
-          <label class="block text-sm font-medium mb-1" :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'">
+          <label
+            class="block text-sm font-medium mb-1"
+            :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'"
+          >
             Data (JSON)
           </label>
           <textarea
             v-model="putData"
             class="w-full h-32 px-3 py-2 rounded-lg border bg-light-surface dark:bg-dark-surface border-light-border dark:border-dark-border focus:ring-2 focus:ring-primary-500 focus:border-transparent font-mono text-sm"
             :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'"
-            placeholder='{"message": "hello world"}'
+            placeholder="{&quot;message&quot;: &quot;hello world&quot;}"
             required
           />
         </div>
@@ -588,8 +667,18 @@ onMounted(() => {
       
       <template #footer>
         <div class="flex justify-end gap-2">
-          <Button variant="secondary" @click="showPutRecordModal = false">Cancel</Button>
-          <Button :loading="loading" @click="putRecord">Put Record</Button>
+          <Button
+            variant="secondary"
+            @click="showPutRecordModal = false"
+          >
+            Cancel
+          </Button>
+          <Button
+            :loading="loading"
+            @click="putRecord"
+          >
+            Put Record
+          </Button>
         </div>
       </template>
     </Modal>
@@ -600,28 +689,46 @@ onMounted(() => {
       title="Record Details"
       size="lg"
     >
-      <div v-if="selectedRecord" class="space-y-4">
+      <div
+        v-if="selectedRecord"
+        class="space-y-4"
+      >
         <div class="grid grid-cols-2 gap-4">
           <div>
-            <p class="text-sm" :class="settingsStore.darkMode ? 'text-dark-muted' : 'text-light-muted'">
+            <p
+              class="text-sm"
+              :class="settingsStore.darkMode ? 'text-dark-muted' : 'text-light-muted'"
+            >
               Partition Key
             </p>
-            <p class="mt-1 font-medium" :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'">
+            <p
+              class="mt-1 font-medium"
+              :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'"
+            >
               {{ selectedRecord.PartitionKey }}
             </p>
           </div>
           <div>
-            <p class="text-sm" :class="settingsStore.darkMode ? 'text-dark-muted' : 'text-light-muted'">
+            <p
+              class="text-sm"
+              :class="settingsStore.darkMode ? 'text-dark-muted' : 'text-light-muted'"
+            >
               Sequence Number
             </p>
-            <code class="mt-1 text-xs block" :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'">
+            <code
+              class="mt-1 text-xs block"
+              :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'"
+            >
               {{ selectedRecord.SequenceNumber }}
             </code>
           </div>
         </div>
         
         <div>
-          <p class="text-sm mb-2" :class="settingsStore.darkMode ? 'text-dark-muted' : 'text-light-muted'">
+          <p
+            class="text-sm mb-2"
+            :class="settingsStore.darkMode ? 'text-dark-muted' : 'text-light-muted'"
+          >
             Data
           </p>
           <JsonViewer :data="JSON.parse(decodeData(selectedRecord.Data))" />
@@ -630,7 +737,12 @@ onMounted(() => {
       
       <template #footer>
         <div class="flex justify-end gap-2">
-          <Button variant="secondary" @click="showRecordModal = false">Close</Button>
+          <Button
+            variant="secondary"
+            @click="showRecordModal = false"
+          >
+            Close
+          </Button>
         </div>
       </template>
     </Modal>

@@ -153,9 +153,15 @@ watch(() => props.expanded, (val) => {
 </script>
 
 <template>
-  <div class="rounded-lg border overflow-hidden" :class="settingsStore.darkMode ? 'bg-dark-surface border-dark-border' : 'bg-light-surface border-light-border'">
+  <div
+    class="rounded-lg border overflow-hidden"
+    :class="settingsStore.darkMode ? 'bg-dark-surface border-dark-border' : 'bg-light-surface border-light-border'"
+  >
     <!-- Header -->
-    <div class="flex items-center justify-between px-4 py-2 border-b" :class="settingsStore.darkMode ? 'border-dark-border' : 'border-light-border'">
+    <div
+      class="flex items-center justify-between px-4 py-2 border-b"
+      :class="settingsStore.darkMode ? 'border-dark-border' : 'border-light-border'"
+    >
       <div class="flex items-center gap-2">
         <button
           type="button"
@@ -180,15 +186,24 @@ watch(() => props.expanded, (val) => {
         :class="settingsStore.darkMode ? 'text-dark-muted hover:text-dark-text' : 'text-light-muted hover:text-light-text'"
         @click="copyToClipboard"
       >
-        <CheckIcon v-if="copied" class="h-4 w-4" />
-        <ClipboardDocumentIcon v-else class="h-4 w-4" />
+        <CheckIcon
+          v-if="copied"
+          class="h-4 w-4"
+        />
+        <ClipboardDocumentIcon
+          v-else
+          class="h-4 w-4"
+        />
         {{ copied ? 'Copied!' : 'Copy' }}
       </button>
     </div>
 
     <!-- JSON Content -->
     <div class="overflow-auto max-h-[600px]">
-      <pre class="p-4 text-sm font-mono leading-relaxed" :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'">{{ JSON.stringify(inputData, null, 2) }}</pre>
+      <pre
+        class="p-4 text-sm font-mono leading-relaxed"
+        :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'"
+      >{{ JSON.stringify(inputData, null, 2) }}</pre>
     </div>
   </div>
 </template>

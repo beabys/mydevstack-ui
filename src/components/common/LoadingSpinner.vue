@@ -45,7 +45,10 @@ const screenSizeClasses = 'fixed inset-0 z-50 bg-light-surface/80 dark:bg-dark-s
 
 <template>
   <!-- Full Screen Spinner -->
-  <div v-if="fullScreen" :class="screenSizeClasses">
+  <div
+    v-if="fullScreen"
+    :class="screenSizeClasses"
+  >
     <div class="flex flex-col items-center gap-4">
       <svg
         :class="[sizeClasses, spinnerColor, 'animate-spin']"
@@ -67,7 +70,10 @@ const screenSizeClasses = 'fixed inset-0 z-50 bg-light-surface/80 dark:bg-dark-s
           d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
         />
       </svg>
-      <span v-if="label" class="text-sm font-medium text-light-text dark:text-dark-text">
+      <span
+        v-if="label"
+        class="text-sm font-medium text-light-text dark:text-dark-text"
+      >
         {{ label }}
       </span>
     </div>

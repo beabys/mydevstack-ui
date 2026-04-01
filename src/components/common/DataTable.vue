@@ -123,7 +123,10 @@ function prevPage() {
               :class="{ 'cursor-pointer select-none hover:bg-light-border dark:hover:bg-dark-border': column.sortable }"
               @click="handleSort(column)"
             >
-              <div class="flex items-center gap-1" :class="{ 'justify-center': column.align === 'center', 'justify-end': column.align === 'right' }">
+              <div
+                class="flex items-center gap-1"
+                :class="{ 'justify-center': column.align === 'center', 'justify-end': column.align === 'right' }"
+              >
                 <span>{{ column.label }}</span>
                 <template v-if="column.sortable">
                   <ChevronUpIcon
@@ -134,7 +137,10 @@ function prevPage() {
                     v-else-if="sortKey === column.key && sortDirection === 'desc'"
                     class="h-4 w-4 text-primary-500"
                   />
-                  <span v-else class="h-4 w-4 opacity-30">
+                  <span
+                    v-else
+                    class="h-4 w-4 opacity-30"
+                  >
                     <ChevronUpIcon class="h-3 w-3" />
                   </span>
                 </template>
@@ -147,7 +153,10 @@ function prevPage() {
         <tbody class="divide-y divide-light-border dark:divide-dark-border">
           <!-- Loading State -->
           <template v-if="loading">
-            <tr v-for="i in pageSize" :key="`loading-${i}`">
+            <tr
+              v-for="i in pageSize"
+              :key="`loading-${i}`"
+            >
               <td
                 v-for="column in columns"
                 :key="`loading-${i}-${column.key}`"
@@ -179,12 +188,19 @@ function prevPage() {
                 class="px-4 py-4 text-sm text-light-text dark:text-dark-text whitespace-nowrap"
                 :class="{ 'text-center': column.align === 'center', 'text-right': column.align === 'right' }"
               >
-                <slot :name="`cell-${column.key}`" :row="row" :value="row[column.key]">
+                <slot
+                  :name="`cell-${column.key}`"
+                  :row="row"
+                  :value="row[column.key]"
+                >
                   {{ row[column.key] }}
                 </slot>
               </td>
               <td class="px-4 py-4 whitespace-nowrap">
-                <slot name="row-actions" :row="row">
+                <slot
+                  name="row-actions"
+                  :row="row"
+                >
                   <!-- Default: no actions -->
                 </slot>
               </td>
@@ -194,7 +210,10 @@ function prevPage() {
           <!-- Empty State -->
           <template v-else>
             <tr>
-              <td :colspan="columns.length + 1" class="px-4 py-12">
+              <td
+                :colspan="columns.length + 1"
+                class="px-4 py-12"
+              >
                 <EmptyState
                   icon="table-cells"
                   :title="emptyTitle"
@@ -208,7 +227,10 @@ function prevPage() {
     </div>
 
     <!-- Pagination -->
-    <div v-if="!loading && totalItems > 0" class="flex flex-col sm:flex-row items-center justify-between gap-4 mt-4 px-2">
+    <div
+      v-if="!loading && totalItems > 0"
+      class="flex flex-col sm:flex-row items-center justify-between gap-4 mt-4 px-2"
+    >
       <div class="text-sm text-light-muted dark:text-dark-muted">
         Showing <span class="font-medium">{{ startItem }}</span> to <span class="font-medium">{{ endItem }}</span> of <span class="font-medium">{{ totalItems }}</span> results
       </div>
@@ -224,7 +246,10 @@ function prevPage() {
         </button>
 
         <div class="flex items-center gap-1">
-          <template v-for="page in totalPages" :key="page">
+          <template
+            v-for="page in totalPages"
+            :key="page"
+          >
             <button
               v-if="page === 1 || page === totalPages || (page >= currentPage - 1 && page <= currentPage + 1)"
               type="button"

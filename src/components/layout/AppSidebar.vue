@@ -181,7 +181,10 @@ function getCategoryIcon(category: ServiceCategoryInfo): string {
     <div class="flex-shrink-0 h-16 px-4 border-b border-gray-200 dark:border-gray-700 flex items-center">
       <div class="flex items-center gap-3 overflow-hidden">
         <div class="flex-shrink-0 w-8 h-8 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center">
-          <div class="w-5 h-5 text-white" v-html="icons.CloudIcon" />
+          <div
+            class="w-5 h-5 text-white"
+            v-html="icons.CloudIcon"
+          />
         </div>
         <Transition name="fade">
           <span
@@ -197,15 +200,18 @@ function getCategoryIcon(category: ServiceCategoryInfo): string {
     <!-- Navigation -->
     <nav class="flex-1 overflow-y-auto py-4 px-2 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600">
       <div class="space-y-1">
-        <template v-for="category in SERVICE_CATEGORIES" :key="category.id">
+        <template
+          v-for="category in SERVICE_CATEGORIES"
+          :key="category.id"
+        >
           <!-- Category Header -->
           <button
-            @click="toggleCategory(category.id)"
             :class="[
               'w-full flex items-center justify-between px-3 py-2 text-sm font-medium rounded-lg transition-colors',
               'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700',
               'group'
             ]"
+            @click="toggleCategory(category.id)"
           >
             <div class="flex items-center gap-3 overflow-hidden">
               <div
@@ -213,13 +219,19 @@ function getCategoryIcon(category: ServiceCategoryInfo): string {
                 v-html="getCategoryIcon(category)"
               />
               <Transition name="fade">
-                <span v-if="!isCollapsed" class="whitespace-nowrap">
+                <span
+                  v-if="!isCollapsed"
+                  class="whitespace-nowrap"
+                >
                   {{ category.name }}
                 </span>
               </Transition>
             </div>
             <Transition name="fade">
-              <div v-if="!isCollapsed" class="flex-shrink-0">
+              <div
+                v-if="!isCollapsed"
+                class="flex-shrink-0"
+              >
                 <div
                   :class="[
                     'w-4 h-4 transition-transform',
@@ -258,7 +270,10 @@ function getCategoryIcon(category: ServiceCategoryInfo): string {
                   v-html="getIconSvg(service.icon)"
                 />
                 <Transition name="fade">
-                  <span v-if="!isCollapsed" class="whitespace-nowrap">
+                  <span
+                    v-if="!isCollapsed"
+                    class="whitespace-nowrap"
+                  >
                     {{ service.name }}
                   </span>
                 </Transition>
@@ -280,7 +295,10 @@ function getCategoryIcon(category: ServiceCategoryInfo): string {
           isRouteActive('/settings') && 'bg-gray-100 dark:bg-gray-700'
         ]"
       >
-        <div class="w-5 h-5 flex-shrink-0" v-html="icons.AdjustmentsHorizontalIcon" />
+        <div
+          class="w-5 h-5 flex-shrink-0"
+          v-html="icons.AdjustmentsHorizontalIcon"
+        />
         <Transition name="fade">
           <span v-if="!isCollapsed">Settings</span>
         </Transition>
@@ -295,7 +313,10 @@ function getCategoryIcon(category: ServiceCategoryInfo): string {
           isRouteActive('/logs') && 'bg-gray-100 dark:bg-gray-700'
         ]"
       >
-        <div class="w-5 h-5 flex-shrink-0" v-html="icons.ClipboardDocumentListIcon" />
+        <div
+          class="w-5 h-5 flex-shrink-0"
+          v-html="icons.ClipboardDocumentListIcon"
+        />
         <Transition name="fade">
           <span v-if="!isCollapsed">Logs</span>
         </Transition>
@@ -304,13 +325,13 @@ function getCategoryIcon(category: ServiceCategoryInfo): string {
 
     <!-- Collapse Toggle -->
     <button
-      @click="emit('toggle')"
       :class="[
         'absolute -right-3 top-20 w-6 h-6 rounded-full border border-gray-300 dark:border-gray-600',
         'bg-white dark:bg-gray-800 shadow-sm flex items-center justify-center',
         'text-gray-400 hover:text-gray-600 dark:hover:text-gray-300',
         'transition-colors'
       ]"
+      @click="emit('toggle')"
     >
       <div
         :class="[
@@ -334,31 +355,40 @@ function getCategoryIcon(category: ServiceCategoryInfo): string {
     <div class="flex-shrink-0 flex items-center justify-between h-16 px-4 border-b border-gray-200 dark:border-gray-700">
       <div class="flex items-center gap-3">
         <div class="w-8 h-8 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center">
-          <div class="w-5 h-5 text-white" v-html="icons.CloudIcon" />
+          <div
+            class="w-5 h-5 text-white"
+            v-html="icons.CloudIcon"
+          />
         </div>
         <span class="text-xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-blue-400 dark:to-indigo-400 bg-clip-text text-transparent">
           MyDevStack
         </span>
       </div>
       <button
-        @click="emit('closeMobile')"
         class="p-2 rounded-lg text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-700"
+        @click="emit('closeMobile')"
       >
-        <div class="w-5 h-5" v-html="icons.XMarkIcon" />
+        <div
+          class="w-5 h-5"
+          v-html="icons.XMarkIcon"
+        />
       </button>
     </div>
 
     <!-- Navigation -->
     <nav class="flex-1 overflow-y-auto py-4 px-2 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600">
       <div class="space-y-1">
-        <template v-for="category in SERVICE_CATEGORIES" :key="category.id">
+        <template
+          v-for="category in SERVICE_CATEGORIES"
+          :key="category.id"
+        >
           <!-- Category Header -->
           <button
-            @click="toggleCategory(category.id)"
             :class="[
               'w-full flex items-center justify-between px-3 py-2 text-sm font-medium rounded-lg transition-colors',
               'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700'
             ]"
+            @click="toggleCategory(category.id)"
           >
             <div class="flex items-center gap-3">
               <div
@@ -386,13 +416,13 @@ function getCategoryIcon(category: ServiceCategoryInfo): string {
                 v-for="service in servicesByCategory.get(category.id)"
                 :key="service.id"
                 :to="service.route"
-                @click="emit('closeMobile')"
                 :class="[
                   'flex items-center gap-3 px-3 py-2 text-sm rounded-lg transition-all',
                   isRouteActive(service.route)
                     ? 'bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 font-medium'
                     : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700'
                 ]"
+                @click="emit('closeMobile')"
               >
                 <div
                   :class="[
@@ -416,28 +446,34 @@ function getCategoryIcon(category: ServiceCategoryInfo): string {
       <!-- Settings -->
       <RouterLink
         to="/settings"
-        @click="emit('closeMobile')"
         :class="[
           'flex items-center gap-3 px-4 py-3 text-sm transition-colors',
           'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700',
           isRouteActive('/settings') && 'bg-gray-100 dark:bg-gray-700'
         ]"
+        @click="emit('closeMobile')"
       >
-        <div class="w-5 h-5 flex-shrink-0" v-html="icons.AdjustmentsHorizontalIcon" />
+        <div
+          class="w-5 h-5 flex-shrink-0"
+          v-html="icons.AdjustmentsHorizontalIcon"
+        />
         <span>Settings</span>
       </RouterLink>
 
       <!-- Logs -->
       <RouterLink
         to="/logs"
-        @click="emit('closeMobile')"
         :class="[
           'flex items-center gap-3 px-3 py-2 text-sm rounded-lg transition-colors',
           'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700',
           isRouteActive('/logs') && 'bg-gray-100 dark:bg-gray-700'
         ]"
+        @click="emit('closeMobile')"
       >
-        <div class="w-5 h-5 flex-shrink-0" v-html="icons.ClipboardDocumentListIcon" />
+        <div
+          class="w-5 h-5 flex-shrink-0"
+          v-html="icons.ClipboardDocumentListIcon"
+        />
         <span>Logs</span>
       </RouterLink>
     </div>

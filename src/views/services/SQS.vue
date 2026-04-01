@@ -368,51 +368,104 @@ onMounted(() => {
   <div class="p-6">
     <div class="flex items-center justify-between mb-6">
       <div>
-        <h1 class="text-2xl font-bold" :class="settingsStore.darkMode ? 'text-white' : 'text-gray-900'">
+        <h1
+          class="text-2xl font-bold"
+          :class="settingsStore.darkMode ? 'text-white' : 'text-gray-900'"
+        >
           SQS Queues
         </h1>
-        <p class="text-sm mt-1" :class="settingsStore.darkMode ? 'text-gray-400' : 'text-gray-600'">
+        <p
+          class="text-sm mt-1"
+          :class="settingsStore.darkMode ? 'text-gray-400' : 'text-gray-600'"
+        >
           {{ queues.length }} queue(s) found
         </p>
       </div>
       <div class="flex gap-2">
-        <button @click="createQueue" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+        <button
+          class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+          @click="createQueue"
+        >
           + Create Queue
         </button>
-        <button @click="loadQueues" class="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600">
+        <button
+          class="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600"
+          @click="loadQueues"
+        >
           ↻ Refresh
         </button>
       </div>
     </div>
 
-    <div v-if="error" class="mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg">
+    <div
+      v-if="error"
+      class="mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg"
+    >
       {{ error }}
     </div>
 
-    <div v-if="loading" class="text-center py-12">
-      <div class="inline-block animate-spin rounded-full h-8 w-8 border-4 border-blue-600 border-t-transparent"></div>
-      <p class="mt-2" :class="settingsStore.darkMode ? 'text-gray-400' : 'text-gray-600'">Loading...</p>
+    <div
+      v-if="loading"
+      class="text-center py-12"
+    >
+      <div class="inline-block animate-spin rounded-full h-8 w-8 border-4 border-blue-600 border-t-transparent" />
+      <p
+        class="mt-2"
+        :class="settingsStore.darkMode ? 'text-gray-400' : 'text-gray-600'"
+      >
+        Loading...
+      </p>
     </div>
 
     <div v-if="!loading">
-      <div v-if="queues.length === 0" class="text-center py-12">
-        <p class="text-lg" :class="settingsStore.darkMode ? 'text-gray-400' : 'text-gray-600'">
+      <div
+        v-if="queues.length === 0"
+        class="text-center py-12"
+      >
+        <p
+          class="text-lg"
+          :class="settingsStore.darkMode ? 'text-gray-400' : 'text-gray-600'"
+        >
           No queues found. Create one to get started!
         </p>
       </div>
       
-      <div v-else class="space-y-4">
-        <div v-for="queue in queues" :key="queue.url" class="p-4 rounded-lg border" :class="settingsStore.darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'">
+      <div
+        v-else
+        class="space-y-4"
+      >
+        <div
+          v-for="queue in queues"
+          :key="queue.url"
+          class="p-4 rounded-lg border"
+          :class="settingsStore.darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'"
+        >
           <div class="flex items-center justify-between">
             <div>
-              <h3 class="font-semibold text-lg" :class="settingsStore.darkMode ? 'text-white' : 'text-gray-900'">📬 {{ queue.name }}</h3>
-              <p class="text-sm mt-1" :class="settingsStore.darkMode ? 'text-gray-400' : 'text-gray-500'">{{ queue.url }}</p>
+              <h3
+                class="font-semibold text-lg"
+                :class="settingsStore.darkMode ? 'text-white' : 'text-gray-900'"
+              >
+                📬 {{ queue.name }}
+              </h3>
+              <p
+                class="text-sm mt-1"
+                :class="settingsStore.darkMode ? 'text-gray-400' : 'text-gray-500'"
+              >
+                {{ queue.url }}
+              </p>
             </div>
             <div class="flex gap-2">
-              <button @click="viewQueue(queue.url, queue.name)" class="px-3 py-1 text-blue-500 hover:text-blue-700 border border-blue-500 rounded hover:bg-blue-50">
+              <button
+                class="px-3 py-1 text-blue-500 hover:text-blue-700 border border-blue-500 rounded hover:bg-blue-50"
+                @click="viewQueue(queue.url, queue.name)"
+              >
                 View
               </button>
-              <button @click="deleteQueue(queue.url)" class="px-3 py-1 text-red-500 hover:text-red-700 border border-red-500 rounded hover:bg-red-50">
+              <button
+                class="px-3 py-1 text-red-500 hover:text-red-700 border border-red-500 rounded hover:bg-red-50"
+                @click="deleteQueue(queue.url)"
+              >
                 Delete
               </button>
             </div>
@@ -430,40 +483,75 @@ onMounted(() => {
       @close="closeViewModal"
     >
       <!-- Loading state -->
-      <div v-if="viewLoading" class="text-center py-8">
-        <div class="inline-block animate-spin rounded-full h-8 w-8 border-4 border-blue-600 border-t-transparent"></div>
-        <p class="mt-2" :class="settingsStore.darkMode ? 'text-gray-400' : 'text-gray-600'">Loading queue attributes...</p>
+      <div
+        v-if="viewLoading"
+        class="text-center py-8"
+      >
+        <div class="inline-block animate-spin rounded-full h-8 w-8 border-4 border-blue-600 border-t-transparent" />
+        <p
+          class="mt-2"
+          :class="settingsStore.darkMode ? 'text-gray-400' : 'text-gray-600'"
+        >
+          Loading queue attributes...
+        </p>
       </div>
 
       <!-- Error state -->
-      <div v-else-if="viewError" class="p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg">
+      <div
+        v-else-if="viewError"
+        class="p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg"
+      >
         {{ viewError }}
       </div>
 
       <!-- Queue URL -->
-      <div v-else class="space-y-4">
-        <div class="p-4 rounded-lg" :class="settingsStore.darkMode ? 'bg-dark-bg' : 'bg-gray-50'">
-          <label class="block text-sm font-medium mb-1" :class="settingsStore.darkMode ? 'text-dark-muted' : 'text-gray-500'">
+      <div
+        v-else
+        class="space-y-4"
+      >
+        <div
+          class="p-4 rounded-lg"
+          :class="settingsStore.darkMode ? 'bg-dark-bg' : 'bg-gray-50'"
+        >
+          <label
+            class="block text-sm font-medium mb-1"
+            :class="settingsStore.darkMode ? 'text-dark-muted' : 'text-gray-500'"
+          >
             Queue URL
           </label>
-          <code class="text-sm font-mono break-all" :class="settingsStore.darkMode ? 'text-dark-text' : 'text-gray-900'">
+          <code
+            class="text-sm font-mono break-all"
+            :class="settingsStore.darkMode ? 'text-dark-text' : 'text-gray-900'"
+          >
             {{ viewQueueUrl }}
           </code>
         </div>
 
         <!-- Attributes Table -->
         <div v-if="viewAttributes.length > 0">
-          <h3 class="text-sm font-medium mb-3" :class="settingsStore.darkMode ? 'text-dark-text' : 'text-gray-900'">
+          <h3
+            class="text-sm font-medium mb-3"
+            :class="settingsStore.darkMode ? 'text-dark-text' : 'text-gray-900'"
+          >
             Queue Attributes
           </h3>
-          <div class="rounded-lg border overflow-hidden" :class="settingsStore.darkMode ? 'border-dark-border' : 'border-gray-200'">
+          <div
+            class="rounded-lg border overflow-hidden"
+            :class="settingsStore.darkMode ? 'border-dark-border' : 'border-gray-200'"
+          >
             <table class="w-full text-sm">
               <thead :class="settingsStore.darkMode ? 'bg-dark-bg' : 'bg-gray-50'">
                 <tr>
-                  <th class="px-4 py-3 text-left font-medium" :class="settingsStore.darkMode ? 'text-dark-text' : 'text-gray-700'">
+                  <th
+                    class="px-4 py-3 text-left font-medium"
+                    :class="settingsStore.darkMode ? 'text-dark-text' : 'text-gray-700'"
+                  >
                     Attribute
                   </th>
-                  <th class="px-4 py-3 text-left font-medium" :class="settingsStore.darkMode ? 'text-dark-text' : 'text-gray-700'">
+                  <th
+                    class="px-4 py-3 text-left font-medium"
+                    :class="settingsStore.darkMode ? 'text-dark-text' : 'text-gray-700'"
+                  >
                     Value
                   </th>
                 </tr>
@@ -475,10 +563,16 @@ onMounted(() => {
                   class="border-t"
                   :class="settingsStore.darkMode ? 'border-dark-border' : 'border-gray-200'"
                 >
-                  <td class="px-4 py-3 font-medium" :class="settingsStore.darkMode ? 'text-dark-text' : 'text-gray-900'">
+                  <td
+                    class="px-4 py-3 font-medium"
+                    :class="settingsStore.darkMode ? 'text-dark-text' : 'text-gray-900'"
+                  >
                     {{ attributeLabels[attr.name] || attr.name }}
                   </td>
-                  <td class="px-4 py-3" :class="settingsStore.darkMode ? 'text-dark-muted' : 'text-gray-600'">
+                  <td
+                    class="px-4 py-3"
+                    :class="settingsStore.darkMode ? 'text-dark-muted' : 'text-gray-600'"
+                  >
                     {{ attr.value }}
                   </td>
                 </tr>
@@ -487,7 +581,10 @@ onMounted(() => {
           </div>
         </div>
 
-        <div v-else class="text-center py-8">
+        <div
+          v-else
+          class="text-center py-8"
+        >
           <p :class="settingsStore.darkMode ? 'text-dark-muted' : 'text-gray-500'">
             No attributes found for this queue.
           </p>
@@ -496,8 +593,8 @@ onMounted(() => {
 
       <template #footer>
         <button
-          @click="closeViewModal"
           class="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600"
+          @click="closeViewModal"
         >
           Close
         </button>
@@ -506,27 +603,39 @@ onMounted(() => {
 
     <!-- Usage Examples Section -->
     <div class="mt-8">
-      <h2 class="text-lg font-semibold mb-4" :class="settingsStore.darkMode ? 'text-white' : 'text-gray-900'">
+      <h2
+        class="text-lg font-semibold mb-4"
+        :class="settingsStore.darkMode ? 'text-white' : 'text-gray-900'"
+      >
         Usage Examples
       </h2>
-      <div class="rounded-lg border overflow-hidden" :class="settingsStore.darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'">
-        <div class="flex border-b" :class="settingsStore.darkMode ? 'border-gray-700' : 'border-gray-200'">
+      <div
+        class="rounded-lg border overflow-hidden"
+        :class="settingsStore.darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'"
+      >
+        <div
+          class="flex border-b"
+          :class="settingsStore.darkMode ? 'border-gray-700' : 'border-gray-200'"
+        >
           <button
             v-for="(example, index) in codeExamples"
             :key="example.language"
-            @click="selectedExample = index"
             class="px-4 py-2 text-sm font-medium transition-colors"
             :class="[
               selectedExample === index
                 ? settingsStore.darkMode ? 'bg-gray-700 text-white' : 'bg-gray-100 text-gray-900'
                 : settingsStore.darkMode ? 'text-gray-400 hover:text-white hover:bg-gray-700' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
             ]"
+            @click="selectedExample = index"
           >
             {{ example.label }}
           </button>
         </div>
         <div class="p-4 overflow-x-auto">
-          <pre class="text-sm font-mono" :class="settingsStore.darkMode ? 'text-gray-300' : 'text-gray-700'">{{ codeExamples[selectedExample].code }}</pre>
+          <pre
+            class="text-sm font-mono"
+            :class="settingsStore.darkMode ? 'text-gray-300' : 'text-gray-700'"
+          >{{ codeExamples[selectedExample].code }}</pre>
         </div>
       </div>
     </div>

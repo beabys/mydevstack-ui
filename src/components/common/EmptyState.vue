@@ -80,7 +80,10 @@ function handleAction() {
         iconSize,
       ]"
     >
-      <component :is="IconComponent" class="h-full w-full" />
+      <component
+        :is="IconComponent"
+        class="h-full w-full"
+      />
     </div>
 
     <!-- Content -->
@@ -100,7 +103,10 @@ function handleAction() {
       </p>
 
       <!-- Default Action Slot -->
-      <div v-if="$slots.action" class="mt-4">
+      <div
+        v-if="$slots.action"
+        class="mt-4"
+      >
         <slot name="action" />
       </div>
 

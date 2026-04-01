@@ -266,13 +266,26 @@ onMounted(() => {
 <template>
   <div class="space-y-6">
     <div class="flex items-center justify-between">
-      <h2 class="text-xl font-semibold" :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'">
+      <h2
+        class="text-xl font-semibold"
+        :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'"
+      >
         Step Functions
       </h2>
       <Button @click="showCreateModal = true">
         <template #icon>
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+          <svg
+            class="w-4 h-4"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M12 4v16m8-8H4"
+            />
           </svg>
         </template>
         Create State Machine
@@ -299,9 +312,24 @@ onMounted(() => {
       >
         <template #cell-name="{ value }">
           <div class="flex items-center gap-2">
-            <svg class="w-5 h-5 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            <svg
+              class="w-5 h-5 text-purple-500"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"
+              />
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+              />
             </svg>
             <span class="font-medium">{{ value }}</span>
           </div>
@@ -348,8 +376,18 @@ onMounted(() => {
               title="Delete"
               @click="deleteMachine(row)"
             >
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+              <svg
+                class="w-4 h-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                />
               </svg>
             </button>
           </div>
@@ -358,8 +396,14 @@ onMounted(() => {
     </div>
 
     <!-- Executions Section -->
-    <div v-if="selectedMachine && executions.length > 0" class="mt-6">
-      <h4 class="text-md font-medium mb-4" :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'">
+    <div
+      v-if="selectedMachine && executions.length > 0"
+      class="mt-6"
+    >
+      <h4
+        class="text-md font-medium mb-4"
+        :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'"
+      >
         Executions: {{ selectedMachine.name }}
       </h4>
       
@@ -426,7 +470,10 @@ onMounted(() => {
           required
         />
         <div>
-          <label class="block text-sm font-medium mb-1" :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'">
+          <label
+            class="block text-sm font-medium mb-1"
+            :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'"
+          >
             Definition (JSON) <span class="text-red-500">*</span>
           </label>
           <textarea
@@ -436,15 +483,28 @@ onMounted(() => {
             :placeholder="defaultDefinition"
             required
           />
-          <p class="mt-1 text-xs" :class="settingsStore.darkMode ? 'text-dark-muted' : 'text-light-muted'">
+          <p
+            class="mt-1 text-xs"
+            :class="settingsStore.darkMode ? 'text-dark-muted' : 'text-light-muted'"
+          >
             Use the default template or provide your own JSON state machine definition.
           </p>
         </div>
       </div>
       <template #footer>
         <div class="flex justify-end gap-2">
-          <Button variant="secondary" @click="showCreateModal = false">Cancel</Button>
-          <Button :loading="creating" @click="createStateMachine">Create</Button>
+          <Button
+            variant="secondary"
+            @click="showCreateModal = false"
+          >
+            Cancel
+          </Button>
+          <Button
+            :loading="creating"
+            @click="createStateMachine"
+          >
+            Create
+          </Button>
         </div>
       </template>
     </Modal>
@@ -455,19 +515,30 @@ onMounted(() => {
       title="State Machine Definition"
       size="lg"
     >
-      <div v-if="loadingDefinition" class="flex justify-center py-8">
+      <div
+        v-if="loadingDefinition"
+        class="flex justify-center py-8"
+      >
         <LoadingSpinner />
       </div>
       <JsonViewer
         v-else-if="machineDefinition"
         :data="JSON.parse(machineDefinition)"
       />
-      <p v-else :class="settingsStore.darkMode ? 'text-dark-muted' : 'text-light-muted'">
+      <p
+        v-else
+        :class="settingsStore.darkMode ? 'text-dark-muted' : 'text-light-muted'"
+      >
         No definition available.
       </p>
       <template #footer>
         <div class="flex justify-end gap-2">
-          <Button variant="secondary" @click="showDefinitionModal = false">Close</Button>
+          <Button
+            variant="secondary"
+            @click="showDefinitionModal = false"
+          >
+            Close
+          </Button>
         </div>
       </template>
     </Modal>
@@ -483,21 +554,34 @@ onMounted(() => {
           State Machine: {{ selectedMachine?.name }}
         </p>
         <div>
-          <label class="block text-sm font-medium mb-1" :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'">
+          <label
+            class="block text-sm font-medium mb-1"
+            :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'"
+          >
             Execution Input (JSON)
           </label>
           <textarea
             v-model="executionInput"
             class="w-full h-40 px-3 py-2 rounded-lg border bg-light-surface dark:bg-dark-surface border-light-border dark:border-dark-border focus:ring-2 focus:ring-primary-500 focus:border-transparent font-mono text-sm"
             :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'"
-            placeholder='{"key": "value"}'
+            placeholder="{&quot;key&quot;: &quot;value&quot;}"
           />
         </div>
       </div>
       <template #footer>
         <div class="flex justify-end gap-2">
-          <Button variant="secondary" @click="showExecutionModal = false">Cancel</Button>
-          <Button :loading="startingExecution" @click="startExecution">Start</Button>
+          <Button
+            variant="secondary"
+            @click="showExecutionModal = false"
+          >
+            Cancel
+          </Button>
+          <Button
+            :loading="startingExecution"
+            @click="startExecution"
+          >
+            Start
+          </Button>
         </div>
       </template>
     </Modal>
@@ -508,7 +592,10 @@ onMounted(() => {
       title="Execution History"
       size="xl"
     >
-      <div v-if="loadingHistory" class="flex justify-center py-8">
+      <div
+        v-if="loadingHistory"
+        class="flex justify-center py-8"
+      >
         <LoadingSpinner />
       </div>
       
@@ -538,7 +625,12 @@ onMounted(() => {
       </DataTable>
       <template #footer>
         <div class="flex justify-end gap-2">
-          <Button variant="secondary" @click="showHistoryModal = false">Close</Button>
+          <Button
+            variant="secondary"
+            @click="showHistoryModal = false"
+          >
+            Close
+          </Button>
         </div>
       </template>
     </Modal>

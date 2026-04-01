@@ -58,7 +58,10 @@ const inputClasses = computed(() => [
       class="block text-sm font-medium text-light-text dark:text-dark-text mb-1.5"
     >
       {{ label }}
-      <span v-if="required" class="text-red-500 ml-0.5">*</span>
+      <span
+        v-if="required"
+        class="text-red-500 ml-0.5"
+      >*</span>
     </label>
 
     <!-- Input Wrapper -->
@@ -73,7 +76,7 @@ const inputClasses = computed(() => [
         :class="inputClasses"
         v-bind="attrs"
         @input="handleInput"
-      />
+      >
 
       <!-- Error Icon -->
       <div
@@ -85,12 +88,18 @@ const inputClasses = computed(() => [
     </div>
 
     <!-- Error Message -->
-    <p v-if="error" class="mt-1.5 text-sm text-red-500 dark:text-red-400">
+    <p
+      v-if="error"
+      class="mt-1.5 text-sm text-red-500 dark:text-red-400"
+    >
       {{ error }}
     </p>
 
     <!-- Help Text -->
-    <p v-else-if="helpText" class="mt-1.5 text-sm text-light-muted dark:text-dark-muted">
+    <p
+      v-else-if="helpText"
+      class="mt-1.5 text-sm text-light-muted dark:text-dark-muted"
+    >
       {{ helpText }}
     </p>
   </div>

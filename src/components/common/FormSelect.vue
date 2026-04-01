@@ -46,7 +46,7 @@ const selectClasses = computed(() => [
   'text-light-text dark:text-dark-text',
   'bg-light-surface dark:bg-dark-surface',
   'border',
-  error
+  error.value
     ? 'border-red-500 dark:border-red-500 focus:border-red-500 focus:ring-red-500'
     : 'border-light-border dark:border-dark-border focus:border-primary-500 focus:ring-primary-500',
   'focus:ring-1 focus:outline-none',
@@ -65,7 +65,10 @@ const error = computed(() => props.error)
       class="block text-sm font-medium text-light-text dark:text-dark-text mb-1.5"
     >
       {{ label }}
-      <span v-if="required" class="text-red-500 ml-0.5">*</span>
+      <span
+        v-if="required"
+        class="text-red-500 ml-0.5"
+      >*</span>
     </label>
 
     <!-- Select Wrapper -->
@@ -80,7 +83,11 @@ const error = computed(() => props.error)
         @change="handleChange"
       >
         <!-- Placeholder Option -->
-        <option value="" disabled :selected="!modelValue">
+        <option
+          value=""
+          disabled
+          :selected="!modelValue"
+        >
           {{ placeholder }}
         </option>
 
@@ -110,12 +117,18 @@ const error = computed(() => props.error)
     </div>
 
     <!-- Error Message -->
-    <p v-if="error" class="mt-1.5 text-sm text-red-500 dark:text-red-400">
+    <p
+      v-if="error"
+      class="mt-1.5 text-sm text-red-500 dark:text-red-400"
+    >
       {{ error }}
     </p>
 
     <!-- Help Text -->
-    <p v-else-if="helpText" class="mt-1.5 text-sm text-light-muted dark:text-dark-muted">
+    <p
+      v-else-if="helpText"
+      class="mt-1.5 text-sm text-light-muted dark:text-dark-muted"
+    >
       {{ helpText }}
     </p>
   </div>

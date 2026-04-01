@@ -205,11 +205,22 @@ function cancelEndpointEdit(): void {
       <div class="flex items-center gap-4">
         <!-- Mobile Menu Toggle -->
         <button
-          @click="emit('toggle-mobile-sidebar')"
           class="lg:hidden p-2 rounded-lg text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+          @click="emit('toggle-mobile-sidebar')"
         >
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke-width="1.5"
+            stroke="currentColor"
+            class="w-5 h-5"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"
+            />
           </svg>
         </button>
 
@@ -223,22 +234,33 @@ function cancelEndpointEdit(): void {
       <div class="hidden md:block flex-1 max-w-xl mx-4">
         <div class="relative search-container">
           <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 text-gray-400">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke-width="1.5"
+              stroke="currentColor"
+              class="w-5 h-5 text-gray-400"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"
+              />
             </svg>
           </div>
           <input
             v-model="searchQuery"
             type="text"
             placeholder="Search services..."
-            @focus="isSearchFocused = true"
             :class="[
               'w-full pl-10 pr-4 py-2 bg-gray-100 dark:bg-gray-700 border-0 rounded-lg',
               'text-sm text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400',
               'focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:outline-none',
               'transition-all duration-200'
             ]"
-          />
+            @focus="isSearchFocused = true"
+          >
 
           <!-- Search Results Dropdown -->
           <Transition name="dropdown">
@@ -251,12 +273,23 @@ function cancelEndpointEdit(): void {
                   v-for="result in searchResults"
                   :key="result.id"
                   :to="result.route"
-                  @click="searchQuery = ''; showSearchResults = false"
                   class="flex items-center gap-3 px-4 py-2 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                  @click="searchQuery = ''; showSearchResults = false"
                 >
                   <div class="w-8 h-8 bg-gray-100 dark:bg-gray-700 rounded-lg flex items-center justify-center text-gray-500 dark:text-gray-400">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
-                      <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke-width="1.5"
+                      stroke="currentColor"
+                      class="w-4 h-4"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        d="M4.5 12.75l6 6 9-13.5"
+                      />
                     </svg>
                   </div>
                   <div class="flex-1 min-w-0">
@@ -279,15 +312,26 @@ function cancelEndpointEdit(): void {
         <!-- Endpoint Display/Edit -->
         <div class="hidden lg:block relative endpoint-container">
           <button
-            @click="showEndpointDropdown = !showEndpointDropdown"
             :class="[
               'flex items-center gap-2 px-3 py-1.5 text-sm rounded-lg border transition-colors',
               'bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600',
               'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600'
             ]"
+            @click="showEndpointDropdown = !showEndpointDropdown"
           >
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M13.19 8.688a4.5 4.5 0 011.242 7.244l-4.5 4.5a4.5 4.5 0 01-6.364-6.364l1.757-1.757m13.35-.622l1.757-1.757a4.5 4.5 0 00-6.364-6.364l-4.5 4.5a4.5 4.5 0 001.242 7.244" />
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke-width="1.5"
+              stroke="currentColor"
+              class="w-4 h-4"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M13.19 8.688a4.5 4.5 0 011.242 7.244l-4.5 4.5a4.5 4.5 0 01-6.364-6.364l1.757-1.757m13.35-.622l1.757-1.757a4.5 4.5 0 00-6.364-6.364l-4.5 4.5a4.5 4.5 0 001.242 7.244"
+              />
             </svg>
             <span class="max-w-[150px] truncate">
               {{ endpoint || 'No endpoint' }}
@@ -312,29 +356,32 @@ function cancelEndpointEdit(): void {
                   class="w-full px-3 py-2 bg-gray-100 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:outline-none"
                   @keyup.enter="saveEndpoint"
                   @keyup.escape="cancelEndpointEdit"
-                />
-                <p v-else class="text-sm text-gray-500 dark:text-gray-400 mb-3">
+                >
+                <p
+                  v-else
+                  class="text-sm text-gray-500 dark:text-gray-400 mb-3"
+                >
                   {{ endpoint || 'No endpoint configured' }}
                 </p>
                 <div class="flex gap-2">
                   <template v-if="showEndpointInput">
                     <button
-                      @click="saveEndpoint"
                       class="flex-1 px-3 py-1.5 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors"
+                      @click="saveEndpoint"
                     >
                       Save
                     </button>
                     <button
-                      @click="cancelEndpointEdit"
                       class="px-3 py-1.5 text-sm font-medium text-gray-600 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition-colors"
+                      @click="cancelEndpointEdit"
                     >
                       Cancel
                     </button>
                   </template>
                   <template v-else>
                     <button
-                      @click="showEndpointInput = true; endpointInput = endpoint || ''"
                       class="flex-1 px-3 py-1.5 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors"
+                      @click="showEndpointInput = true; endpointInput = endpoint || ''"
                     >
                       {{ endpoint ? 'Edit' : 'Set Endpoint' }}
                     </button>
@@ -366,34 +413,69 @@ function cancelEndpointEdit(): void {
 
         <!-- Theme Toggle -->
         <button
-          @click="emit('toggle-theme')"
           :class="[
             'p-2 rounded-lg transition-colors',
             'text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-700'
           ]"
           :title="isDark ? 'Switch to light mode' : 'Switch to dark mode'"
+          @click="emit('toggle-theme')"
         >
           <!-- Sun icon (shown in dark mode) -->
-          <svg v-if="isDark" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v2.25m6.364.386l-1.591 1.591M21 12h-2.25m-.386 6.364l-1.591-1.591M12 18.75V21m-4.773-4.227l-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z" />
+          <svg
+            v-if="isDark"
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke-width="1.5"
+            stroke="currentColor"
+            class="w-5 h-5"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M12 3v2.25m6.364.386l-1.591 1.591M21 12h-2.25m-.386 6.364l-1.591-1.591M12 18.75V21m-4.773-4.227l-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z"
+            />
           </svg>
           <!-- Moon icon (shown in light mode) -->
-          <svg v-else xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z" />
+          <svg
+            v-else
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke-width="1.5"
+            stroke="currentColor"
+            class="w-5 h-5"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z"
+            />
           </svg>
         </button>
 
         <!-- Notifications -->
         <div class="relative notifications-container">
           <button
-            @click="showNotifications = !showNotifications"
             :class="[
               'relative p-2 rounded-lg transition-colors',
               'text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-700'
             ]"
+            @click="showNotifications = !showNotifications"
           >
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0" />
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke-width="1.5"
+              stroke="currentColor"
+              class="w-5 h-5"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0"
+              />
             </svg>
             <!-- Unread Badge -->
             <span
@@ -417,15 +499,15 @@ function cancelEndpointEdit(): void {
                 <div class="flex gap-2">
                   <button
                     v-if="notifications.length > 0"
-                    @click="markAllAsRead"
                     class="text-xs text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
+                    @click="markAllAsRead"
                   >
                     Mark all read
                   </button>
                   <button
                     v-if="notifications.length > 0"
-                    @click="clearAll"
                     class="text-xs text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
+                    @click="clearAll"
                   >
                     Clear all
                   </button>
@@ -434,11 +516,27 @@ function cancelEndpointEdit(): void {
 
               <!-- Notifications List -->
               <div class="max-h-96 overflow-y-auto">
-                <div v-if="notifications.length === 0" class="py-8 text-center">
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-8 h-8 mx-auto text-gray-400 mb-2">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0" />
+                <div
+                  v-if="notifications.length === 0"
+                  class="py-8 text-center"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke-width="1.5"
+                    stroke="currentColor"
+                    class="w-8 h-8 mx-auto text-gray-400 mb-2"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0"
+                    />
                   </svg>
-                  <p class="text-sm text-gray-500 dark:text-gray-400">No notifications</p>
+                  <p class="text-sm text-gray-500 dark:text-gray-400">
+                    No notifications
+                  </p>
                 </div>
 
                 <div

@@ -986,53 +986,109 @@ onMounted(() => {
   <div class="p-6">
     <div class="flex items-center justify-between mb-6">
       <div>
-        <h1 class="text-2xl font-bold" :class="settingsStore.darkMode ? 'text-white' : 'text-gray-900'">
+        <h1
+          class="text-2xl font-bold"
+          :class="settingsStore.darkMode ? 'text-white' : 'text-gray-900'"
+        >
           DynamoDB Tables
         </h1>
-        <p class="text-sm mt-1" :class="settingsStore.darkMode ? 'text-gray-400' : 'text-gray-600'">
+        <p
+          class="text-sm mt-1"
+          :class="settingsStore.darkMode ? 'text-gray-400' : 'text-gray-600'"
+        >
           {{ tables.length }} table(s) found
         </p>
       </div>
       <div class="flex gap-2">
-        <button @click="openCreateModal" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+        <button
+          class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+          @click="openCreateModal"
+        >
           + Create Table
         </button>
-        <button @click="loadTables" class="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600">
+        <button
+          class="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600"
+          @click="loadTables"
+        >
           ↻ Refresh
         </button>
       </div>
     </div>
 
-    <div v-if="error" class="mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg">
+    <div
+      v-if="error"
+      class="mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg"
+    >
       {{ error }}
     </div>
 
-    <div v-if="loading" class="text-center py-12">
-      <div class="inline-block animate-spin rounded-full h-8 w-8 border-4 border-blue-600 border-t-transparent"></div>
-      <p class="mt-2" :class="settingsStore.darkMode ? 'text-gray-400' : 'text-gray-600'">Loading...</p>
+    <div
+      v-if="loading"
+      class="text-center py-12"
+    >
+      <div class="inline-block animate-spin rounded-full h-8 w-8 border-4 border-blue-600 border-t-transparent" />
+      <p
+        class="mt-2"
+        :class="settingsStore.darkMode ? 'text-gray-400' : 'text-gray-600'"
+      >
+        Loading...
+      </p>
     </div>
 
     <div v-if="!loading">
-      <div v-if="tables.length === 0" class="text-center py-12">
-        <p class="text-lg" :class="settingsStore.darkMode ? 'text-gray-400' : 'text-gray-600'">
+      <div
+        v-if="tables.length === 0"
+        class="text-center py-12"
+      >
+        <p
+          class="text-lg"
+          :class="settingsStore.darkMode ? 'text-gray-400' : 'text-gray-600'"
+        >
           No DynamoDB tables found. Create one to get started!
         </p>
       </div>
-      <div v-else class="space-y-4">
-        <div v-for="table in tables" :key="table" class="p-4 rounded-lg border" :class="settingsStore.darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'">
+      <div
+        v-else
+        class="space-y-4"
+      >
+        <div
+          v-for="table in tables"
+          :key="table"
+          class="p-4 rounded-lg border"
+          :class="settingsStore.darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'"
+        >
           <div class="flex items-center justify-between">
             <div class="flex-1 min-w-0">
-              <h3 class="font-semibold text-lg" :class="settingsStore.darkMode ? 'text-white' : 'text-gray-900'">🗄️ {{ table }}</h3>
-              <p class="text-sm mt-1 truncate" :class="settingsStore.darkMode ? 'text-gray-400' : 'text-gray-500'">{{ table }}</p>
+              <h3
+                class="font-semibold text-lg"
+                :class="settingsStore.darkMode ? 'text-white' : 'text-gray-900'"
+              >
+                🗄️ {{ table }}
+              </h3>
+              <p
+                class="text-sm mt-1 truncate"
+                :class="settingsStore.darkMode ? 'text-gray-400' : 'text-gray-500'"
+              >
+                {{ table }}
+              </p>
             </div>
             <div class="flex gap-2 ml-4">
-              <button @click="exploreTable(table)" class="px-3 py-1 text-green-500 hover:text-green-700 border border-green-500 rounded hover:bg-green-50">
+              <button
+                class="px-3 py-1 text-green-500 hover:text-green-700 border border-green-500 rounded hover:bg-green-50"
+                @click="exploreTable(table)"
+              >
                 Explore Data
               </button>
-              <button @click="viewTable(table)" class="px-3 py-1 text-blue-500 hover:text-blue-700 border border-blue-500 rounded hover:bg-blue-50">
+              <button
+                class="px-3 py-1 text-blue-500 hover:text-blue-700 border border-blue-500 rounded hover:bg-blue-50"
+                @click="viewTable(table)"
+              >
                 Details
               </button>
-              <button @click="confirmDelete(table)" class="px-3 py-1 text-red-500 hover:text-red-700 border border-red-500 rounded hover:bg-red-50">
+              <button
+                class="px-3 py-1 text-red-500 hover:text-red-700 border border-red-500 rounded hover:bg-red-50"
+                @click="confirmDelete(table)"
+              >
                 Delete
               </button>
             </div>
@@ -1043,73 +1099,96 @@ onMounted(() => {
 
     <!-- Example Code Section -->
     <div class="mt-8">
-      <h2 class="text-lg font-semibold mb-4" :class="settingsStore.darkMode ? 'text-white' : 'text-gray-900'">
+      <h2
+        class="text-lg font-semibold mb-4"
+        :class="settingsStore.darkMode ? 'text-white' : 'text-gray-900'"
+      >
         Usage Examples
       </h2>
       
       <!-- Example Type Tabs -->
       <div class="flex gap-4 mb-4">
         <button
-          @click="exampleType = 'table'; selectedExample = 0"
           class="px-4 py-2 text-sm font-medium rounded-lg transition-colors"
           :class="exampleType === 'table'
             ? 'bg-blue-600 text-white'
             : settingsStore.darkMode ? 'bg-gray-700 text-gray-300 hover:bg-gray-600' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'"
+          @click="exampleType = 'table'; selectedExample = 0"
         >
           Table Operations
         </button>
         <button
-          @click="exampleType = 'stream'; selectedExample = 0"
           class="px-4 py-2 text-sm font-medium rounded-lg transition-colors"
           :class="exampleType === 'stream'
             ? 'bg-blue-600 text-white'
             : settingsStore.darkMode ? 'bg-gray-700 text-gray-300 hover:bg-gray-600' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'"
+          @click="exampleType = 'stream'; selectedExample = 0"
         >
           DynamoDB Streams
         </button>
       </div>
       
       <!-- Table Operations Examples -->
-      <div v-if="exampleType === 'table'" class="rounded-lg border overflow-hidden" :class="settingsStore.darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'">
-        <div class="flex border-b overflow-x-auto" :class="settingsStore.darkMode ? 'border-gray-700' : 'border-gray-200'">
+      <div
+        v-if="exampleType === 'table'"
+        class="rounded-lg border overflow-hidden"
+        :class="settingsStore.darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'"
+      >
+        <div
+          class="flex border-b overflow-x-auto"
+          :class="settingsStore.darkMode ? 'border-gray-700' : 'border-gray-200'"
+        >
           <button
             v-for="(example, index) in codeExamples"
             :key="example.language"
-            @click="selectedExample = index"
             class="px-4 py-2 text-sm font-medium transition-colors whitespace-nowrap"
             :class="[
               selectedExample === index
                 ? settingsStore.darkMode ? 'bg-gray-700 text-white' : 'bg-gray-100 text-gray-900'
                 : settingsStore.darkMode ? 'text-gray-400 hover:text-white hover:bg-gray-700' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
             ]"
+            @click="selectedExample = index"
           >
             {{ example.label }}
           </button>
         </div>
         <div class="p-4 overflow-x-auto">
-          <pre class="text-sm font-mono" :class="settingsStore.darkMode ? 'text-gray-300' : 'text-gray-700'">{{ codeExamples[selectedExample]?.code || '' }}</pre>
+          <pre
+            class="text-sm font-mono"
+            :class="settingsStore.darkMode ? 'text-gray-300' : 'text-gray-700'"
+          >{{ codeExamples[selectedExample]?.code || '' }}</pre>
         </div>
       </div>
       
       <!-- DynamoDB Streams Examples -->
-      <div v-if="exampleType === 'stream'" class="rounded-lg border overflow-hidden" :class="settingsStore.darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'">
-        <div class="flex border-b overflow-x-auto" :class="settingsStore.darkMode ? 'border-gray-700' : 'border-gray-200'">
+      <div
+        v-if="exampleType === 'stream'"
+        class="rounded-lg border overflow-hidden"
+        :class="settingsStore.darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'"
+      >
+        <div
+          class="flex border-b overflow-x-auto"
+          :class="settingsStore.darkMode ? 'border-gray-700' : 'border-gray-200'"
+        >
           <button
             v-for="(example, index) in streamExamples"
             :key="example.language"
-            @click="selectedExample = index"
             class="px-4 py-2 text-sm font-medium transition-colors whitespace-nowrap"
             :class="[
               selectedExample === index
                 ? settingsStore.darkMode ? 'bg-gray-700 text-white' : 'bg-gray-100 text-gray-900'
                 : settingsStore.darkMode ? 'text-gray-400 hover:text-white hover:bg-gray-700' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
             ]"
+            @click="selectedExample = index"
           >
             {{ example.label }}
           </button>
         </div>
         <div class="p-4 overflow-x-auto">
-          <pre class="text-sm font-mono" :class="settingsStore.darkMode ? 'text-gray-300' : 'text-gray-700'">{{ streamExamples[selectedExample]?.code || '' }}</pre>
+          <pre
+            class="text-sm font-mono"
+            :class="settingsStore.darkMode ? 'text-gray-300' : 'text-gray-700'"
+          >{{ streamExamples[selectedExample]?.code || '' }}</pre>
         </div>
       </div>
     </div>
@@ -1126,7 +1205,10 @@ onMounted(() => {
     <div class="space-y-6">
       <!-- Table Name -->
       <div>
-        <label class="block text-sm font-medium mb-1" :class="settingsStore.darkMode ? 'text-gray-300' : 'text-gray-700'">
+        <label
+          class="block text-sm font-medium mb-1"
+          :class="settingsStore.darkMode ? 'text-gray-300' : 'text-gray-700'"
+        >
           Table Name *
         </label>
         <input
@@ -1135,17 +1217,26 @@ onMounted(() => {
           placeholder="my-table"
           class="w-full px-3 py-2 rounded-lg border"
           :class="settingsStore.darkMode ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300'"
-        />
+        >
       </div>
 
       <!-- Partition Key -->
-      <div class="p-4 rounded-lg" :class="settingsStore.darkMode ? 'bg-gray-700' : 'bg-gray-50'">
-        <h4 class="text-sm font-medium mb-3" :class="settingsStore.darkMode ? 'text-gray-300' : 'text-gray-700'">
+      <div
+        class="p-4 rounded-lg"
+        :class="settingsStore.darkMode ? 'bg-gray-700' : 'bg-gray-50'"
+      >
+        <h4
+          class="text-sm font-medium mb-3"
+          :class="settingsStore.darkMode ? 'text-gray-300' : 'text-gray-700'"
+        >
           Partition Key (Required)
         </h4>
         <div class="grid grid-cols-2 gap-4">
           <div>
-            <label class="block text-xs mb-1" :class="settingsStore.darkMode ? 'text-gray-400' : 'text-gray-500'">
+            <label
+              class="block text-xs mb-1"
+              :class="settingsStore.darkMode ? 'text-gray-400' : 'text-gray-500'"
+            >
               Attribute Name
             </label>
             <input
@@ -1154,10 +1245,13 @@ onMounted(() => {
               placeholder="pk"
               class="w-full px-3 py-2 rounded-lg border text-sm"
               :class="settingsStore.darkMode ? 'bg-gray-600 border-gray-500 text-white' : 'bg-white border-gray-300'"
-            />
+            >
           </div>
           <div>
-            <label class="block text-xs mb-1" :class="settingsStore.darkMode ? 'text-gray-400' : 'text-gray-500'">
+            <label
+              class="block text-xs mb-1"
+              :class="settingsStore.darkMode ? 'text-gray-400' : 'text-gray-500'"
+            >
               Type
             </label>
             <select
@@ -1165,18 +1259,30 @@ onMounted(() => {
               class="w-full px-3 py-2 rounded-lg border text-sm"
               :class="settingsStore.darkMode ? 'bg-gray-600 border-gray-500 text-white' : 'bg-white border-gray-300'"
             >
-              <option value="S">String</option>
-              <option value="N">Number</option>
-              <option value="B">Binary</option>
+              <option value="S">
+                String
+              </option>
+              <option value="N">
+                Number
+              </option>
+              <option value="B">
+                Binary
+              </option>
             </select>
           </div>
         </div>
       </div>
 
       <!-- Sort Key -->
-      <div class="p-4 rounded-lg" :class="settingsStore.darkMode ? 'bg-gray-700' : 'bg-gray-50'">
+      <div
+        class="p-4 rounded-lg"
+        :class="settingsStore.darkMode ? 'bg-gray-700' : 'bg-gray-50'"
+      >
         <div class="flex items-center justify-between mb-3">
-          <h4 class="text-sm font-medium" :class="settingsStore.darkMode ? 'text-gray-300' : 'text-gray-700'">
+          <h4
+            class="text-sm font-medium"
+            :class="settingsStore.darkMode ? 'text-gray-300' : 'text-gray-700'"
+          >
             Sort Key (Optional)
           </h4>
           <label class="flex items-center gap-2 text-sm">
@@ -1184,13 +1290,19 @@ onMounted(() => {
               v-model="hasSortKey"
               type="checkbox"
               class="rounded border-gray-300"
-            />
+            >
             <span :class="settingsStore.darkMode ? 'text-gray-400' : 'text-gray-600'">Enable</span>
           </label>
         </div>
-        <div v-if="hasSortKey" class="grid grid-cols-2 gap-4">
+        <div
+          v-if="hasSortKey"
+          class="grid grid-cols-2 gap-4"
+        >
           <div>
-            <label class="block text-xs mb-1" :class="settingsStore.darkMode ? 'text-gray-400' : 'text-gray-500'">
+            <label
+              class="block text-xs mb-1"
+              :class="settingsStore.darkMode ? 'text-gray-400' : 'text-gray-500'"
+            >
               Attribute Name
             </label>
             <input
@@ -1199,10 +1311,13 @@ onMounted(() => {
               placeholder="sk"
               class="w-full px-3 py-2 rounded-lg border text-sm"
               :class="settingsStore.darkMode ? 'bg-gray-600 border-gray-500 text-white' : 'bg-white border-gray-300'"
-            />
+            >
           </div>
           <div>
-            <label class="block text-xs mb-1" :class="settingsStore.darkMode ? 'text-gray-400' : 'text-gray-500'">
+            <label
+              class="block text-xs mb-1"
+              :class="settingsStore.darkMode ? 'text-gray-400' : 'text-gray-500'"
+            >
               Type
             </label>
             <select
@@ -1210,9 +1325,15 @@ onMounted(() => {
               class="w-full px-3 py-2 rounded-lg border text-sm"
               :class="settingsStore.darkMode ? 'bg-gray-600 border-gray-500 text-white' : 'bg-white border-gray-300'"
             >
-              <option value="S">String</option>
-              <option value="N">Number</option>
-              <option value="B">Binary</option>
+              <option value="S">
+                String
+              </option>
+              <option value="N">
+                Number
+              </option>
+              <option value="B">
+                Binary
+              </option>
             </select>
           </div>
         </div>
@@ -1220,7 +1341,10 @@ onMounted(() => {
 
       <!-- Billing Mode -->
       <div>
-        <label class="block text-sm font-medium mb-2" :class="settingsStore.darkMode ? 'text-gray-300' : 'text-gray-700'">
+        <label
+          class="block text-sm font-medium mb-2"
+          :class="settingsStore.darkMode ? 'text-gray-300' : 'text-gray-700'"
+        >
           Billing Mode
         </label>
         <div class="flex gap-4">
@@ -1230,8 +1354,11 @@ onMounted(() => {
               type="radio"
               value="PAY_PER_REQUEST"
               class="border-gray-300"
-            />
-            <span class="text-sm" :class="settingsStore.darkMode ? 'text-gray-300' : 'text-gray-700'">On-Demand</span>
+            >
+            <span
+              class="text-sm"
+              :class="settingsStore.darkMode ? 'text-gray-300' : 'text-gray-700'"
+            >On-Demand</span>
           </label>
           <label class="flex items-center gap-2">
             <input
@@ -1239,16 +1366,25 @@ onMounted(() => {
               type="radio"
               value="PROVISIONED"
               class="border-gray-300"
-            />
-            <span class="text-sm" :class="settingsStore.darkMode ? 'text-gray-300' : 'text-gray-700'">Provisioned</span>
+            >
+            <span
+              class="text-sm"
+              :class="settingsStore.darkMode ? 'text-gray-300' : 'text-gray-700'"
+            >Provisioned</span>
           </label>
         </div>
       </div>
 
       <!-- Provisioned Throughput (if PROVISIONED) -->
-      <div v-if="billingMode === 'PROVISIONED'" class="grid grid-cols-2 gap-4">
+      <div
+        v-if="billingMode === 'PROVISIONED'"
+        class="grid grid-cols-2 gap-4"
+      >
         <div>
-          <label class="block text-xs mb-1" :class="settingsStore.darkMode ? 'text-gray-400' : 'text-gray-500'">
+          <label
+            class="block text-xs mb-1"
+            :class="settingsStore.darkMode ? 'text-gray-400' : 'text-gray-500'"
+          >
             Read Capacity Units
           </label>
           <input
@@ -1257,10 +1393,13 @@ onMounted(() => {
             min="1"
             class="w-full px-3 py-2 rounded-lg border text-sm"
             :class="settingsStore.darkMode ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300'"
-          />
+          >
         </div>
         <div>
-          <label class="block text-xs mb-1" :class="settingsStore.darkMode ? 'text-gray-400' : 'text-gray-500'">
+          <label
+            class="block text-xs mb-1"
+            :class="settingsStore.darkMode ? 'text-gray-400' : 'text-gray-500'"
+          >
             Write Capacity Units
           </label>
           <input
@@ -1269,18 +1408,27 @@ onMounted(() => {
             min="1"
             class="w-full px-3 py-2 rounded-lg border text-sm"
             :class="settingsStore.darkMode ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300'"
-          />
+          >
         </div>
       </div>
 
       <!-- Stream Settings -->
-      <div class="p-4 rounded-lg border" :class="settingsStore.darkMode ? 'bg-gray-700 border-gray-600' : 'bg-gray-50 border-gray-200'">
+      <div
+        class="p-4 rounded-lg border"
+        :class="settingsStore.darkMode ? 'bg-gray-700 border-gray-600' : 'bg-gray-50 border-gray-200'"
+      >
         <div class="flex items-center justify-between mb-3">
           <div>
-            <h4 class="text-sm font-medium" :class="settingsStore.darkMode ? 'text-gray-300' : 'text-gray-700'">
+            <h4
+              class="text-sm font-medium"
+              :class="settingsStore.darkMode ? 'text-gray-300' : 'text-gray-700'"
+            >
               DynamoDB Streams
             </h4>
-            <p class="text-xs mt-1" :class="settingsStore.darkMode ? 'text-gray-400' : 'text-gray-500'">
+            <p
+              class="text-xs mt-1"
+              :class="settingsStore.darkMode ? 'text-gray-400' : 'text-gray-500'"
+            >
               Capture item-level changes in your table
             </p>
           </div>
@@ -1289,13 +1437,22 @@ onMounted(() => {
               v-model="enableStreams"
               type="checkbox"
               class="rounded border-gray-300"
-            />
-            <span class="text-sm" :class="settingsStore.darkMode ? 'text-gray-300' : 'text-gray-700'">Enable</span>
+            >
+            <span
+              class="text-sm"
+              :class="settingsStore.darkMode ? 'text-gray-300' : 'text-gray-700'"
+            >Enable</span>
           </label>
         </div>
         
-        <div v-if="enableStreams" class="mt-3">
-          <label class="block text-xs mb-1" :class="settingsStore.darkMode ? 'text-gray-400' : 'text-gray-500'">
+        <div
+          v-if="enableStreams"
+          class="mt-3"
+        >
+          <label
+            class="block text-xs mb-1"
+            :class="settingsStore.darkMode ? 'text-gray-400' : 'text-gray-500'"
+          >
             Stream View Type
           </label>
           <select
@@ -1303,10 +1460,18 @@ onMounted(() => {
             class="w-full px-3 py-2 rounded-lg border text-sm"
             :class="settingsStore.darkMode ? 'bg-gray-600 border-gray-500 text-white' : 'bg-white border-gray-300'"
           >
-            <option value="KEYS_ONLY">Keys Only - Only the key attributes of the modified item</option>
-            <option value="NEW_IMAGE">New Image - The entire item as it appears after modification</option>
-            <option value="OLD_IMAGE">Old Image - The entire item as it appeared before modification</option>
-            <option value="NEW_AND_OLD_IMAGES">New and Old Images - Both the new and old item images</option>
+            <option value="KEYS_ONLY">
+              Keys Only - Only the key attributes of the modified item
+            </option>
+            <option value="NEW_IMAGE">
+              New Image - The entire item as it appears after modification
+            </option>
+            <option value="OLD_IMAGE">
+              Old Image - The entire item as it appeared before modification
+            </option>
+            <option value="NEW_AND_OLD_IMAGES">
+              New and Old Images - Both the new and old item images
+            </option>
           </select>
         </div>
       </div>
@@ -1314,15 +1479,15 @@ onMounted(() => {
     
     <template #footer>
       <button
-        @click="showCreateModal = false"
         class="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 mr-2"
+        @click="showCreateModal = false"
       >
         Cancel
       </button>
       <button
-        @click="createTable"
         :disabled="!newTableName.trim() || !partitionKeyName.trim() || creating"
         class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
+        @click="createTable"
       >
         {{ creating ? 'Creating...' : 'Create Table' }}
       </button>
@@ -1338,18 +1503,32 @@ onMounted(() => {
     @close="showViewModal = false"
   >
     <!-- Loading -->
-    <div v-if="tableLoading" class="text-center py-8">
-      <div class="inline-block animate-spin rounded-full h-8 w-8 border-4 border-blue-600 border-t-transparent"></div>
-      <p class="mt-2" :class="settingsStore.darkMode ? 'text-gray-400' : 'text-gray-600'">Loading table details...</p>
+    <div
+      v-if="tableLoading"
+      class="text-center py-8"
+    >
+      <div class="inline-block animate-spin rounded-full h-8 w-8 border-4 border-blue-600 border-t-transparent" />
+      <p
+        class="mt-2"
+        :class="settingsStore.darkMode ? 'text-gray-400' : 'text-gray-600'"
+      >
+        Loading table details...
+      </p>
     </div>
 
     <!-- Error -->
-    <div v-else-if="tableError" class="p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg">
+    <div
+      v-else-if="tableError"
+      class="p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg"
+    >
       {{ tableError }}
     </div>
 
     <!-- Table Details -->
-    <div v-else-if="tableDetails" class="space-y-4">
+    <div
+      v-else-if="tableDetails"
+      class="space-y-4"
+    >
       <!-- Status Badge -->
       <div class="flex items-center gap-2">
         <span
@@ -1362,14 +1541,20 @@ onMounted(() => {
         >
           {{ tableDetails.TableStatus }}
         </span>
-        <span class="text-sm" :class="settingsStore.darkMode ? 'text-gray-400' : 'text-gray-500'">
+        <span
+          class="text-sm"
+          :class="settingsStore.darkMode ? 'text-gray-400' : 'text-gray-500'"
+        >
           {{ getBillingModeLabel(tableDetails.BillingModeSummary?.BillingMode || 'PROVISIONED') }}
         </span>
       </div>
 
       <!-- Key Schema -->
       <div>
-        <h4 class="text-sm font-medium mb-2" :class="settingsStore.darkMode ? 'text-gray-300' : 'text-gray-700'">
+        <h4
+          class="text-sm font-medium mb-2"
+          :class="settingsStore.darkMode ? 'text-gray-300' : 'text-gray-700'"
+        >
           Key Schema
         </h4>
         <div class="space-y-2">
@@ -1390,10 +1575,16 @@ onMounted(() => {
               {{ key.KeyType }}
             </span>
             <div>
-              <span class="font-medium" :class="settingsStore.darkMode ? 'text-white' : 'text-gray-900'">
+              <span
+                class="font-medium"
+                :class="settingsStore.darkMode ? 'text-white' : 'text-gray-900'"
+              >
                 {{ key.AttributeName }}
               </span>
-              <span class="text-sm ml-2" :class="settingsStore.darkMode ? 'text-gray-400' : 'text-gray-500'">
+              <span
+                class="text-sm ml-2"
+                :class="settingsStore.darkMode ? 'text-gray-400' : 'text-gray-500'"
+              >
                 ({{ getKeyTypeLabel(tableDetails.AttributeDefinitions.find((a: any) => a.AttributeName === key.AttributeName)?.AttributeType || 'S') }})
               </span>
             </div>
@@ -1403,15 +1594,28 @@ onMounted(() => {
 
       <!-- Attribute Definitions -->
       <div>
-        <h4 class="text-sm font-medium mb-2" :class="settingsStore.darkMode ? 'text-gray-300' : 'text-gray-700'">
+        <h4
+          class="text-sm font-medium mb-2"
+          :class="settingsStore.darkMode ? 'text-gray-300' : 'text-gray-700'"
+        >
           Attribute Definitions
         </h4>
         <div class="overflow-x-auto">
           <table class="w-full text-sm">
             <thead>
               <tr :class="settingsStore.darkMode ? 'border-gray-700' : 'border-gray-200'">
-                <th class="px-3 py-2 text-left font-medium" :class="settingsStore.darkMode ? 'text-gray-400' : 'text-gray-500'">Attribute</th>
-                <th class="px-3 py-2 text-left font-medium" :class="settingsStore.darkMode ? 'text-gray-400' : 'text-gray-500'">Type</th>
+                <th
+                  class="px-3 py-2 text-left font-medium"
+                  :class="settingsStore.darkMode ? 'text-gray-400' : 'text-gray-500'"
+                >
+                  Attribute
+                </th>
+                <th
+                  class="px-3 py-2 text-left font-medium"
+                  :class="settingsStore.darkMode ? 'text-gray-400' : 'text-gray-500'"
+                >
+                  Type
+                </th>
               </tr>
             </thead>
             <tbody>
@@ -1420,10 +1624,16 @@ onMounted(() => {
                 :key="attr.AttributeName"
                 :class="settingsStore.darkMode ? 'border-gray-700' : 'border-gray-200'"
               >
-                <td class="px-3 py-2" :class="settingsStore.darkMode ? 'text-white' : 'text-gray-900'">
+                <td
+                  class="px-3 py-2"
+                  :class="settingsStore.darkMode ? 'text-white' : 'text-gray-900'"
+                >
                   {{ attr.AttributeName }}
                 </td>
-                <td class="px-3 py-2" :class="settingsStore.darkMode ? 'text-gray-400' : 'text-gray-500'">
+                <td
+                  class="px-3 py-2"
+                  :class="settingsStore.darkMode ? 'text-gray-400' : 'text-gray-500'"
+                >
                   {{ getKeyTypeLabel(attr.AttributeType) }}
                 </td>
               </tr>
@@ -1434,19 +1644,40 @@ onMounted(() => {
 
       <!-- Provisioned Throughput (if applicable) -->
       <div v-if="tableDetails.ProvisionedThroughput">
-        <h4 class="text-sm font-medium mb-2" :class="settingsStore.darkMode ? 'text-gray-300' : 'text-gray-700'">
+        <h4
+          class="text-sm font-medium mb-2"
+          :class="settingsStore.darkMode ? 'text-gray-300' : 'text-gray-700'"
+        >
           Provisioned Throughput
         </h4>
         <div class="grid grid-cols-2 gap-4">
-          <div class="p-3 rounded-lg" :class="settingsStore.darkMode ? 'bg-gray-700' : 'bg-gray-50'">
-            <span class="text-xs" :class="settingsStore.darkMode ? 'text-gray-400' : 'text-gray-500'">Read Capacity</span>
-            <p class="font-medium" :class="settingsStore.darkMode ? 'text-white' : 'text-gray-900'">
+          <div
+            class="p-3 rounded-lg"
+            :class="settingsStore.darkMode ? 'bg-gray-700' : 'bg-gray-50'"
+          >
+            <span
+              class="text-xs"
+              :class="settingsStore.darkMode ? 'text-gray-400' : 'text-gray-500'"
+            >Read Capacity</span>
+            <p
+              class="font-medium"
+              :class="settingsStore.darkMode ? 'text-white' : 'text-gray-900'"
+            >
               {{ tableDetails.ProvisionedThroughput.ReadCapacityUnits }}
             </p>
           </div>
-          <div class="p-3 rounded-lg" :class="settingsStore.darkMode ? 'bg-gray-700' : 'bg-gray-50'">
-            <span class="text-xs" :class="settingsStore.darkMode ? 'text-gray-400' : 'text-gray-500'">Write Capacity</span>
-            <p class="font-medium" :class="settingsStore.darkMode ? 'text-white' : 'text-gray-900'">
+          <div
+            class="p-3 rounded-lg"
+            :class="settingsStore.darkMode ? 'bg-gray-700' : 'bg-gray-50'"
+          >
+            <span
+              class="text-xs"
+              :class="settingsStore.darkMode ? 'text-gray-400' : 'text-gray-500'"
+            >Write Capacity</span>
+            <p
+              class="font-medium"
+              :class="settingsStore.darkMode ? 'text-white' : 'text-gray-900'"
+            >
               {{ tableDetails.ProvisionedThroughput.WriteCapacityUnits }}
             </p>
           </div>
@@ -1457,20 +1688,29 @@ onMounted(() => {
       <div class="grid grid-cols-2 gap-4 text-sm">
         <div>
           <span :class="settingsStore.darkMode ? 'text-gray-400' : 'text-gray-500'">Item Count:</span>
-          <span class="ml-2 font-medium" :class="settingsStore.darkMode ? 'text-white' : 'text-gray-900'">
+          <span
+            class="ml-2 font-medium"
+            :class="settingsStore.darkMode ? 'text-white' : 'text-gray-900'"
+          >
             {{ tableDetails.ItemCount || 0 }}
           </span>
         </div>
         <div>
           <span :class="settingsStore.darkMode ? 'text-gray-400' : 'text-gray-500'">Table Size:</span>
-          <span class="ml-2 font-medium" :class="settingsStore.darkMode ? 'text-white' : 'text-gray-900'">
+          <span
+            class="ml-2 font-medium"
+            :class="settingsStore.darkMode ? 'text-white' : 'text-gray-900'"
+          >
             {{ tableDetails.TableSizeBytes ? (tableDetails.TableSizeBytes / 1024).toFixed(2) + ' KB' : '0 KB' }}
           </span>
         </div>
       </div>
 
       <!-- Stream Specification -->
-      <div v-if="tableDetails.StreamSpecification?.StreamEnabled" class="p-4 rounded-lg border border-blue-200 dark:border-blue-800 bg-blue-50 dark:bg-blue-900/20">
+      <div
+        v-if="tableDetails.StreamSpecification?.StreamEnabled"
+        class="p-4 rounded-lg border border-blue-200 dark:border-blue-800 bg-blue-50 dark:bg-blue-900/20"
+      >
         <div class="flex items-center justify-between">
           <div>
             <h4 class="text-sm font-medium text-blue-800 dark:text-blue-300">
@@ -1481,20 +1721,29 @@ onMounted(() => {
             </p>
           </div>
           <button
-            @click="viewStreams(selectedTable.TableName)"
             class="px-3 py-1.5 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+            @click="viewStreams(selectedTable.TableName)"
           >
             View Streams
           </button>
         </div>
       </div>
-      <div v-else class="p-4 rounded-lg border border-gray-200 dark:border-gray-700">
+      <div
+        v-else
+        class="p-4 rounded-lg border border-gray-200 dark:border-gray-700"
+      >
         <div class="flex items-center justify-between">
           <div>
-            <h4 class="text-sm font-medium" :class="settingsStore.darkMode ? 'text-gray-300' : 'text-gray-700'">
+            <h4
+              class="text-sm font-medium"
+              :class="settingsStore.darkMode ? 'text-gray-300' : 'text-gray-700'"
+            >
               DynamoDB Streams
             </h4>
-            <p class="text-xs mt-1" :class="settingsStore.darkMode ? 'text-gray-400' : 'text-gray-500'">
+            <p
+              class="text-xs mt-1"
+              :class="settingsStore.darkMode ? 'text-gray-400' : 'text-gray-500'"
+            >
               Not enabled for this table
             </p>
           </div>
@@ -1504,8 +1753,8 @@ onMounted(() => {
     
     <template #footer>
       <button
-        @click="showViewModal = false"
         class="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600"
+        @click="showViewModal = false"
       >
         Close
       </button>
@@ -1521,46 +1770,59 @@ onMounted(() => {
     @close="showExploreModal = false"
   >
     <!-- Error -->
-    <div v-if="exploreError" class="mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg">
+    <div
+      v-if="exploreError"
+      class="mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg"
+    >
       {{ exploreError }}
     </div>
 
     <!-- Scan/Query Toggle -->
     <div class="flex items-center gap-4 mb-4">
-      <div class="flex rounded-lg overflow-hidden border" :class="settingsStore.darkMode ? 'border-gray-600' : 'border-gray-300'">
+      <div
+        class="flex rounded-lg overflow-hidden border"
+        :class="settingsStore.darkMode ? 'border-gray-600' : 'border-gray-300'"
+      >
         <button
-          @click="scanMode = 'scan'; lastEvaluatedKey = null; scanOrQueryTable(exploreTableName)"
           class="px-4 py-2 text-sm font-medium transition-colors"
           :class="scanMode === 'scan' 
             ? 'bg-blue-600 text-white' 
             : settingsStore.darkMode ? 'bg-gray-700 text-gray-300 hover:bg-gray-600' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'"
+          @click="scanMode = 'scan'; lastEvaluatedKey = null; scanOrQueryTable(exploreTableName)"
         >
           Scan All
         </button>
         <button
-          @click="scanMode = 'query'; lastEvaluatedKey = null"
           class="px-4 py-2 text-sm font-medium transition-colors"
           :class="scanMode === 'query' 
             ? 'bg-blue-600 text-white' 
             : settingsStore.darkMode ? 'bg-gray-700 text-gray-300 hover:bg-gray-600' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'"
+          @click="scanMode = 'query'; lastEvaluatedKey = null"
         >
           Query
         </button>
       </div>
       
       <button
-        @click="openPutItemModal"
         class="px-3 py-1.5 text-sm bg-green-600 text-white rounded-lg hover:bg-green-700"
+        @click="openPutItemModal"
       >
         + Add Item
       </button>
     </div>
 
     <!-- Query Filters -->
-      <div v-if="scanMode === 'query'" class="mb-4 p-4 rounded-lg" :class="settingsStore.darkMode ? 'bg-gray-700' : 'bg-gray-50'">
+    <div
+      v-if="scanMode === 'query'"
+      class="mb-4 p-4 rounded-lg"
+      :class="settingsStore.darkMode ? 'bg-gray-700' : 'bg-gray-50'"
+    >
       <div class="grid grid-cols-3 gap-4">
         <div>
-          <label class="block text-xs mb-1" :class="settingsStore.darkMode ? 'text-gray-400' : 'text-gray-500'">
+          <label
+            class="block text-xs mb-1"
+            :class="settingsStore.darkMode ? 'text-gray-400' : 'text-gray-500'"
+          >
             {{ explorePKName }} (Partition Key) *
           </label>
           <input
@@ -1569,10 +1831,13 @@ onMounted(() => {
             :placeholder="'Enter ' + explorePKName"
             class="w-full px-3 py-2 rounded-lg border text-sm"
             :class="settingsStore.darkMode ? 'bg-gray-600 border-gray-500 text-white' : 'bg-white border-gray-300'"
-          />
+          >
         </div>
         <div v-if="exploreSKName">
-          <label class="block text-xs mb-1" :class="settingsStore.darkMode ? 'text-gray-400' : 'text-gray-500'">
+          <label
+            class="block text-xs mb-1"
+            :class="settingsStore.darkMode ? 'text-gray-400' : 'text-gray-500'"
+          >
             Condition
           </label>
           <select
@@ -1580,16 +1845,31 @@ onMounted(() => {
             class="w-full px-3 py-2 rounded-lg border text-sm"
             :class="settingsStore.darkMode ? 'bg-gray-600 border-gray-500 text-white' : 'bg-white border-gray-300'"
           >
-            <option value="eq">= (equals)</option>
-            <option value="begins_with">begins_with</option>
-            <option value="lt">< (less than)</option>
-            <option value="lte"><= (less or equal)</option>
-            <option value="gt">> (greater than)</option>
-            <option value="gte">>= (greater or equal)</option>
+            <option value="eq">
+              = (equals)
+            </option>
+            <option value="begins_with">
+              begins_with
+            </option>
+            <option value="lt">
+              &lt; (less than)
+            </option>
+            <option value="lte">
+              &lt;= (less or equal)
+            </option>
+            <option value="gt">
+              > (greater than)
+            </option>
+            <option value="gte">
+              >= (greater or equal)
+            </option>
           </select>
         </div>
         <div v-if="exploreSKName">
-          <label class="block text-xs mb-1" :class="settingsStore.darkMode ? 'text-gray-400' : 'text-gray-500'">
+          <label
+            class="block text-xs mb-1"
+            :class="settingsStore.darkMode ? 'text-gray-400' : 'text-gray-500'"
+          >
             {{ exploreSKName }} (Sort Key)
           </label>
           <input
@@ -1598,34 +1878,57 @@ onMounted(() => {
             :placeholder="'Enter ' + exploreSKName"
             class="w-full px-3 py-2 rounded-lg border text-sm"
             :class="settingsStore.darkMode ? 'bg-gray-600 border-gray-500 text-white' : 'bg-white border-gray-300'"
-          />
+          >
         </div>
       </div>
       <button
-        @click="lastEvaluatedKey = null; scanOrQueryTable(exploreTableName, 'query')"
         class="mt-3 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm"
+        @click="lastEvaluatedKey = null; scanOrQueryTable(exploreTableName, 'query')"
       >
         Run Query
       </button>
     </div>
 
     <!-- Loading -->
-    <div v-if="exploreLoading" class="text-center py-8">
-      <div class="inline-block animate-spin rounded-full h-8 w-8 border-4 border-blue-600 border-t-transparent"></div>
-      <p class="mt-2" :class="settingsStore.darkMode ? 'text-gray-400' : 'text-gray-600'">Loading items...</p>
+    <div
+      v-if="exploreLoading"
+      class="text-center py-8"
+    >
+      <div class="inline-block animate-spin rounded-full h-8 w-8 border-4 border-blue-600 border-t-transparent" />
+      <p
+        class="mt-2"
+        :class="settingsStore.darkMode ? 'text-gray-400' : 'text-gray-600'"
+      >
+        Loading items...
+      </p>
     </div>
 
     <!-- Items Table -->
-    <div v-else class="space-y-4">
-      <div class="text-sm" :class="settingsStore.darkMode ? 'text-gray-400' : 'text-gray-500'">
+    <div
+      v-else
+      class="space-y-4"
+    >
+      <div
+        class="text-sm"
+        :class="settingsStore.darkMode ? 'text-gray-400' : 'text-gray-500'"
+      >
         {{ items.length }} item(s) found
       </div>
 
-      <div v-if="items.length === 0" class="text-center py-8">
-        <p class="text-gray-500">No items found in this table.</p>
+      <div
+        v-if="items.length === 0"
+        class="text-center py-8"
+      >
+        <p class="text-gray-500">
+          No items found in this table.
+        </p>
       </div>
 
-      <div v-else class="overflow-x-auto rounded-lg border" :class="settingsStore.darkMode ? 'border-gray-700' : 'border-gray-200'">
+      <div
+        v-else
+        class="overflow-x-auto rounded-lg border"
+        :class="settingsStore.darkMode ? 'border-gray-700' : 'border-gray-200'"
+      >
         <table class="w-full text-sm">
           <thead :class="settingsStore.darkMode ? 'bg-gray-700' : 'bg-gray-50'">
             <tr>
@@ -1650,7 +1953,10 @@ onMounted(() => {
                   </span>
                 </div>
               </th>
-              <th class="px-3 py-2 text-right font-medium" :class="settingsStore.darkMode ? 'text-gray-300' : 'text-gray-700'">
+              <th
+                class="px-3 py-2 text-right font-medium"
+                :class="settingsStore.darkMode ? 'text-gray-300' : 'text-gray-700'"
+              >
                 Actions
               </th>
             </tr>
@@ -1682,8 +1988,8 @@ onMounted(() => {
               </td>
               <td class="px-3 py-2 text-right">
                 <button
-                  @click="confirmDeleteItem(item)"
                   class="text-red-500 hover:text-red-700 text-sm"
+                  @click="confirmDeleteItem(item)"
                 >
                   Delete
                 </button>
@@ -1694,15 +2000,21 @@ onMounted(() => {
       </div>
 
       <!-- Load More -->
-      <div v-if="lastEvaluatedKey" class="text-center">
+      <div
+        v-if="lastEvaluatedKey"
+        class="text-center"
+      >
         <button
-          @click="loadMoreItems"
           :disabled="exploreLoading"
           class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
+          @click="loadMoreItems"
         >
           Load More
         </button>
-        <p class="text-xs mt-2" :class="settingsStore.darkMode ? 'text-gray-400' : 'text-gray-500'">
+        <p
+          class="text-xs mt-2"
+          :class="settingsStore.darkMode ? 'text-gray-400' : 'text-gray-500'"
+        >
           There are more items to load
         </p>
       </div>
@@ -1710,8 +2022,8 @@ onMounted(() => {
     
     <template #footer>
       <button
-        @click="showExploreModal = false"
         class="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600"
+        @click="showExploreModal = false"
       >
         Close
       </button>
@@ -1727,29 +2039,45 @@ onMounted(() => {
     @close="showPutItemModal = false"
   >
     <div class="space-y-4">
-      <div v-if="putItemError" class="p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg text-sm">
+      <div
+        v-if="putItemError"
+        class="p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg text-sm"
+      >
         {{ putItemError }}
       </div>
       
       <div>
-        <label class="block text-sm font-medium mb-1" :class="settingsStore.darkMode ? 'text-gray-300' : 'text-gray-700'">
+        <label
+          class="block text-sm font-medium mb-1"
+          :class="settingsStore.darkMode ? 'text-gray-300' : 'text-gray-700'"
+        >
           Item (DynamoDB JSON format)
         </label>
-        <p class="text-xs mb-2" :class="settingsStore.darkMode ? 'text-gray-400' : 'text-gray-500'">
+        <p
+          class="text-xs mb-2"
+          :class="settingsStore.darkMode ? 'text-gray-400' : 'text-gray-500'"
+        >
           Use DynamoDB attribute format: {"key": {"S": "value"}} or {"count": {"N": "42"}}
         </p>
         <textarea
           v-model="newItemJson"
           rows="12"
-          placeholder='{"pk": {"S": "user1"}, "name": {"S": "John"}, "age": {"N": "30"}}'
+          placeholder="{&quot;pk&quot;: {&quot;S&quot;: &quot;user1&quot;}, &quot;name&quot;: {&quot;S&quot;: &quot;John&quot;}, &quot;age&quot;: {&quot;N&quot;: &quot;30&quot;}}"
           class="w-full px-3 py-2 rounded-lg border font-mono text-sm"
           :class="settingsStore.darkMode ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300'"
-        ></textarea>
+        />
       </div>
 
       <!-- Key Info -->
-      <div v-if="exploreTableDetails" class="p-3 rounded-lg text-xs" :class="settingsStore.darkMode ? 'bg-gray-700' : 'bg-gray-50'">
-        <span class="font-medium" :class="settingsStore.darkMode ? 'text-gray-300' : 'text-gray-700'">Required Keys:</span>
+      <div
+        v-if="exploreTableDetails"
+        class="p-3 rounded-lg text-xs"
+        :class="settingsStore.darkMode ? 'bg-gray-700' : 'bg-gray-50'"
+      >
+        <span
+          class="font-medium"
+          :class="settingsStore.darkMode ? 'text-gray-300' : 'text-gray-700'"
+        >Required Keys:</span>
         <span :class="settingsStore.darkMode ? 'text-gray-400' : 'text-gray-500'">
           {{ exploreTableDetails.KeySchema?.map((k: any) => k.AttributeName).join(', ') }}
         </span>
@@ -1758,15 +2086,15 @@ onMounted(() => {
     
     <template #footer>
       <button
-        @click="showPutItemModal = false"
         class="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 mr-2"
+        @click="showPutItemModal = false"
       >
         Cancel
       </button>
       <button
-        @click="putItem"
         :disabled="putItemLoading"
         class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50"
+        @click="putItem"
       >
         {{ putItemLoading ? 'Adding...' : 'Add Item' }}
       </button>
@@ -1783,19 +2111,45 @@ onMounted(() => {
   >
     <div class="text-center py-4">
       <div class="w-12 h-12 mx-auto mb-4 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center">
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-red-600 dark:text-red-400">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke-width="1.5"
+          stroke="currentColor"
+          class="w-6 h-6 text-red-600 dark:text-red-400"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z"
+          />
         </svg>
       </div>
-      <p class="text-lg font-medium mb-2" :class="settingsStore.darkMode ? 'text-white' : 'text-gray-900'">
+      <p
+        class="text-lg font-medium mb-2"
+        :class="settingsStore.darkMode ? 'text-white' : 'text-gray-900'"
+      >
         Delete this item?
       </p>
-      <p class="text-sm" :class="settingsStore.darkMode ? 'text-gray-400' : 'text-gray-500'">
+      <p
+        class="text-sm"
+        :class="settingsStore.darkMode ? 'text-gray-400' : 'text-gray-500'"
+      >
         This action cannot be undone.
       </p>
       <!-- Show key values -->
-      <div v-if="itemToDelete" class="mt-3 p-2 rounded text-left" :class="settingsStore.darkMode ? 'bg-gray-700' : 'bg-gray-50'">
-        <p v-for="attr in exploreTableDetails?.KeySchema" :key="attr.AttributeName" class="text-xs font-mono" :class="settingsStore.darkMode ? 'text-gray-300' : 'text-gray-700'">
+      <div
+        v-if="itemToDelete"
+        class="mt-3 p-2 rounded text-left"
+        :class="settingsStore.darkMode ? 'bg-gray-700' : 'bg-gray-50'"
+      >
+        <p
+          v-for="attr in exploreTableDetails?.KeySchema"
+          :key="attr.AttributeName"
+          class="text-xs font-mono"
+          :class="settingsStore.darkMode ? 'text-gray-300' : 'text-gray-700'"
+        >
           {{ attr.AttributeName }}: {{ formatAttributeValue(itemToDelete[attr.AttributeName]) }}
         </p>
       </div>
@@ -1803,15 +2157,15 @@ onMounted(() => {
     
     <template #footer>
       <button
-        @click="showDeleteItemModal = false"
         class="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 mr-2"
+        @click="showDeleteItemModal = false"
       >
         Cancel
       </button>
       <button
-        @click="deleteItem"
         :disabled="deleteItemLoading"
         class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:opacity-50"
+        @click="deleteItem"
       >
         {{ deleteItemLoading ? 'Deleting...' : 'Delete Item' }}
       </button>
@@ -1828,29 +2182,46 @@ onMounted(() => {
   >
     <div class="text-center py-4">
       <div class="w-12 h-12 mx-auto mb-4 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center">
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-red-600 dark:text-red-400">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke-width="1.5"
+          stroke="currentColor"
+          class="w-6 h-6 text-red-600 dark:text-red-400"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z"
+          />
         </svg>
       </div>
-      <p class="text-lg font-medium mb-2" :class="settingsStore.darkMode ? 'text-white' : 'text-gray-900'">
+      <p
+        class="text-lg font-medium mb-2"
+        :class="settingsStore.darkMode ? 'text-white' : 'text-gray-900'"
+      >
         Delete "{{ tableToDelete }}"?
       </p>
-      <p class="text-sm" :class="settingsStore.darkMode ? 'text-gray-400' : 'text-gray-500'">
+      <p
+        class="text-sm"
+        :class="settingsStore.darkMode ? 'text-gray-400' : 'text-gray-500'"
+      >
         This will permanently delete the table and all its data. This action cannot be undone.
       </p>
     </div>
     
     <template #footer>
       <button
-        @click="showDeleteModal = false"
         class="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 mr-2"
+        @click="showDeleteModal = false"
       >
         Cancel
       </button>
       <button
-        @click="deleteTable"
         :disabled="deleting"
         class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:opacity-50"
+        @click="deleteTable"
       >
         {{ deleting ? 'Deleting...' : 'Delete Table' }}
       </button>
@@ -1864,48 +2235,87 @@ onMounted(() => {
     size="3xl"
   >
     <!-- Loading -->
-    <div v-if="streamLoading" class="flex justify-center py-8">
+    <div
+      v-if="streamLoading"
+      class="flex justify-center py-8"
+    >
       <LoadingSpinner />
     </div>
 
     <!-- Error -->
-    <div v-else-if="streamError && streams.length === 0" class="p-4 bg-yellow-100 border border-yellow-400 text-yellow-700 rounded-lg">
+    <div
+      v-else-if="streamError && streams.length === 0"
+      class="p-4 bg-yellow-100 border border-yellow-400 text-yellow-700 rounded-lg"
+    >
       {{ streamError }}
     </div>
 
     <!-- Stream Content -->
-    <div v-else class="space-y-4">
+    <div
+      v-else
+      class="space-y-4"
+    >
       <!-- Stream Info -->
-      <div class="p-4 rounded-lg" :class="settingsStore.darkMode ? 'bg-gray-700' : 'bg-gray-50'">
+      <div
+        class="p-4 rounded-lg"
+        :class="settingsStore.darkMode ? 'bg-gray-700' : 'bg-gray-50'"
+      >
         <div v-if="streams.length > 0">
           <div class="grid grid-cols-2 gap-4 text-sm">
             <div>
-              <span class="text-xs" :class="settingsStore.darkMode ? 'text-gray-400' : 'text-gray-500'">Stream ARN:</span>
-              <p class="font-mono text-xs mt-1 break-all" :class="settingsStore.darkMode ? 'text-white' : 'text-gray-900'">
+              <span
+                class="text-xs"
+                :class="settingsStore.darkMode ? 'text-gray-400' : 'text-gray-500'"
+              >Stream ARN:</span>
+              <p
+                class="font-mono text-xs mt-1 break-all"
+                :class="settingsStore.darkMode ? 'text-white' : 'text-gray-900'"
+              >
                 {{ streams[0]?.StreamArn }}
               </p>
             </div>
             <div>
-              <span class="text-xs" :class="settingsStore.darkMode ? 'text-gray-400' : 'text-gray-500'">Status:</span>
-              <p class="font-medium text-sm mt-1" :class="settingsStore.darkMode ? 'text-white' : 'text-gray-900'">
+              <span
+                class="text-xs"
+                :class="settingsStore.darkMode ? 'text-gray-400' : 'text-gray-500'"
+              >Status:</span>
+              <p
+                class="font-medium text-sm mt-1"
+                :class="settingsStore.darkMode ? 'text-white' : 'text-gray-900'"
+              >
                 {{ streams[0]?.StreamStatus }}
               </p>
             </div>
             <div>
-              <span class="text-xs" :class="settingsStore.darkMode ? 'text-gray-400' : 'text-gray-500'">View Type:</span>
-              <p class="font-medium text-sm mt-1" :class="settingsStore.darkMode ? 'text-white' : 'text-gray-900'">
+              <span
+                class="text-xs"
+                :class="settingsStore.darkMode ? 'text-gray-400' : 'text-gray-500'"
+              >View Type:</span>
+              <p
+                class="font-medium text-sm mt-1"
+                :class="settingsStore.darkMode ? 'text-white' : 'text-gray-900'"
+              >
                 {{ streams[0]?.StreamViewType?.replace(/_/g, ' ') }}
               </p>
             </div>
             <div>
-              <span class="text-xs" :class="settingsStore.darkMode ? 'text-gray-400' : 'text-gray-500'">Stream Label:</span>
-              <p class="font-mono text-xs mt-1" :class="settingsStore.darkMode ? 'text-white' : 'text-gray-900'">
+              <span
+                class="text-xs"
+                :class="settingsStore.darkMode ? 'text-gray-400' : 'text-gray-500'"
+              >Stream Label:</span>
+              <p
+                class="font-mono text-xs mt-1"
+                :class="settingsStore.darkMode ? 'text-white' : 'text-gray-900'"
+              >
                 {{ streams[0]?.StreamLabel }}
               </p>
             </div>
           </div>
         </div>
-        <div v-else class="text-center py-4">
+        <div
+          v-else
+          class="text-center py-4"
+        >
           <p :class="settingsStore.darkMode ? 'text-gray-400' : 'text-gray-500'">
             No streams available for this table
           </p>
@@ -1915,7 +2325,10 @@ onMounted(() => {
       <!-- Records Section -->
       <div v-if="selectedStream">
         <div class="flex items-center justify-between mb-3">
-          <h4 class="text-sm font-medium" :class="settingsStore.darkMode ? 'text-gray-300' : 'text-gray-700'">
+          <h4
+            class="text-sm font-medium"
+            :class="settingsStore.darkMode ? 'text-gray-300' : 'text-gray-700'"
+          >
             Stream Records
             <span class="ml-2 px-2 py-0.5 text-xs rounded-full bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300">
               {{ streamRecords.length }}
@@ -1923,16 +2336,19 @@ onMounted(() => {
           </h4>
           <button
             v-if="shardIterator"
-            @click="loadMoreRecords"
             :disabled="loadingRecords"
             class="px-3 py-1 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
+            @click="loadMoreRecords"
           >
             {{ loadingRecords ? 'Loading...' : 'Load More' }}
           </button>
         </div>
 
         <!-- Records List -->
-        <div v-if="streamRecords.length > 0" class="space-y-3 max-h-96 overflow-y-auto">
+        <div
+          v-if="streamRecords.length > 0"
+          class="space-y-3 max-h-96 overflow-y-auto"
+        >
           <div
             v-for="(record, index) in streamRecords"
             :key="index"
@@ -1940,10 +2356,16 @@ onMounted(() => {
             :class="settingsStore.darkMode ? 'bg-gray-700 border-gray-600' : 'bg-white border-gray-200'"
           >
             <div class="flex items-center justify-between mb-2">
-              <span class="px-2 py-0.5 text-xs font-medium rounded" :class="formatEventName(record.eventName)">
+              <span
+                class="px-2 py-0.5 text-xs font-medium rounded"
+                :class="formatEventName(record.eventName)"
+              >
                 {{ record.eventName }}
               </span>
-              <span class="text-xs" :class="settingsStore.darkMode ? 'text-gray-400' : 'text-gray-500'">
+              <span
+                class="text-xs"
+                :class="settingsStore.darkMode ? 'text-gray-400' : 'text-gray-500'"
+              >
                 {{ new Date(record.dynamodb?.ApproximateCreationDateTime * 1000).toLocaleString() }}
               </span>
             </div>
@@ -1953,7 +2375,10 @@ onMounted(() => {
             >{{ formatRecordData(record) }}</pre>
           </div>
         </div>
-        <div v-else class="text-center py-8">
+        <div
+          v-else
+          class="text-center py-8"
+        >
           <p :class="settingsStore.darkMode ? 'text-gray-400' : 'text-gray-500'">
             No records in stream yet. Make changes to items in the table to see stream events.
           </p>
@@ -1961,11 +2386,14 @@ onMounted(() => {
       </div>
 
       <!-- Select Stream Button -->
-      <div v-if="streams.length > 0 && !selectedStream" class="text-center py-4">
+      <div
+        v-if="streams.length > 0 && !selectedStream"
+        class="text-center py-4"
+      >
         <button
-          @click="selectStream(streams[0])"
           :disabled="streamLoading"
           class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
+          @click="selectStream(streams[0])"
         >
           View Stream Events
         </button>
@@ -1974,8 +2402,8 @@ onMounted(() => {
 
     <template #footer>
       <button
-        @click="showStreamModal = false"
         class="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600"
+        @click="showStreamModal = false"
       >
         Close
       </button>

@@ -398,10 +398,23 @@ onMounted(() => {
           </span>
         </div>
         <div class="flex items-center gap-2">
-          <Button variant="primary" @click="showCreateModal = true">
+          <Button
+            variant="primary"
+            @click="showCreateModal = true"
+          >
             <template #icon>
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+              <svg
+                class="w-4 h-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M12 4v16m8-8H4"
+                />
               </svg>
             </template>
             Create Function
@@ -414,33 +427,48 @@ onMounted(() => {
     <div class="flex-1 overflow-auto p-6">
       <!-- Usage Examples -->
       <div class="mb-6">
-        <h2 class="text-lg font-semibold mb-4" :class="settingsStore.darkMode ? 'text-white' : 'text-gray-900'">
+        <h2
+          class="text-lg font-semibold mb-4"
+          :class="settingsStore.darkMode ? 'text-white' : 'text-gray-900'"
+        >
           Usage Examples
         </h2>
-        <div class="rounded-lg border overflow-hidden" :class="settingsStore.darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'">
-          <div class="flex border-b" :class="settingsStore.darkMode ? 'border-gray-700' : 'border-gray-200'">
+        <div
+          class="rounded-lg border overflow-hidden"
+          :class="settingsStore.darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'"
+        >
+          <div
+            class="flex border-b"
+            :class="settingsStore.darkMode ? 'border-gray-700' : 'border-gray-200'"
+          >
             <button
               v-for="(example, index) in codeExamples"
               :key="example.language"
-              @click="selectedExample = index"
               class="px-4 py-2 text-sm font-medium transition-colors"
               :class="[
                 selectedExample === index
                   ? settingsStore.darkMode ? 'bg-gray-700 text-white' : 'bg-gray-100 text-gray-900'
                   : settingsStore.darkMode ? 'text-gray-400 hover:text-white hover:bg-gray-700' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
               ]"
+              @click="selectedExample = index"
             >
               {{ example.label }}
             </button>
           </div>
           <div class="p-4 overflow-x-auto">
-            <pre class="text-sm font-mono" :class="settingsStore.darkMode ? 'text-gray-300' : 'text-gray-700'">{{ codeExamples[selectedExample].code }}</pre>
+            <pre
+              class="text-sm font-mono"
+              :class="settingsStore.darkMode ? 'text-gray-300' : 'text-gray-700'"
+            >{{ codeExamples[selectedExample].code }}</pre>
           </div>
         </div>
       </div>
 
       <!-- Loading State -->
-      <div v-if="loading" class="flex items-center justify-center py-12">
+      <div
+        v-if="loading"
+        class="flex items-center justify-center py-12"
+      >
         <LoadingSpinner size="lg" />
       </div>
 
@@ -465,15 +493,28 @@ onMounted(() => {
       >
         <template #cell-FunctionName="{ value, row }">
           <div class="flex items-center gap-2">
-            <svg class="w-5 h-5 text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+            <svg
+              class="w-5 h-5 text-yellow-500"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M13 10V3L4 14h7v7l9-11h-7z"
+              />
             </svg>
             <span class="font-medium text-light-text dark:text-dark-text">{{ value }}</span>
           </div>
         </template>
 
         <template #cell-Runtime="{ value }">
-          <StatusBadge status="active" :label="value || '-'" />
+          <StatusBadge
+            status="active"
+            :label="value || '-'"
+          />
         </template>
 
         <template #cell-MemorySize="{ value }">
@@ -547,26 +588,26 @@ onMounted(() => {
             Memory: {{ createForm.memory }}MB
           </label>
           <input
-            type="range"
             v-model.number="createForm.memory"
+            type="range"
             min="128"
             max="1024"
             step="64"
             class="w-full"
-          />
+          >
         </div>
         <div>
           <label class="block text-sm font-medium text-light-text dark:text-dark-text mb-1.5">
             Timeout: {{ createForm.timeout }}s
           </label>
           <input
-            type="range"
             v-model.number="createForm.timeout"
+            type="range"
             min="3"
             max="900"
             step="1"
             class="w-full"
-          />
+          >
         </div>
         <FormInput
           v-model="createForm.roleArn"
@@ -576,8 +617,18 @@ onMounted(() => {
       </div>
       <template #footer>
         <div class="flex justify-end gap-2">
-          <Button variant="secondary" @click="showCreateModal = false">Cancel</Button>
-          <Button :loading="creating" @click="createFunction">Create</Button>
+          <Button
+            variant="secondary"
+            @click="showCreateModal = false"
+          >
+            Cancel
+          </Button>
+          <Button
+            :loading="creating"
+            @click="createFunction"
+          >
+            Create
+          </Button>
         </div>
       </template>
     </Modal>
@@ -602,7 +653,7 @@ onMounted(() => {
             v-model="invokeForm.payload"
             rows="6"
             class="w-full px-3 py-2 rounded-lg border bg-light-surface dark:bg-dark-surface border-light-border dark:border-dark-border text-light-text dark:text-dark-text font-mono text-sm"
-            placeholder='{"key": "value"}'
+            placeholder="{&quot;key&quot;: &quot;value&quot;}"
           />
         </div>
         <div v-if="invokeResult">
@@ -614,8 +665,18 @@ onMounted(() => {
       </div>
       <template #footer>
         <div class="flex justify-end gap-2">
-          <Button variant="secondary" @click="showInvokeModal = false">Close</Button>
-          <Button :loading="invokeLoading" @click="invokeFunction">Invoke</Button>
+          <Button
+            variant="secondary"
+            @click="showInvokeModal = false"
+          >
+            Close
+          </Button>
+          <Button
+            :loading="invokeLoading"
+            @click="invokeFunction"
+          >
+            Invoke
+          </Button>
         </div>
       </template>
     </Modal>
@@ -632,32 +693,42 @@ onMounted(() => {
             Memory: {{ editForm.memory }}MB
           </label>
           <input
-            type="range"
             v-model.number="editForm.memory"
+            type="range"
             min="128"
             max="1024"
             step="64"
             class="w-full"
-          />
+          >
         </div>
         <div>
           <label class="block text-sm font-medium text-light-text dark:text-dark-text mb-1.5">
             Timeout: {{ editForm.timeout }}s
           </label>
           <input
-            type="range"
             v-model.number="editForm.timeout"
+            type="range"
             min="3"
             max="900"
             step="1"
             class="w-full"
-          />
+          >
         </div>
       </div>
       <template #footer>
         <div class="flex justify-end gap-2">
-          <Button variant="secondary" @click="showEditModal = false">Cancel</Button>
-          <Button :loading="updating" @click="updateFunctionConfiguration">Update</Button>
+          <Button
+            variant="secondary"
+            @click="showEditModal = false"
+          >
+            Cancel
+          </Button>
+          <Button
+            :loading="updating"
+            @click="updateFunctionConfiguration"
+          >
+            Update
+          </Button>
         </div>
       </template>
     </Modal>
@@ -670,8 +741,18 @@ onMounted(() => {
     >
       <div class="space-y-4">
         <div class="flex items-start gap-3 p-4 rounded-lg bg-red-50 dark:bg-red-900/20">
-          <svg class="h-5 w-5 text-red-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+          <svg
+            class="h-5 w-5 text-red-500 flex-shrink-0 mt-0.5"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+            />
           </svg>
           <div>
             <p class="text-sm text-red-800 dark:text-red-200">
@@ -685,8 +766,18 @@ onMounted(() => {
       </div>
       <template #footer>
         <div class="flex justify-end gap-2">
-          <Button variant="secondary" @click="showDeleteModal = false">Cancel</Button>
-          <Button variant="danger" @click="deleteFunction">Delete</Button>
+          <Button
+            variant="secondary"
+            @click="showDeleteModal = false"
+          >
+            Cancel
+          </Button>
+          <Button
+            variant="danger"
+            @click="deleteFunction"
+          >
+            Delete
+          </Button>
         </div>
       </template>
     </Modal>
@@ -697,36 +788,56 @@ onMounted(() => {
       :title="selectedFunction?.FunctionName || 'Function Details'"
       size="lg"
     >
-      <div v-if="selectedFunction" class="space-y-4">
+      <div
+        v-if="selectedFunction"
+        class="space-y-4"
+      >
         <div class="grid grid-cols-2 gap-4">
           <div>
             <label class="block text-xs font-medium text-light-muted dark:text-dark-muted uppercase mb-1">Runtime</label>
-            <p class="text-sm text-light-text dark:text-dark-text">{{ selectedFunction.Runtime }}</p>
+            <p class="text-sm text-light-text dark:text-dark-text">
+              {{ selectedFunction.Runtime }}
+            </p>
           </div>
           <div>
             <label class="block text-xs font-medium text-light-muted dark:text-dark-muted uppercase mb-1">Handler</label>
-            <p class="text-sm text-light-text dark:text-dark-text">{{ selectedFunction.Handler }}</p>
+            <p class="text-sm text-light-text dark:text-dark-text">
+              {{ selectedFunction.Handler }}
+            </p>
           </div>
           <div>
             <label class="block text-xs font-medium text-light-muted dark:text-dark-muted uppercase mb-1">Memory</label>
-            <p class="text-sm text-light-text dark:text-dark-text">{{ selectedFunction.MemorySize }}MB</p>
+            <p class="text-sm text-light-text dark:text-dark-text">
+              {{ selectedFunction.MemorySize }}MB
+            </p>
           </div>
           <div>
             <label class="block text-xs font-medium text-light-muted dark:text-dark-muted uppercase mb-1">Timeout</label>
-            <p class="text-sm text-light-text dark:text-dark-text">{{ selectedFunction.Timeout }}s</p>
+            <p class="text-sm text-light-text dark:text-dark-text">
+              {{ selectedFunction.Timeout }}s
+            </p>
           </div>
           <div>
             <label class="block text-xs font-medium text-light-muted dark:text-dark-muted uppercase mb-1">Last Modified</label>
-            <p class="text-sm text-light-text dark:text-dark-text">{{ formatDate(selectedFunction.LastModified) }}</p>
+            <p class="text-sm text-light-text dark:text-dark-text">
+              {{ formatDate(selectedFunction.LastModified) }}
+            </p>
           </div>
           <div>
             <label class="block text-xs font-medium text-light-muted dark:text-dark-muted uppercase mb-1">ARN</label>
-            <p class="text-sm text-light-text dark:text-dark-text font-mono truncate">{{ selectedFunction.FunctionArn }}</p>
+            <p class="text-sm text-light-text dark:text-dark-text font-mono truncate">
+              {{ selectedFunction.FunctionArn }}
+            </p>
           </div>
         </div>
       </div>
       <template #footer>
-        <Button variant="secondary" @click="showDetailsModal = false">Close</Button>
+        <Button
+          variant="secondary"
+          @click="showDetailsModal = false"
+        >
+          Close
+        </Button>
       </template>
     </Modal>
   </div>

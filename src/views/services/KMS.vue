@@ -451,7 +451,10 @@ function getKeyStatusLabel(status: string): string {
           </span>
         </div>
         <div class="flex items-center gap-2">
-          <Button variant="primary" @click="showCreateModal = true">
+          <Button
+            variant="primary"
+            @click="showCreateModal = true"
+          >
             <template #icon-left>
               <PlusIcon class="h-4 w-4" />
             </template>
@@ -465,33 +468,48 @@ function getKeyStatusLabel(status: string): string {
     <div class="flex-1 overflow-auto p-6">
       <!-- Usage Examples -->
       <div class="mb-6">
-        <h2 class="text-lg font-semibold mb-4" :class="settingsStore.darkMode ? 'text-white' : 'text-gray-900'">
+        <h2
+          class="text-lg font-semibold mb-4"
+          :class="settingsStore.darkMode ? 'text-white' : 'text-gray-900'"
+        >
           Usage Examples
         </h2>
-        <div class="rounded-lg border overflow-hidden" :class="settingsStore.darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'">
-          <div class="flex border-b" :class="settingsStore.darkMode ? 'border-gray-700' : 'border-gray-200'">
+        <div
+          class="rounded-lg border overflow-hidden"
+          :class="settingsStore.darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'"
+        >
+          <div
+            class="flex border-b"
+            :class="settingsStore.darkMode ? 'border-gray-700' : 'border-gray-200'"
+          >
             <button
               v-for="(example, index) in codeExamples"
               :key="example.language"
-              @click="selectedExample = index"
               class="px-4 py-2 text-sm font-medium transition-colors"
               :class="[
                 selectedExample === index
                   ? settingsStore.darkMode ? 'bg-gray-700 text-white' : 'bg-gray-100 text-gray-900'
                   : settingsStore.darkMode ? 'text-gray-400 hover:text-white hover:bg-gray-700' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
               ]"
+              @click="selectedExample = index"
             >
               {{ example.label }}
             </button>
           </div>
           <div class="p-4 overflow-x-auto">
-            <pre class="text-sm font-mono" :class="settingsStore.darkMode ? 'text-gray-300' : 'text-gray-700'">{{ codeExamples[selectedExample].code }}</pre>
+            <pre
+              class="text-sm font-mono"
+              :class="settingsStore.darkMode ? 'text-gray-300' : 'text-gray-700'"
+            >{{ codeExamples[selectedExample].code }}</pre>
           </div>
         </div>
       </div>
 
       <!-- Loading State -->
-      <div v-if="isLoading" class="flex items-center justify-center py-12">
+      <div
+        v-if="isLoading"
+        class="flex items-center justify-center py-12"
+      >
         <LoadingSpinner size="lg" />
       </div>
 
@@ -578,7 +596,10 @@ function getKeyStatusLabel(status: string): string {
       size="md"
       @update:open="showCreateModal = $event"
     >
-      <form @submit.prevent="handleCreateKey" class="space-y-4">
+      <form
+        class="space-y-4"
+        @submit.prevent="handleCreateKey"
+      >
         <FormInput
           v-model="newKey.description"
           label="Description"
@@ -593,8 +614,12 @@ function getKeyStatusLabel(status: string): string {
             v-model="newKey.keyUsage"
             class="block w-full rounded-md shadow-sm border border-light-border dark:border-dark-border bg-light-surface dark:bg-dark-surface text-light-text dark:text-dark-text px-3 py-2 focus:outline-none focus:ring-1 focus:ring-primary-500"
           >
-            <option value="ENCRYPT_DECRYPT">Encrypt and Decrypt</option>
-            <option value="SIGN_VERIFY">Sign and Verify</option>
+            <option value="ENCRYPT_DECRYPT">
+              Encrypt and Decrypt
+            </option>
+            <option value="SIGN_VERIFY">
+              Sign and Verify
+            </option>
           </select>
         </div>
 
@@ -606,7 +631,11 @@ function getKeyStatusLabel(status: string): string {
             v-model="newKey.keySpec"
             class="block w-full rounded-md shadow-sm border border-light-border dark:border-dark-border bg-light-surface dark:bg-dark-surface text-light-text dark:text-dark-text px-3 py-2 focus:outline-none focus:ring-1 focus:ring-primary-500"
           >
-            <option v-for="spec in keySpecs" :key="spec.value" :value="spec.value">
+            <option
+              v-for="spec in keySpecs"
+              :key="spec.value"
+              :value="spec.value"
+            >
               {{ spec.label }}
             </option>
           </select>
@@ -614,8 +643,18 @@ function getKeyStatusLabel(status: string): string {
       </form>
 
       <template #footer>
-        <Button variant="secondary" @click="showCreateModal = false">Cancel</Button>
-        <Button variant="primary" @click="handleCreateKey">Create Key</Button>
+        <Button
+          variant="secondary"
+          @click="showCreateModal = false"
+        >
+          Cancel
+        </Button>
+        <Button
+          variant="primary"
+          @click="handleCreateKey"
+        >
+          Create Key
+        </Button>
       </template>
     </Modal>
 
@@ -626,11 +665,16 @@ function getKeyStatusLabel(status: string): string {
       size="lg"
       @update:open="showDetailsModal = $event"
     >
-      <div v-if="selectedKey?.keyMetadata" class="space-y-6">
+      <div
+        v-if="selectedKey?.keyMetadata"
+        class="space-y-6"
+      >
         <div class="grid grid-cols-2 gap-4">
           <div>
             <label class="block text-xs font-medium text-light-muted dark:text-dark-muted uppercase mb-1">Key ID</label>
-            <p class="text-sm text-light-text dark:text-dark-text font-mono">{{ selectedKey.keyMetadata.KeyId }}</p>
+            <p class="text-sm text-light-text dark:text-dark-text font-mono">
+              {{ selectedKey.keyMetadata.KeyId }}
+            </p>
           </div>
           <div>
             <label class="block text-xs font-medium text-light-muted dark:text-dark-muted uppercase mb-1">Status</label>
@@ -641,46 +685,70 @@ function getKeyStatusLabel(status: string): string {
           </div>
           <div>
             <label class="block text-xs font-medium text-light-muted dark:text-dark-muted uppercase mb-1">Key Usage</label>
-            <p class="text-sm text-light-text dark:text-dark-text">{{ selectedKey.keyMetadata.KeyUsage }}</p>
+            <p class="text-sm text-light-text dark:text-dark-text">
+              {{ selectedKey.keyMetadata.KeyUsage }}
+            </p>
           </div>
           <div>
             <label class="block text-xs font-medium text-light-muted dark:text-dark-muted uppercase mb-1">Origin</label>
-            <p class="text-sm text-light-text dark:text-dark-text">{{ selectedKey.keyMetadata.Origin }}</p>
+            <p class="text-sm text-light-text dark:text-dark-text">
+              {{ selectedKey.keyMetadata.Origin }}
+            </p>
           </div>
           <div>
             <label class="block text-xs font-medium text-light-muted dark:text-dark-muted uppercase mb-1">Creation Date</label>
-            <p class="text-sm text-light-text dark:text-dark-text">{{ selectedKey.keyMetadata.CreationDate ? new Date(selectedKey.keyMetadata.CreationDate).toLocaleDateString() : '-' }}</p>
+            <p class="text-sm text-light-text dark:text-dark-text">
+              {{ selectedKey.keyMetadata.CreationDate ? new Date(selectedKey.keyMetadata.CreationDate).toLocaleDateString() : '-' }}
+            </p>
           </div>
           <div v-if="selectedKey.keyMetadata.DeletionDate">
             <label class="block text-xs font-medium text-light-muted dark:text-dark-muted uppercase mb-1">Deletion Date</label>
-            <p class="text-sm text-light-text dark:text-dark-text">{{ new Date(selectedKey.keyMetadata.DeletionDate).toLocaleDateString() }}</p>
+            <p class="text-sm text-light-text dark:text-dark-text">
+              {{ new Date(selectedKey.keyMetadata.DeletionDate).toLocaleDateString() }}
+            </p>
           </div>
         </div>
 
         <div>
           <label class="block text-xs font-medium text-light-muted dark:text-dark-muted uppercase mb-1">ARN</label>
-          <p class="text-sm text-light-text dark:text-dark-text font-mono break-all">{{ selectedKey.keyMetadata.Arn }}</p>
+          <p class="text-sm text-light-text dark:text-dark-text font-mono break-all">
+            {{ selectedKey.keyMetadata.Arn }}
+          </p>
         </div>
 
         <div v-if="selectedKey.keyMetadata.Description">
           <label class="block text-xs font-medium text-light-muted dark:text-dark-muted uppercase mb-1">Description</label>
-          <p class="text-sm text-light-text dark:text-dark-text">{{ selectedKey.keyMetadata.Description }}</p>
+          <p class="text-sm text-light-text dark:text-dark-text">
+            {{ selectedKey.keyMetadata.Description }}
+          </p>
         </div>
 
         <div class="flex items-center gap-2 pt-4 border-t border-light-border dark:border-dark-border">
-          <Button v-if="selectedKey.keyMetadata.KeyState === 'Disabled'" variant="primary" @click="handleEnableKey">
+          <Button
+            v-if="selectedKey.keyMetadata.KeyState === 'Disabled'"
+            variant="primary"
+            @click="handleEnableKey"
+          >
             <template #icon-left>
               <ShieldCheckIcon class="h-4 w-4" />
             </template>
             Enable Key
           </Button>
-          <Button v-else-if="selectedKey.keyMetadata.KeyState === 'Enabled'" variant="secondary" @click="handleDisableKey">
+          <Button
+            v-else-if="selectedKey.keyMetadata.KeyState === 'Enabled'"
+            variant="secondary"
+            @click="handleDisableKey"
+          >
             <template #icon-left>
               <ShieldExclamationIcon class="h-4 w-4" />
             </template>
             Disable Key
           </Button>
-          <Button variant="danger" @click="showDeleteModal = true" :disabled="selectedKey.keyMetadata.KeyState === 'PendingDeletion'">
+          <Button
+            variant="danger"
+            :disabled="selectedKey.keyMetadata.KeyState === 'PendingDeletion'"
+            @click="showDeleteModal = true"
+          >
             <template #icon-left>
               <TrashIcon class="h-4 w-4" />
             </template>
@@ -688,12 +756,20 @@ function getKeyStatusLabel(status: string): string {
           </Button>
         </div>
       </div>
-      <div v-else class="flex items-center justify-center py-8">
+      <div
+        v-else
+        class="flex items-center justify-center py-8"
+      >
         <LoadingSpinner size="lg" />
       </div>
 
       <template #footer>
-        <Button variant="secondary" @click="showDetailsModal = false">Close</Button>
+        <Button
+          variant="secondary"
+          @click="showDetailsModal = false"
+        >
+          Close
+        </Button>
       </template>
     </Modal>
 
@@ -707,7 +783,9 @@ function getKeyStatusLabel(status: string): string {
       <div class="space-y-4">
         <div>
           <label class="block text-xs font-medium text-light-muted dark:text-dark-muted uppercase mb-1">Key ID</label>
-          <p class="text-sm text-light-text dark:text-dark-text font-mono">{{ selectedKey?.KeyId }}</p>
+          <p class="text-sm text-light-text dark:text-dark-text font-mono">
+            {{ selectedKey?.KeyId }}
+          </p>
         </div>
         <div>
           <label class="block text-xs font-medium text-light-muted dark:text-dark-muted uppercase mb-1">Policy</label>
@@ -715,7 +793,12 @@ function getKeyStatusLabel(status: string): string {
         </div>
       </div>
       <template #footer>
-        <Button variant="secondary" @click="showPolicyModal = false">Close</Button>
+        <Button
+          variant="secondary"
+          @click="showPolicyModal = false"
+        >
+          Close
+        </Button>
       </template>
     </Modal>
 
@@ -739,19 +822,32 @@ function getKeyStatusLabel(status: string): string {
           />
         </div>
 
-        <div v-if="encryptedResult" class="space-y-2">
+        <div
+          v-if="encryptedResult"
+          class="space-y-2"
+        >
           <label class="block text-sm font-medium text-light-text dark:text-dark-text">
             Encrypted Result
           </label>
           <div class="p-4 rounded-lg bg-light-bg dark:bg-dark-bg">
-            <p class="text-sm font-mono text-light-text dark:text-dark-text break-all">{{ encryptedResult }}</p>
+            <p class="text-sm font-mono text-light-text dark:text-dark-text break-all">
+              {{ encryptedResult }}
+            </p>
           </div>
         </div>
       </div>
 
       <template #footer>
-        <Button variant="secondary" @click="encryptedResult = ''; showEncryptModal = false">Close</Button>
-        <Button variant="primary" @click="handleEncrypt">
+        <Button
+          variant="secondary"
+          @click="encryptedResult = ''; showEncryptModal = false"
+        >
+          Close
+        </Button>
+        <Button
+          variant="primary"
+          @click="handleEncrypt"
+        >
           <template #icon-left>
             <LockClosedIcon class="h-4 w-4" />
           </template>
@@ -780,19 +876,32 @@ function getKeyStatusLabel(status: string): string {
           />
         </div>
 
-        <div v-if="decryptedResult" class="space-y-2">
+        <div
+          v-if="decryptedResult"
+          class="space-y-2"
+        >
           <label class="block text-sm font-medium text-light-text dark:text-dark-text">
             Decrypted Result
           </label>
           <div class="p-4 rounded-lg bg-light-bg dark:bg-dark-bg">
-            <p class="text-sm font-mono text-light-text dark:text-dark-text break-all">{{ decryptedResult }}</p>
+            <p class="text-sm font-mono text-light-text dark:text-dark-text break-all">
+              {{ decryptedResult }}
+            </p>
           </div>
         </div>
       </div>
 
       <template #footer>
-        <Button variant="secondary" @click="decryptedResult = ''; showDecryptModal = false">Close</Button>
-        <Button variant="primary" @click="handleDecrypt">
+        <Button
+          variant="secondary"
+          @click="decryptedResult = ''; showDecryptModal = false"
+        >
+          Close
+        </Button>
+        <Button
+          variant="primary"
+          @click="handleDecrypt"
+        >
           <template #icon-left>
             <LockOpenIcon class="h-4 w-4" />
           </template>
@@ -823,8 +932,18 @@ function getKeyStatusLabel(status: string): string {
       </div>
 
       <template #footer>
-        <Button variant="secondary" @click="showDeleteModal = false">Cancel</Button>
-        <Button variant="danger" @click="handleDeleteKey">Schedule Deletion</Button>
+        <Button
+          variant="secondary"
+          @click="showDeleteModal = false"
+        >
+          Cancel
+        </Button>
+        <Button
+          variant="danger"
+          @click="handleDeleteKey"
+        >
+          Schedule Deletion
+        </Button>
       </template>
     </Modal>
   </div>

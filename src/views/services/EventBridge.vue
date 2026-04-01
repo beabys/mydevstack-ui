@@ -630,19 +630,50 @@ onMounted(() => {
           </span>
         </div>
         <div class="flex items-center gap-2">
-          <Button variant="secondary" @click="showTestEventModal = true">
+          <Button
+            variant="secondary"
+            @click="showTestEventModal = true"
+          >
             <template #icon>
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              <svg
+                class="w-4 h-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"
+                />
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                />
               </svg>
             </template>
             Test Event
           </Button>
-          <Button variant="primary" @click="showCreateBusModal = true">
+          <Button
+            variant="primary"
+            @click="showCreateBusModal = true"
+          >
             <template #icon>
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+              <svg
+                class="w-4 h-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M12 4v16m8-8H4"
+                />
               </svg>
             </template>
             Create Event Bus
@@ -655,27 +686,39 @@ onMounted(() => {
     <div class="flex-1 overflow-auto p-6">
       <!-- Usage Examples -->
       <div class="mb-6">
-        <h2 class="text-lg font-semibold mb-4" :class="settingsStore.darkMode ? 'text-white' : 'text-gray-900'">
+        <h2
+          class="text-lg font-semibold mb-4"
+          :class="settingsStore.darkMode ? 'text-white' : 'text-gray-900'"
+        >
           Usage Examples
         </h2>
-        <div class="rounded-lg border overflow-hidden" :class="settingsStore.darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'">
-          <div class="flex border-b" :class="settingsStore.darkMode ? 'border-gray-700' : 'border-gray-200'">
+        <div
+          class="rounded-lg border overflow-hidden"
+          :class="settingsStore.darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'"
+        >
+          <div
+            class="flex border-b"
+            :class="settingsStore.darkMode ? 'border-gray-700' : 'border-gray-200'"
+          >
             <button
               v-for="(example, index) in codeExamples"
               :key="example.language"
-              @click="selectedExample = index"
               class="px-4 py-2 text-sm font-medium transition-colors"
               :class="[
                 selectedExample === index
                   ? settingsStore.darkMode ? 'bg-gray-700 text-white' : 'bg-gray-100 text-gray-900'
                   : settingsStore.darkMode ? 'text-gray-400 hover:text-white hover:bg-gray-700' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
               ]"
+              @click="selectedExample = index"
             >
               {{ example.label }}
             </button>
           </div>
           <div class="p-4 overflow-x-auto">
-            <pre class="text-sm font-mono" :class="settingsStore.darkMode ? 'text-gray-300' : 'text-gray-700'">{{ codeExamples[selectedExample].code }}</pre>
+            <pre
+              class="text-sm font-mono"
+              :class="settingsStore.darkMode ? 'text-gray-300' : 'text-gray-700'"
+            >{{ codeExamples[selectedExample].code }}</pre>
           </div>
         </div>
       </div>
@@ -707,7 +750,10 @@ onMounted(() => {
       <!-- Event Buses Tab -->
       <div v-if="activeTab === 'buses'">
         <!-- Loading State -->
-        <div v-if="loading" class="flex items-center justify-center py-12">
+        <div
+          v-if="loading"
+          class="flex items-center justify-center py-12"
+        >
           <LoadingSpinner size="lg" />
         </div>
 
@@ -732,11 +778,24 @@ onMounted(() => {
         >
           <template #cell-Name="{ value, row }">
             <div class="flex items-center gap-2">
-              <svg class="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+              <svg
+                class="w-5 h-5 text-blue-500"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"
+                />
               </svg>
               <span class="font-medium text-light-text dark:text-dark-text">{{ value }}</span>
-              <span v-if="value === 'default'" class="text-xs px-2 py-0.5 rounded bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300">
+              <span
+                v-if="value === 'default'"
+                class="text-xs px-2 py-0.5 rounded bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300"
+              >
                 Default
               </span>
             </div>
@@ -749,8 +808,18 @@ onMounted(() => {
                 class="text-light-muted dark:text-dark-muted hover:text-primary-500"
                 @click="copyArn(value)"
               >
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                <svg
+                  class="w-4 h-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"
+                  />
                 </svg>
               </button>
             </div>
@@ -776,8 +845,8 @@ onMounted(() => {
               </button>
               <button
                 class="px-2 py-1 text-sm rounded hover:bg-light-border dark:hover:bg-dark-border text-red-500"
-                @click="openDeleteBusModal(row)"
                 :disabled="row.Name === 'default'"
+                @click="openDeleteBusModal(row)"
               >
                 Delete
               </button>
@@ -788,7 +857,10 @@ onMounted(() => {
 
       <!-- Rules Tab -->
       <div v-if="activeTab === 'rules'">
-        <div v-if="!selectedBus" class="text-center py-12">
+        <div
+          v-if="!selectedBus"
+          class="text-center py-12"
+        >
           <EmptyState
             icon="table-cells"
             title="Select an Event Bus"
@@ -798,13 +870,30 @@ onMounted(() => {
 
         <div v-else>
           <div class="mb-4 flex items-center justify-between">
-            <h3 class="text-lg font-medium" :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'">
+            <h3
+              class="text-lg font-medium"
+              :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'"
+            >
               Rules for: {{ selectedBus.Name }}
             </h3>
-            <Button variant="secondary" size="sm" @click="showCreateRuleModal = true">
+            <Button
+              variant="secondary"
+              size="sm"
+              @click="showCreateRuleModal = true"
+            >
               <template #icon>
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                <svg
+                  class="w-4 h-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M12 4v16m8-8H4"
+                  />
                 </svg>
               </template>
               Create Rule
@@ -833,21 +922,36 @@ onMounted(() => {
             </template>
 
             <template #cell-State="{ value }">
-              <StatusBadge :status="value === 'ENABLED' ? 'active' : 'inactive'" :label="value" />
+              <StatusBadge
+                :status="value === 'ENABLED' ? 'active' : 'inactive'"
+                :label="value"
+              />
             </template>
 
             <template #cell-EventPattern="{ value }">
-              <code v-if="value" class="text-xs bg-light-border dark:bg-dark-border px-2 py-1 rounded">
+              <code
+                v-if="value"
+                class="text-xs bg-light-border dark:bg-dark-border px-2 py-1 rounded"
+              >
                 {{ value.substring(0, 50) }}{{ value.length > 50 ? '...' : '' }}
               </code>
-              <span v-else class="text-light-muted dark:text-dark-muted">-</span>
+              <span
+                v-else
+                class="text-light-muted dark:text-dark-muted"
+              >-</span>
             </template>
 
             <template #cell-ScheduleExpression="{ value }">
-              <code v-if="value" class="text-xs bg-light-border dark:bg-dark-border px-2 py-1 rounded">
+              <code
+                v-if="value"
+                class="text-xs bg-light-border dark:bg-dark-border px-2 py-1 rounded"
+              >
                 {{ value }}
               </code>
-              <span v-else class="text-light-muted dark:text-dark-muted">-</span>
+              <span
+                v-else
+                class="text-light-muted dark:text-dark-muted"
+              >-</span>
             </template>
 
             <template #row-actions="{ row }">
@@ -910,8 +1014,18 @@ onMounted(() => {
       </div>
       <template #footer>
         <div class="flex justify-end gap-2">
-          <Button variant="secondary" @click="showCreateBusModal = false">Cancel</Button>
-          <Button :loading="creating" @click="createBus">Create</Button>
+          <Button
+            variant="secondary"
+            @click="showCreateBusModal = false"
+          >
+            Cancel
+          </Button>
+          <Button
+            :loading="creating"
+            @click="createBus"
+          >
+            Create
+          </Button>
         </div>
       </template>
     </Modal>
@@ -922,24 +1036,38 @@ onMounted(() => {
       :title="`Event Bus: ${selectedBus?.Name || ''}`"
       size="lg"
     >
-      <div v-if="selectedBus" class="space-y-4">
+      <div
+        v-if="selectedBus"
+        class="space-y-4"
+      >
         <div class="grid grid-cols-2 gap-4">
           <div>
             <label class="block text-xs font-medium text-light-muted dark:text-dark-muted uppercase mb-1">Name</label>
-            <p class="text-sm text-light-text dark:text-dark-text">{{ selectedBus.Name }}</p>
+            <p class="text-sm text-light-text dark:text-dark-text">
+              {{ selectedBus.Name }}
+            </p>
           </div>
           <div>
             <label class="block text-xs font-medium text-light-muted dark:text-dark-muted uppercase mb-1">ARN</label>
-            <p class="text-sm text-light-text dark:text-dark-text font-mono break-all">{{ selectedBus.Arn }}</p>
+            <p class="text-sm text-light-text dark:text-dark-text font-mono break-all">
+              {{ selectedBus.Arn }}
+            </p>
           </div>
         </div>
         <div v-if="selectedBus.Description">
           <label class="block text-xs font-medium text-light-muted dark:text-dark-muted uppercase mb-1">Description</label>
-          <p class="text-sm text-light-text dark:text-dark-text">{{ selectedBus.Description }}</p>
+          <p class="text-sm text-light-text dark:text-dark-text">
+            {{ selectedBus.Description }}
+          </p>
         </div>
       </div>
       <template #footer>
-        <Button variant="secondary" @click="showBusDetailsModal = false">Close</Button>
+        <Button
+          variant="secondary"
+          @click="showBusDetailsModal = false"
+        >
+          Close
+        </Button>
       </template>
     </Modal>
 
@@ -970,14 +1098,17 @@ onMounted(() => {
           ]"
         />
         <div>
-          <label class="block text-sm font-medium mb-1" :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'">
+          <label
+            class="block text-sm font-medium mb-1"
+            :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'"
+          >
             Event Pattern (JSON)
           </label>
           <textarea
             v-model="newRuleEventPattern"
             class="w-full h-32 px-3 py-2 rounded-lg border bg-light-surface dark:bg-dark-surface border-light-border dark:border-dark-border focus:ring-2 focus:ring-primary-500 focus:border-transparent font-mono text-sm"
             :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'"
-            placeholder='{"source": ["my.source"], "detail-type": ["MyEvent"]}'
+            placeholder="{&quot;source&quot;: [&quot;my.source&quot;], &quot;detail-type&quot;: [&quot;MyEvent&quot;]}"
           />
         </div>
         <FormInput
@@ -988,8 +1119,18 @@ onMounted(() => {
       </div>
       <template #footer>
         <div class="flex justify-end gap-2">
-          <Button variant="secondary" @click="showCreateRuleModal = false">Cancel</Button>
-          <Button :loading="creating" @click="createRule">Create</Button>
+          <Button
+            variant="secondary"
+            @click="showCreateRuleModal = false"
+          >
+            Cancel
+          </Button>
+          <Button
+            :loading="creating"
+            @click="createRule"
+          >
+            Create
+          </Button>
         </div>
       </template>
     </Modal>
@@ -1021,14 +1162,17 @@ onMounted(() => {
           ]"
         />
         <div>
-          <label class="block text-sm font-medium mb-1" :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'">
+          <label
+            class="block text-sm font-medium mb-1"
+            :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'"
+          >
             Event Pattern (JSON)
           </label>
           <textarea
             v-model="newRuleEventPattern"
             class="w-full h-32 px-3 py-2 rounded-lg border bg-light-surface dark:bg-dark-surface border-light-border dark:border-dark-border focus:ring-2 focus:ring-primary-500 focus:border-transparent font-mono text-sm"
             :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'"
-            placeholder='{"source": ["my.source"], "detail-type": ["MyEvent"]}'
+            placeholder="{&quot;source&quot;: [&quot;my.source&quot;], &quot;detail-type&quot;: [&quot;MyEvent&quot;]}"
           />
         </div>
         <FormInput
@@ -1039,8 +1183,18 @@ onMounted(() => {
       </div>
       <template #footer>
         <div class="flex justify-end gap-2">
-          <Button variant="secondary" @click="showEditRuleModal = false">Cancel</Button>
-          <Button :loading="creating" @click="updateRule">Save</Button>
+          <Button
+            variant="secondary"
+            @click="showEditRuleModal = false"
+          >
+            Cancel
+          </Button>
+          <Button
+            :loading="creating"
+            @click="updateRule"
+          >
+            Save
+          </Button>
         </div>
       </template>
     </Modal>
@@ -1052,17 +1206,33 @@ onMounted(() => {
       size="lg"
     >
       <div class="flex justify-end mb-4">
-        <Button size="sm" @click="openAddTargetsModal(selectedRule!)">
+        <Button
+          size="sm"
+          @click="openAddTargetsModal(selectedRule!)"
+        >
           <template #icon>
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+            <svg
+              class="w-4 h-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M12 4v16m8-8H4"
+              />
             </svg>
           </template>
           Add Target
         </Button>
       </div>
 
-      <div v-if="loadingTargets" class="flex justify-center py-8">
+      <div
+        v-if="loadingTargets"
+        class="flex justify-center py-8"
+      >
         <LoadingSpinner />
       </div>
       <EmptyState
@@ -1085,10 +1255,16 @@ onMounted(() => {
           <code class="text-xs bg-light-border dark:bg-dark-border px-2 py-1 rounded">{{ value }}</code>
         </template>
         <template #cell-Input="{ value }">
-          <code v-if="value" class="text-xs bg-light-border dark:bg-dark-border px-2 py-1 rounded">
+          <code
+            v-if="value"
+            class="text-xs bg-light-border dark:bg-dark-border px-2 py-1 rounded"
+          >
             {{ value.substring(0, 50) }}{{ value.length > 50 ? '...' : '' }}
           </code>
-          <span v-else class="text-light-muted dark:text-dark-muted">-</span>
+          <span
+            v-else
+            class="text-light-muted dark:text-dark-muted"
+          >-</span>
         </template>
         <template #row-actions="{ row }">
           <button
@@ -1101,7 +1277,12 @@ onMounted(() => {
       </DataTable>
       <template #footer>
         <div class="flex justify-end gap-2">
-          <Button variant="secondary" @click="showTargetsModal = false">Close</Button>
+          <Button
+            variant="secondary"
+            @click="showTargetsModal = false"
+          >
+            Close
+          </Button>
         </div>
       </template>
     </Modal>
@@ -1125,21 +1306,31 @@ onMounted(() => {
           required
         />
         <div>
-          <label class="block text-sm font-medium mb-1" :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'">
+          <label
+            class="block text-sm font-medium mb-1"
+            :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'"
+          >
             Input Transformer (Optional JSON)
           </label>
           <textarea
             v-model="newTargetForm.inputTransformer"
             class="w-full h-24 px-3 py-2 rounded-lg border bg-light-surface dark:bg-dark-surface border-light-border dark:border-dark-border focus:ring-2 focus:ring-primary-500 focus:border-transparent font-mono text-sm"
             :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'"
-            placeholder='{"key": "value"}'
+            placeholder="{&quot;key&quot;: &quot;value&quot;}"
           />
         </div>
       </div>
       <template #footer>
         <div class="flex justify-end gap-2">
-          <Button variant="secondary" @click="showAddTargetsModal = false">Cancel</Button>
-          <Button @click="addTargets">Add Target</Button>
+          <Button
+            variant="secondary"
+            @click="showAddTargetsModal = false"
+          >
+            Cancel
+          </Button>
+          <Button @click="addTargets">
+            Add Target
+          </Button>
         </div>
       </template>
     </Modal>
@@ -1152,17 +1343,24 @@ onMounted(() => {
     >
       <div class="space-y-4">
         <div>
-          <label class="block text-sm font-medium mb-1" :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'">
+          <label
+            class="block text-sm font-medium mb-1"
+            :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'"
+          >
             Test Event (JSON)
           </label>
           <textarea
             v-model="testEventJson"
             class="w-full h-40 px-3 py-2 rounded-lg border bg-light-surface dark:bg-dark-surface border-light-border dark:border-dark-border focus:ring-2 focus:ring-primary-500 focus:border-transparent font-mono text-sm"
             :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'"
-            placeholder='{"source": "my.source", "detail-type": "MyEvent", "detail": {}}'
+            placeholder="{&quot;source&quot;: &quot;my.source&quot;, &quot;detail-type&quot;: &quot;MyEvent&quot;, &quot;detail&quot;: {}}"
           />
         </div>
-        <div v-if="testEventResult !== null" class="p-4 rounded-lg" :class="testEventResult ? 'bg-green-100 dark:bg-green-900' : 'bg-red-100 dark:bg-red-900'">
+        <div
+          v-if="testEventResult !== null"
+          class="p-4 rounded-lg"
+          :class="testEventResult ? 'bg-green-100 dark:bg-green-900' : 'bg-red-100 dark:bg-red-900'"
+        >
           <p :class="testEventResult ? 'text-green-800 dark:text-green-200' : 'text-red-800 dark:text-red-200'">
             {{ testEventResult ? 'Event matched the pattern!' : 'Event did not match the pattern.' }}
           </p>
@@ -1170,8 +1368,15 @@ onMounted(() => {
       </div>
       <template #footer>
         <div class="flex justify-end gap-2">
-          <Button variant="secondary" @click="showTestEventModal = false">Close</Button>
-          <Button @click="sendTestEvent">Test Event</Button>
+          <Button
+            variant="secondary"
+            @click="showTestEventModal = false"
+          >
+            Close
+          </Button>
+          <Button @click="sendTestEvent">
+            Test Event
+          </Button>
         </div>
       </template>
     </Modal>
@@ -1190,8 +1395,18 @@ onMounted(() => {
       </div>
       <template #footer>
         <div class="flex justify-end gap-2">
-          <Button variant="secondary" @click="showDeleteRuleModal = false">Cancel</Button>
-          <Button variant="danger" @click="confirmDeleteRule">Delete</Button>
+          <Button
+            variant="secondary"
+            @click="showDeleteRuleModal = false"
+          >
+            Cancel
+          </Button>
+          <Button
+            variant="danger"
+            @click="confirmDeleteRule"
+          >
+            Delete
+          </Button>
         </div>
       </template>
     </Modal>
@@ -1210,8 +1425,18 @@ onMounted(() => {
       </div>
       <template #footer>
         <div class="flex justify-end gap-2">
-          <Button variant="secondary" @click="showDeleteBusModal = false">Cancel</Button>
-          <Button variant="danger" @click="confirmDeleteBus">Delete</Button>
+          <Button
+            variant="secondary"
+            @click="showDeleteBusModal = false"
+          >
+            Cancel
+          </Button>
+          <Button
+            variant="danger"
+            @click="confirmDeleteBus"
+          >
+            Delete
+          </Button>
         </div>
       </template>
     </Modal>

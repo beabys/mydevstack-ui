@@ -332,52 +332,110 @@ const selectedExample = ref(0)
   <div class="p-6">
     <div class="flex items-center justify-between mb-6">
       <div>
-        <h1 class="text-2xl font-bold" :class="settingsStore.darkMode ? 'text-white' : 'text-gray-900'">
+        <h1
+          class="text-2xl font-bold"
+          :class="settingsStore.darkMode ? 'text-white' : 'text-gray-900'"
+        >
           Secrets Manager
         </h1>
-        <p class="text-sm mt-1" :class="settingsStore.darkMode ? 'text-gray-400' : 'text-gray-600'">
+        <p
+          class="text-sm mt-1"
+          :class="settingsStore.darkMode ? 'text-gray-400' : 'text-gray-600'"
+        >
           {{ secrets.length }} secret(s) found
         </p>
       </div>
       <div class="flex gap-2">
-        <button @click="openCreateModal" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+        <button
+          class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+          @click="openCreateModal"
+        >
           + Create Secret
         </button>
-        <button @click="loadSecrets" class="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600">
+        <button
+          class="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600"
+          @click="loadSecrets"
+        >
           ↻ Refresh
         </button>
       </div>
     </div>
 
-    <div v-if="error" class="mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg">
+    <div
+      v-if="error"
+      class="mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg"
+    >
       {{ error }}
     </div>
 
-    <div v-if="loading" class="text-center py-12">
-      <div class="inline-block animate-spin rounded-full h-8 w-8 border-4 border-blue-600 border-t-transparent"></div>
-      <p class="mt-2" :class="settingsStore.darkMode ? 'text-gray-400' : 'text-gray-600'">Loading...</p>
+    <div
+      v-if="loading"
+      class="text-center py-12"
+    >
+      <div class="inline-block animate-spin rounded-full h-8 w-8 border-4 border-blue-600 border-t-transparent" />
+      <p
+        class="mt-2"
+        :class="settingsStore.darkMode ? 'text-gray-400' : 'text-gray-600'"
+      >
+        Loading...
+      </p>
     </div>
 
     <div v-if="!loading">
-      <div v-if="secrets.length === 0" class="text-center py-12">
-        <p class="text-lg" :class="settingsStore.darkMode ? 'text-gray-400' : 'text-gray-600'">
+      <div
+        v-if="secrets.length === 0"
+        class="text-center py-12"
+      >
+        <p
+          class="text-lg"
+          :class="settingsStore.darkMode ? 'text-gray-400' : 'text-gray-600'"
+        >
           No secrets found. Create one to get started!
         </p>
       </div>
       
-      <div v-else class="space-y-4">
-        <div v-for="secret in secrets" :key="secret.Name" class="p-4 rounded-lg border" :class="settingsStore.darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'">
+      <div
+        v-else
+        class="space-y-4"
+      >
+        <div
+          v-for="secret in secrets"
+          :key="secret.Name"
+          class="p-4 rounded-lg border"
+          :class="settingsStore.darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'"
+        >
           <div class="flex items-center justify-between">
             <div class="flex-1 min-w-0">
-              <h3 class="font-semibold text-lg" :class="settingsStore.darkMode ? 'text-white' : 'text-gray-900'">🔐 {{ secret.Name }}</h3>
-              <p class="text-sm mt-1 truncate" :class="settingsStore.darkMode ? 'text-gray-400' : 'text-gray-500'">{{ secret.Description || 'No description' }}</p>
-              <p class="text-xs mt-2" :class="settingsStore.darkMode ? 'text-gray-500' : 'text-gray-400'">Created: {{ formatDate(secret.CreatedDate) }}</p>
+              <h3
+                class="font-semibold text-lg"
+                :class="settingsStore.darkMode ? 'text-white' : 'text-gray-900'"
+              >
+                🔐 {{ secret.Name }}
+              </h3>
+              <p
+                class="text-sm mt-1 truncate"
+                :class="settingsStore.darkMode ? 'text-gray-400' : 'text-gray-500'"
+              >
+                {{ secret.Description || 'No description' }}
+              </p>
+              <p
+                class="text-xs mt-2"
+                :class="settingsStore.darkMode ? 'text-gray-500' : 'text-gray-400'"
+              >
+                Created: {{ formatDate(secret.CreatedDate) }}
+              </p>
             </div>
             <div class="flex gap-2 ml-4">
-              <button @click="viewSecret(secret)" class="px-3 py-1 text-blue-500 hover:text-blue-700 border border-blue-500 rounded hover:bg-blue-50">
+              <button
+                class="px-3 py-1 text-blue-500 hover:text-blue-700 border border-blue-500 rounded hover:bg-blue-50"
+                @click="viewSecret(secret)"
+              >
                 View
               </button>
-              <button @click="deleteSecret(secret.Name)" class="px-3 py-1 text-red-500 hover:text-red-700 border border-red-500 rounded hover:bg-red-50">
+              <button
+                class="px-3 py-1 text-red-500 hover:text-red-700 border border-red-500 rounded hover:bg-red-50"
+                @click="deleteSecret(secret.Name)"
+              >
                 Delete
               </button>
             </div>
@@ -388,27 +446,39 @@ const selectedExample = ref(0)
 
     <!-- Example Code Section -->
     <div class="mt-8">
-      <h2 class="text-lg font-semibold mb-4" :class="settingsStore.darkMode ? 'text-white' : 'text-gray-900'">
+      <h2
+        class="text-lg font-semibold mb-4"
+        :class="settingsStore.darkMode ? 'text-white' : 'text-gray-900'"
+      >
         Usage Examples
       </h2>
-      <div class="rounded-lg border overflow-hidden" :class="settingsStore.darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'">
-        <div class="flex border-b" :class="settingsStore.darkMode ? 'border-gray-700' : 'border-gray-200'">
+      <div
+        class="rounded-lg border overflow-hidden"
+        :class="settingsStore.darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'"
+      >
+        <div
+          class="flex border-b"
+          :class="settingsStore.darkMode ? 'border-gray-700' : 'border-gray-200'"
+        >
           <button
             v-for="(example, index) in codeExamples"
             :key="example.language"
-            @click="selectedExample = index"
             class="px-4 py-2 text-sm font-medium transition-colors"
             :class="[
               selectedExample === index
                 ? settingsStore.darkMode ? 'bg-gray-700 text-white' : 'bg-gray-100 text-gray-900'
                 : settingsStore.darkMode ? 'text-gray-400 hover:text-white hover:bg-gray-700' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
             ]"
+            @click="selectedExample = index"
           >
             {{ example.label }}
           </button>
         </div>
         <div class="p-4 overflow-x-auto">
-          <pre class="text-sm font-mono" :class="settingsStore.darkMode ? 'text-gray-300' : 'text-gray-700'">{{ codeExamples[selectedExample].code }}</pre>
+          <pre
+            class="text-sm font-mono"
+            :class="settingsStore.darkMode ? 'text-gray-300' : 'text-gray-700'"
+          >{{ codeExamples[selectedExample].code }}</pre>
         </div>
       </div>
     </div>
@@ -423,7 +493,10 @@ const selectedExample = ref(0)
   >
     <div class="space-y-4">
       <div>
-        <label class="block text-sm font-medium mb-1" :class="settingsStore.darkMode ? 'text-gray-300' : 'text-gray-700'">
+        <label
+          class="block text-sm font-medium mb-1"
+          :class="settingsStore.darkMode ? 'text-gray-300' : 'text-gray-700'"
+        >
           Secret Name *
         </label>
         <input
@@ -432,22 +505,28 @@ const selectedExample = ref(0)
           placeholder="my-secret"
           class="w-full px-3 py-2 rounded-lg border"
           :class="settingsStore.darkMode ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300'"
-        />
+        >
       </div>
       <div>
-        <label class="block text-sm font-medium mb-1" :class="settingsStore.darkMode ? 'text-gray-300' : 'text-gray-700'">
+        <label
+          class="block text-sm font-medium mb-1"
+          :class="settingsStore.darkMode ? 'text-gray-300' : 'text-gray-700'"
+        >
           Secret Value * (JSON or plain text)
         </label>
         <textarea
           v-model="newSecretValue"
           rows="4"
-          placeholder='{"username": "admin", "password": "secret123"}'
+          placeholder="{&quot;username&quot;: &quot;admin&quot;, &quot;password&quot;: &quot;secret123&quot;}"
           class="w-full px-3 py-2 rounded-lg border font-mono text-sm"
           :class="settingsStore.darkMode ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300'"
-        ></textarea>
+        />
       </div>
       <div>
-        <label class="block text-sm font-medium mb-1" :class="settingsStore.darkMode ? 'text-gray-300' : 'text-gray-700'">
+        <label
+          class="block text-sm font-medium mb-1"
+          :class="settingsStore.darkMode ? 'text-gray-300' : 'text-gray-700'"
+        >
           Description (optional)
         </label>
         <input
@@ -456,20 +535,20 @@ const selectedExample = ref(0)
           placeholder="Database credentials for production"
           class="w-full px-3 py-2 rounded-lg border"
           :class="settingsStore.darkMode ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300'"
-        />
+        >
       </div>
     </div>
     <template #footer>
       <button
-        @click="showCreateModal = false"
         class="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 mr-2"
+        @click="showCreateModal = false"
       >
         Cancel
       </button>
       <button
-        @click="createSecret"
         :disabled="!newSecretName.trim() || !newSecretValue.trim() || creating"
         class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
+        @click="createSecret"
       >
         {{ creating ? 'Creating...' : 'Create' }}
       </button>
@@ -485,28 +564,55 @@ const selectedExample = ref(0)
     @close="closeViewModal"
   >
     <!-- Loading -->
-    <div v-if="secretLoading" class="text-center py-8">
-      <div class="inline-block animate-spin rounded-full h-8 w-8 border-4 border-blue-600 border-t-transparent"></div>
-      <p class="mt-2" :class="settingsStore.darkMode ? 'text-gray-400' : 'text-gray-600'">Loading secret...</p>
+    <div
+      v-if="secretLoading"
+      class="text-center py-8"
+    >
+      <div class="inline-block animate-spin rounded-full h-8 w-8 border-4 border-blue-600 border-t-transparent" />
+      <p
+        class="mt-2"
+        :class="settingsStore.darkMode ? 'text-gray-400' : 'text-gray-600'"
+      >
+        Loading secret...
+      </p>
     </div>
 
     <!-- Error -->
-    <div v-else-if="secretError" class="p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg">
+    <div
+      v-else-if="secretError"
+      class="p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg"
+    >
       {{ secretError }}
     </div>
 
     <!-- Secret Content -->
-    <div v-else class="space-y-4">
+    <div
+      v-else
+      class="space-y-4"
+    >
       <!-- Secret Info -->
-      <div class="p-4 rounded-lg" :class="settingsStore.darkMode ? 'bg-gray-700' : 'bg-gray-50'">
+      <div
+        class="p-4 rounded-lg"
+        :class="settingsStore.darkMode ? 'bg-gray-700' : 'bg-gray-50'"
+      >
         <div class="grid grid-cols-2 gap-4 text-sm">
           <div>
-            <span class="font-medium" :class="settingsStore.darkMode ? 'text-gray-400' : 'text-gray-500'">Created:</span>
-            <p :class="settingsStore.darkMode ? 'text-white' : 'text-gray-900'">{{ formatDate(selectedSecret?.CreatedDate) }}</p>
+            <span
+              class="font-medium"
+              :class="settingsStore.darkMode ? 'text-gray-400' : 'text-gray-500'"
+            >Created:</span>
+            <p :class="settingsStore.darkMode ? 'text-white' : 'text-gray-900'">
+              {{ formatDate(selectedSecret?.CreatedDate) }}
+            </p>
           </div>
           <div v-if="selectedSecret?.Description">
-            <span class="font-medium" :class="settingsStore.darkMode ? 'text-gray-400' : 'text-gray-500'">Description:</span>
-            <p :class="settingsStore.darkMode ? 'text-white' : 'text-gray-900'">{{ selectedSecret.Description }}</p>
+            <span
+              class="font-medium"
+              :class="settingsStore.darkMode ? 'text-gray-400' : 'text-gray-500'"
+            >Description:</span>
+            <p :class="settingsStore.darkMode ? 'text-white' : 'text-gray-900'">
+              {{ selectedSecret.Description }}
+            </p>
           </div>
         </div>
       </div>
@@ -514,7 +620,10 @@ const selectedExample = ref(0)
       <!-- Secret Value -->
       <div>
         <div class="flex items-center justify-between mb-2">
-          <label class="text-sm font-medium" :class="settingsStore.darkMode ? 'text-gray-300' : 'text-gray-700'">
+          <label
+            class="text-sm font-medium"
+            :class="settingsStore.darkMode ? 'text-gray-300' : 'text-gray-700'"
+          >
             Secret Value
           </label>
           <span
@@ -540,15 +649,15 @@ const selectedExample = ref(0)
             rows="8"
             class="w-full px-3 py-2 rounded-lg border font-mono text-sm"
             :class="settingsStore.darkMode ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300'"
-          ></textarea>
+          />
         </div>
       </div>
     </div>
     
     <template #footer>
       <button
-        @click="closeViewModal"
         class="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 mr-2"
+        @click="closeViewModal"
       >
         Close
       </button>
@@ -556,22 +665,22 @@ const selectedExample = ref(0)
       <template v-if="!secretLoading && !secretError">
         <button
           v-if="!isEditing"
-          @click="toggleEdit"
           class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+          @click="toggleEdit"
         >
           Edit Value
         </button>
         <template v-else>
           <button
-            @click="toggleEdit"
             class="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 mr-2"
+            @click="toggleEdit"
           >
             Cancel
           </button>
           <button
-            @click="saveSecretValue"
             :disabled="secretLoading"
             class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50"
+            @click="saveSecretValue"
           >
             {{ secretLoading ? 'Saving...' : 'Save Changes' }}
           </button>

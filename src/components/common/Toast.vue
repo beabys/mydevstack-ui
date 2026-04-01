@@ -156,7 +156,10 @@ onUnmounted(() => {
               class="h-5 w-5 flex-shrink-0 mt-0.5"
             />
             <div class="flex-1 min-w-0">
-              <p :class="currentConfig().textColor" class="text-sm font-medium">
+              <p
+                :class="currentConfig().textColor"
+                class="text-sm font-medium"
+              >
                 {{ toast.message }}
               </p>
             </div>

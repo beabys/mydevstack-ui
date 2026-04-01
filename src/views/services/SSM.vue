@@ -236,16 +236,30 @@ onMounted(() => {
       :class="settingsStore.darkMode ? 'bg-dark-surface border-dark-border' : 'bg-light-surface border-light-border'"
     >
       <div class="flex items-center gap-3">
-        <KeyIcon class="h-6 w-6" :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'" />
-        <h1 class="text-xl font-semibold" :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'">
+        <KeyIcon
+          class="h-6 w-6"
+          :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'"
+        />
+        <h1
+          class="text-xl font-semibold"
+          :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'"
+        >
           Parameter Store
         </h1>
       </div>
       <div class="flex items-center gap-2">
-        <Button variant="secondary" size="sm" :loading="loading" @click="loadParameters">
+        <Button
+          variant="secondary"
+          size="sm"
+          :loading="loading"
+          @click="loadParameters"
+        >
           <ArrowPathIcon class="h-4 w-4" />
         </Button>
-        <Button size="sm" @click="showCreateModal = true">
+        <Button
+          size="sm"
+          @click="showCreateModal = true"
+        >
           <PlusIcon class="h-4 w-4 mr-1" />
           Create Parameter
         </Button>
@@ -266,7 +280,10 @@ onMounted(() => {
       <template v-else>
         <!-- Parameter List -->
         <div class="mb-6">
-          <h2 class="text-lg font-medium mb-4" :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'">
+          <h2
+            class="text-lg font-medium mb-4"
+            :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'"
+          >
             Parameters
           </h2>
           
@@ -286,7 +303,11 @@ onMounted(() => {
             </template>
             
             <template #cell-Type="{ value }">
-              <StatusBadge :status="getParamTypeStatus(value)" :label="value" size="sm" />
+              <StatusBadge
+                :status="getParamTypeStatus(value)"
+                :label="value"
+                size="sm"
+              />
             </template>
             
             <template #cell-Version="{ value }">
@@ -294,13 +315,19 @@ onMounted(() => {
             </template>
             
             <template #cell-Tier="{ value }">
-              <span class="text-sm capitalize" :class="settingsStore.darkMode ? 'text-dark-muted' : 'text-light-muted'">
+              <span
+                class="text-sm capitalize"
+                :class="settingsStore.darkMode ? 'text-dark-muted' : 'text-light-muted'"
+              >
                 {{ value || 'Standard' }}
               </span>
             </template>
             
             <template #cell-LastModifiedDate="{ value }">
-              <span class="text-sm" :class="settingsStore.darkMode ? 'text-dark-muted' : 'text-light-muted'">
+              <span
+                class="text-sm"
+                :class="settingsStore.darkMode ? 'text-dark-muted' : 'text-light-muted'"
+              >
                 {{ formatDate(value) }}
               </span>
             </template>
@@ -339,50 +366,90 @@ onMounted(() => {
         </div>
         
         <!-- Selected Parameter Details -->
-        <div v-if="selectedParameter" class="p-6 rounded-lg border" :class="settingsStore.darkMode ? 'bg-dark-surface border-dark-border' : 'bg-light-surface border-light-border'">
-          <h3 class="text-lg font-semibold mb-4" :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'">
+        <div
+          v-if="selectedParameter"
+          class="p-6 rounded-lg border"
+          :class="settingsStore.darkMode ? 'bg-dark-surface border-dark-border' : 'bg-light-surface border-light-border'"
+        >
+          <h3
+            class="text-lg font-semibold mb-4"
+            :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'"
+          >
             Parameter: {{ selectedParameter.Name }}
           </h3>
           
           <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
             <div>
-              <p class="text-sm" :class="settingsStore.darkMode ? 'text-dark-muted' : 'text-light-muted'">
+              <p
+                class="text-sm"
+                :class="settingsStore.darkMode ? 'text-dark-muted' : 'text-light-muted'"
+              >
                 Type
               </p>
-              <StatusBadge :status="getParamTypeStatus(selectedParameter.Type)" :label="selectedParameter.Type" class="mt-1" />
+              <StatusBadge
+                :status="getParamTypeStatus(selectedParameter.Type)"
+                :label="selectedParameter.Type"
+                class="mt-1"
+              />
             </div>
             <div>
-              <p class="text-sm" :class="settingsStore.darkMode ? 'text-dark-muted' : 'text-light-muted'">
+              <p
+                class="text-sm"
+                :class="settingsStore.darkMode ? 'text-dark-muted' : 'text-light-muted'"
+              >
                 Version
               </p>
-              <p class="mt-1 font-medium" :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'">
+              <p
+                class="mt-1 font-medium"
+                :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'"
+              >
                 {{ selectedParameter.Version || 1 }}
               </p>
             </div>
             <div>
-              <p class="text-sm" :class="settingsStore.darkMode ? 'text-dark-muted' : 'text-light-muted'">
+              <p
+                class="text-sm"
+                :class="settingsStore.darkMode ? 'text-dark-muted' : 'text-light-muted'"
+              >
                 Tier
               </p>
-              <p class="mt-1 font-medium" :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'">
+              <p
+                class="mt-1 font-medium"
+                :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'"
+              >
                 {{ selectedParameter.Tier || 'Standard' }}
               </p>
             </div>
             <div>
-              <p class="text-sm" :class="settingsStore.darkMode ? 'text-dark-muted' : 'text-light-muted'">
+              <p
+                class="text-sm"
+                :class="settingsStore.darkMode ? 'text-dark-muted' : 'text-light-muted'"
+              >
                 Data Type
               </p>
-              <p class="mt-1 font-medium" :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'">
+              <p
+                class="mt-1 font-medium"
+                :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'"
+              >
                 {{ selectedParameter.DataType || 'text' }}
               </p>
             </div>
           </div>
           
           <div class="mt-4 flex gap-2">
-            <Button variant="secondary" size="sm" @click="getParameterValue(selectedParameter)">
+            <Button
+              variant="secondary"
+              size="sm"
+              @click="getParameterValue(selectedParameter)"
+            >
               <EyeIcon class="h-4 w-4 mr-1" />
               View Value
             </Button>
-            <Button variant="secondary" size="sm" @click="loadParameterHistory">
+            <Button
+              variant="secondary"
+              size="sm"
+              @click="loadParameterHistory"
+            >
               <ArrowPathIcon class="h-4 w-4 mr-1" />
               View History
             </Button>
@@ -417,7 +484,10 @@ onMounted(() => {
         />
         
         <div>
-          <label class="block text-sm font-medium mb-1" :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'">
+          <label
+            class="block text-sm font-medium mb-1"
+            :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'"
+          >
             Value
           </label>
           <textarea
@@ -438,8 +508,18 @@ onMounted(() => {
       
       <template #footer>
         <div class="flex justify-end gap-2">
-          <Button variant="secondary" @click="showCreateModal = false">Cancel</Button>
-          <Button :loading="loading" @click="createParameter">Create</Button>
+          <Button
+            variant="secondary"
+            @click="showCreateModal = false"
+          >
+            Cancel
+          </Button>
+          <Button
+            :loading="loading"
+            @click="createParameter"
+          >
+            Create
+          </Button>
         </div>
       </template>
     </Modal>
@@ -450,26 +530,45 @@ onMounted(() => {
       :title="`Parameter: ${selectedParameter?.Name || ''}`"
       size="md"
     >
-      <div v-if="selectedParameter" class="space-y-4">
+      <div
+        v-if="selectedParameter"
+        class="space-y-4"
+      >
         <div class="grid grid-cols-2 gap-4">
           <div>
-            <p class="text-sm" :class="settingsStore.darkMode ? 'text-dark-muted' : 'text-light-muted'">
+            <p
+              class="text-sm"
+              :class="settingsStore.darkMode ? 'text-dark-muted' : 'text-light-muted'"
+            >
               Type
             </p>
-            <StatusBadge :status="getParamTypeStatus(selectedParameter.Type)" :label="selectedParameter.Type" class="mt-1" />
+            <StatusBadge
+              :status="getParamTypeStatus(selectedParameter.Type)"
+              :label="selectedParameter.Type"
+              class="mt-1"
+            />
           </div>
           <div>
-            <p class="text-sm" :class="settingsStore.darkMode ? 'text-dark-muted' : 'text-light-muted'">
+            <p
+              class="text-sm"
+              :class="settingsStore.darkMode ? 'text-dark-muted' : 'text-light-muted'"
+            >
               Version
             </p>
-            <p class="mt-1 font-medium" :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'">
+            <p
+              class="mt-1 font-medium"
+              :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'"
+            >
               {{ selectedParameter.Version || 1 }}
             </p>
           </div>
         </div>
         
         <div>
-          <p class="text-sm mb-2" :class="settingsStore.darkMode ? 'text-dark-muted' : 'text-light-muted'">
+          <p
+            class="text-sm mb-2"
+            :class="settingsStore.darkMode ? 'text-dark-muted' : 'text-light-muted'"
+          >
             Value
           </p>
           <div 
@@ -481,17 +580,26 @@ onMounted(() => {
         </div>
         
         <div v-if="selectedParameter.Description">
-          <p class="text-sm" :class="settingsStore.darkMode ? 'text-dark-muted' : 'text-light-muted'">
+          <p
+            class="text-sm"
+            :class="settingsStore.darkMode ? 'text-dark-muted' : 'text-light-muted'"
+          >
             Description
           </p>
-          <p class="mt-1" :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'">
+          <p
+            class="mt-1"
+            :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'"
+          >
             {{ selectedParameter.Description }}
           </p>
         </div>
         
         <!-- Update Value Form -->
         <div class="border-t pt-4 mt-4">
-          <p class="text-sm font-medium mb-2" :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'">
+          <p
+            class="text-sm font-medium mb-2"
+            :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'"
+          >
             Update Value
           </p>
           <textarea
@@ -500,7 +608,12 @@ onMounted(() => {
             :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'"
             placeholder="New value"
           />
-          <Button class="mt-2" size="sm" :loading="loading" @click="updateParameter">
+          <Button
+            class="mt-2"
+            size="sm"
+            :loading="loading"
+            @click="updateParameter"
+          >
             Update
           </Button>
         </div>
@@ -508,7 +621,12 @@ onMounted(() => {
       
       <template #footer>
         <div class="flex justify-end gap-2">
-          <Button variant="secondary" @click="showValueModal = false">Close</Button>
+          <Button
+            variant="secondary"
+            @click="showValueModal = false"
+          >
+            Close
+          </Button>
         </div>
       </template>
     </Modal>
@@ -554,7 +672,12 @@ onMounted(() => {
       
       <template #footer>
         <div class="flex justify-end gap-2">
-          <Button variant="secondary" @click="showHistoryModal = false">Close</Button>
+          <Button
+            variant="secondary"
+            @click="showHistoryModal = false"
+          >
+            Close
+          </Button>
         </div>
       </template>
     </Modal>
@@ -573,8 +696,19 @@ onMounted(() => {
       
       <template #footer>
         <div class="flex justify-end gap-2">
-          <Button variant="secondary" @click="showDeleteModal = false">Cancel</Button>
-          <Button variant="danger" :loading="loading" @click="deleteParameter">Delete</Button>
+          <Button
+            variant="secondary"
+            @click="showDeleteModal = false"
+          >
+            Cancel
+          </Button>
+          <Button
+            variant="danger"
+            :loading="loading"
+            @click="deleteParameter"
+          >
+            Delete
+          </Button>
         </div>
       </template>
     </Modal>

@@ -213,16 +213,30 @@ onMounted(() => {
       :class="settingsStore.darkMode ? 'bg-dark-surface border-dark-border' : 'bg-light-surface border-light-border'"
     >
       <div class="flex items-center gap-3">
-        <CircleStackIcon class="h-6 w-6" :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'" />
-        <h1 class="text-xl font-semibold" :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'">
+        <CircleStackIcon
+          class="h-6 w-6"
+          :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'"
+        />
+        <h1
+          class="text-xl font-semibold"
+          :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'"
+        >
           RDS
         </h1>
       </div>
       <div class="flex items-center gap-2">
-        <Button variant="secondary" size="sm" :loading="loading" @click="loadInstances">
+        <Button
+          variant="secondary"
+          size="sm"
+          :loading="loading"
+          @click="loadInstances"
+        >
           <ArrowPathIcon class="h-4 w-4" />
         </Button>
-        <Button size="sm" @click="showCreateModal = true">
+        <Button
+          size="sm"
+          @click="showCreateModal = true"
+        >
           <PlusIcon class="h-4 w-4 mr-1" />
           Create Instance
         </Button>
@@ -242,7 +256,10 @@ onMounted(() => {
       >
         <template #action>
           <div class="space-y-4">
-            <p class="text-sm" :class="settingsStore.darkMode ? 'text-dark-muted' : 'text-light-muted'">
+            <p
+              class="text-sm"
+              :class="settingsStore.darkMode ? 'text-dark-muted' : 'text-light-muted'"
+            >
               Launch MiniStack with Docker socket to manage RDS instances locally.
             </p>
             <Button @click="showCreateModal = true">
@@ -256,7 +273,10 @@ onMounted(() => {
       <template v-else>
         <!-- Instance List -->
         <div class="mb-6">
-          <h2 class="text-lg font-medium mb-4" :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'">
+          <h2
+            class="text-lg font-medium mb-4"
+            :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'"
+          >
             DB Instances
           </h2>
           
@@ -276,14 +296,24 @@ onMounted(() => {
             </template>
             
             <template #cell-DBInstanceStatus="{ value }">
-              <StatusBadge :status="getStatus(value)" :label="value" />
+              <StatusBadge
+                :status="getStatus(value)"
+                :label="value"
+              />
             </template>
             
             <template #cell-Endpoint="{ value }">
-              <code v-if="value" class="text-xs" :class="settingsStore.darkMode ? 'text-dark-muted' : 'text-light-muted'">
+              <code
+                v-if="value"
+                class="text-xs"
+                :class="settingsStore.darkMode ? 'text-dark-muted' : 'text-light-muted'"
+              >
                 {{ value.Address }}:{{ value.Port }}
               </code>
-              <span v-else class="text-light-muted dark:text-dark-muted">-</span>
+              <span
+                v-else
+                class="text-light-muted dark:text-dark-muted"
+              >-</span>
             </template>
             
             <template #row-actions="{ row }">
@@ -310,40 +340,73 @@ onMounted(() => {
         </div>
         
         <!-- Instance Details -->
-        <div v-if="selectedInstance" class="space-y-6">
-          <div class="p-6 rounded-lg border" :class="settingsStore.darkMode ? 'bg-dark-surface border-dark-border' : 'bg-light-surface border-light-border'">
-            <h3 class="text-lg font-semibold mb-4" :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'">
+        <div
+          v-if="selectedInstance"
+          class="space-y-6"
+        >
+          <div
+            class="p-6 rounded-lg border"
+            :class="settingsStore.darkMode ? 'bg-dark-surface border-dark-border' : 'bg-light-surface border-light-border'"
+          >
+            <h3
+              class="text-lg font-semibold mb-4"
+              :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'"
+            >
               Instance Details: {{ selectedInstance.DBInstanceIdentifier }}
             </h3>
             
             <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
               <div>
-                <p class="text-sm" :class="settingsStore.darkMode ? 'text-dark-muted' : 'text-light-muted'">
+                <p
+                  class="text-sm"
+                  :class="settingsStore.darkMode ? 'text-dark-muted' : 'text-light-muted'"
+                >
                   Status
                 </p>
-                <StatusBadge :status="getStatus(selectedInstance.DBInstanceStatus)" class="mt-1" />
+                <StatusBadge
+                  :status="getStatus(selectedInstance.DBInstanceStatus)"
+                  class="mt-1"
+                />
               </div>
               <div>
-                <p class="text-sm" :class="settingsStore.darkMode ? 'text-dark-muted' : 'text-light-muted'">
+                <p
+                  class="text-sm"
+                  :class="settingsStore.darkMode ? 'text-dark-muted' : 'text-light-muted'"
+                >
                   Instance Class
                 </p>
-                <p class="mt-1 font-medium" :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'">
+                <p
+                  class="mt-1 font-medium"
+                  :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'"
+                >
                   {{ selectedInstance.DBInstanceClass }}
                 </p>
               </div>
               <div>
-                <p class="text-sm" :class="settingsStore.darkMode ? 'text-dark-muted' : 'text-light-muted'">
+                <p
+                  class="text-sm"
+                  :class="settingsStore.darkMode ? 'text-dark-muted' : 'text-light-muted'"
+                >
                   Engine
                 </p>
-                <p class="mt-1 font-medium" :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'">
+                <p
+                  class="mt-1 font-medium"
+                  :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'"
+                >
                   {{ selectedInstance.Engine }} {{ selectedInstance.EngineVersion }}
                 </p>
               </div>
               <div>
-                <p class="text-sm" :class="settingsStore.darkMode ? 'text-dark-muted' : 'text-light-muted'">
+                <p
+                  class="text-sm"
+                  :class="settingsStore.darkMode ? 'text-dark-muted' : 'text-light-muted'"
+                >
                   Endpoint
                 </p>
-                <code class="mt-1 text-xs block" :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'">
+                <code
+                  class="mt-1 text-xs block"
+                  :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'"
+                >
                   {{ selectedInstance.Endpoint?.Address || '-' }}:{{ selectedInstance.Endpoint?.Port }}
                 </code>
               </div>
@@ -351,34 +414,58 @@ onMounted(() => {
             
             <div class="mt-4 grid grid-cols-2 md:grid-cols-4 gap-4">
               <div>
-                <p class="text-sm" :class="settingsStore.darkMode ? 'text-dark-muted' : 'text-light-muted'">
+                <p
+                  class="text-sm"
+                  :class="settingsStore.darkMode ? 'text-dark-muted' : 'text-light-muted'"
+                >
                   Storage
                 </p>
-                <p class="mt-1 font-medium" :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'">
+                <p
+                  class="mt-1 font-medium"
+                  :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'"
+                >
                   {{ selectedInstance.AllocatedStorage }} GB ({{ selectedInstance.StorageType }})
                 </p>
               </div>
               <div>
-                <p class="text-sm" :class="settingsStore.darkMode ? 'text-dark-muted' : 'text-light-muted'">
+                <p
+                  class="text-sm"
+                  :class="settingsStore.darkMode ? 'text-dark-muted' : 'text-light-muted'"
+                >
                   Multi-AZ
                 </p>
-                <p class="mt-1 font-medium" :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'">
+                <p
+                  class="mt-1 font-medium"
+                  :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'"
+                >
                   {{ selectedInstance.MultiAZ ? 'Yes' : 'No' }}
                 </p>
               </div>
               <div>
-                <p class="text-sm" :class="settingsStore.darkMode ? 'text-dark-muted' : 'text-light-muted'">
+                <p
+                  class="text-sm"
+                  :class="settingsStore.darkMode ? 'text-dark-muted' : 'text-light-muted'"
+                >
                   Publicly Accessible
                 </p>
-                <p class="mt-1 font-medium" :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'">
+                <p
+                  class="mt-1 font-medium"
+                  :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'"
+                >
                   {{ selectedInstance.PubliclyAccessible ? 'Yes' : 'No' }}
                 </p>
               </div>
               <div>
-                <p class="text-sm" :class="settingsStore.darkMode ? 'text-dark-muted' : 'text-light-muted'">
+                <p
+                  class="text-sm"
+                  :class="settingsStore.darkMode ? 'text-dark-muted' : 'text-light-muted'"
+                >
                   Master Username
                 </p>
-                <p class="mt-1 font-medium" :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'">
+                <p
+                  class="mt-1 font-medium"
+                  :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'"
+                >
                   {{ selectedInstance.MasterUsername }}
                 </p>
               </div>
@@ -386,8 +473,14 @@ onMounted(() => {
           </div>
           
           <!-- Databases -->
-          <div class="p-6 rounded-lg border" :class="settingsStore.darkMode ? 'bg-dark-surface border-dark-border' : 'bg-light-surface border-light-border'">
-            <h3 class="text-lg font-semibold mb-4" :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'">
+          <div
+            class="p-6 rounded-lg border"
+            :class="settingsStore.darkMode ? 'bg-dark-surface border-dark-border' : 'bg-light-surface border-light-border'"
+          >
+            <h3
+              class="text-lg font-semibold mb-4"
+              :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'"
+            >
               Databases
             </h3>
             
@@ -485,8 +578,18 @@ onMounted(() => {
       
       <template #footer>
         <div class="flex justify-end gap-2">
-          <Button variant="secondary" @click="showCreateModal = false">Cancel</Button>
-          <Button :loading="creating" @click="createInstance">Create</Button>
+          <Button
+            variant="secondary"
+            @click="showCreateModal = false"
+          >
+            Cancel
+          </Button>
+          <Button
+            :loading="creating"
+            @click="createInstance"
+          >
+            Create
+          </Button>
         </div>
       </template>
     </Modal>

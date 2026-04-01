@@ -79,7 +79,7 @@ export function parseSwaggerSpec(content: string): OpenAPISpec {
     const result: Record<string, unknown> = {}
     let currentKey = ''
     let currentObject: Record<string, unknown> | null = null
-    let indentLevel = 0
+    const indentLevel = 0
     
     for (const line of lines) {
       const trimmed = line.trim()

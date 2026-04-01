@@ -327,7 +327,10 @@ async function refreshLogs() {
     <!-- Header -->
     <div class="flex items-center justify-between flex-shrink-0">
       <div>
-        <h2 class="text-2xl font-bold" :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'">
+        <h2
+          class="text-2xl font-bold"
+          :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'"
+        >
           Logs
         </h2>
         <p :class="settingsStore.darkMode ? 'text-dark-muted' : 'text-light-muted'">
@@ -335,19 +338,48 @@ async function refreshLogs() {
         </p>
       </div>
       <div class="flex items-center gap-2">
-        <Button variant="secondary" size="sm" @click="refreshLogs" :loading="isLoading">
+        <Button
+          variant="secondary"
+          size="sm"
+          :loading="isLoading"
+          @click="refreshLogs"
+        >
           <template #icon-left>
-            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            <svg
+              class="w-4 h-4"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+              />
             </svg>
           </template>
           Refresh
         </Button>
         <div class="relative">
-          <Button variant="secondary" size="sm" @click="exportMenuOpen = !exportMenuOpen">
+          <Button
+            variant="secondary"
+            size="sm"
+            @click="exportMenuOpen = !exportMenuOpen"
+          >
             <template #icon-left>
-              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+              <svg
+                class="w-4 h-4"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
+                />
               </svg>
             </template>
             Export
@@ -358,22 +390,26 @@ async function refreshLogs() {
             :class="settingsStore.darkMode ? 'bg-dark-surface border-dark-border' : 'bg-light-surface border-light-border'"
           >
             <button
-              @click="exportToJson"
               class="w-full px-4 py-2 text-sm text-left"
               :class="settingsStore.darkMode ? 'text-dark-text hover:bg-dark-bg' : 'text-light-text hover:bg-light-bg'"
+              @click="exportToJson"
             >
               Export as JSON
             </button>
             <button
-              @click="exportToCsv"
               class="w-full px-4 py-2 text-sm text-left"
               :class="settingsStore.darkMode ? 'text-dark-text hover:bg-dark-bg' : 'text-light-text hover:bg-light-bg'"
+              @click="exportToCsv"
             >
               Export as CSV
             </button>
           </div>
         </div>
-        <Button variant="danger" size="sm" @click="clearLogs">
+        <Button
+          variant="danger"
+          size="sm"
+          @click="clearLogs"
+        >
           Clear Logs
         </Button>
       </div>
@@ -381,26 +417,81 @@ async function refreshLogs() {
 
     <!-- Statistics Cards -->
     <div class="grid grid-cols-4 gap-4 flex-shrink-0">
-      <div class="p-4 rounded-xl border" :class="settingsStore.darkMode ? 'bg-dark-surface border-dark-border' : 'bg-light-surface border-light-border'">
-        <p class="text-sm" :class="settingsStore.darkMode ? 'text-dark-muted' : 'text-light-muted'">Total Requests</p>
-        <p class="text-2xl font-bold" :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'">{{ stats.total }}</p>
+      <div
+        class="p-4 rounded-xl border"
+        :class="settingsStore.darkMode ? 'bg-dark-surface border-dark-border' : 'bg-light-surface border-light-border'"
+      >
+        <p
+          class="text-sm"
+          :class="settingsStore.darkMode ? 'text-dark-muted' : 'text-light-muted'"
+        >
+          Total Requests
+        </p>
+        <p
+          class="text-2xl font-bold"
+          :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'"
+        >
+          {{ stats.total }}
+        </p>
       </div>
-      <div class="p-4 rounded-xl border" :class="settingsStore.darkMode ? 'bg-dark-surface border-dark-border' : 'bg-light-surface border-light-border'">
-        <p class="text-sm" :class="settingsStore.darkMode ? 'text-dark-muted' : 'text-light-muted'">Error Rate</p>
-        <p class="text-2xl font-bold" :class="stats.errorRate > 10 ? 'text-red-500' : 'text-green-500'">{{ stats.errorRate }}%</p>
+      <div
+        class="p-4 rounded-xl border"
+        :class="settingsStore.darkMode ? 'bg-dark-surface border-dark-border' : 'bg-light-surface border-light-border'"
+      >
+        <p
+          class="text-sm"
+          :class="settingsStore.darkMode ? 'text-dark-muted' : 'text-light-muted'"
+        >
+          Error Rate
+        </p>
+        <p
+          class="text-2xl font-bold"
+          :class="stats.errorRate > 10 ? 'text-red-500' : 'text-green-500'"
+        >
+          {{ stats.errorRate }}%
+        </p>
       </div>
-      <div class="p-4 rounded-xl border" :class="settingsStore.darkMode ? 'bg-dark-surface border-dark-border' : 'bg-light-surface border-light-border'">
-        <p class="text-sm" :class="settingsStore.darkMode ? 'text-dark-muted' : 'text-light-muted'">Avg Response Time</p>
-        <p class="text-2xl font-bold" :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'">{{ formatDuration(stats.avgDuration) }}</p>
+      <div
+        class="p-4 rounded-xl border"
+        :class="settingsStore.darkMode ? 'bg-dark-surface border-dark-border' : 'bg-light-surface border-light-border'"
+      >
+        <p
+          class="text-sm"
+          :class="settingsStore.darkMode ? 'text-dark-muted' : 'text-light-muted'"
+        >
+          Avg Response Time
+        </p>
+        <p
+          class="text-2xl font-bold"
+          :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'"
+        >
+          {{ formatDuration(stats.avgDuration) }}
+        </p>
       </div>
-      <div class="p-4 rounded-xl border" :class="settingsStore.darkMode ? 'bg-dark-surface border-dark-border' : 'bg-light-surface border-light-border'">
-        <p class="text-sm" :class="settingsStore.darkMode ? 'text-dark-muted' : 'text-light-muted'">Services Active</p>
-        <p class="text-2xl font-bold" :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'">{{ Object.keys(stats.byService).length }}</p>
+      <div
+        class="p-4 rounded-xl border"
+        :class="settingsStore.darkMode ? 'bg-dark-surface border-dark-border' : 'bg-light-surface border-light-border'"
+      >
+        <p
+          class="text-sm"
+          :class="settingsStore.darkMode ? 'text-dark-muted' : 'text-light-muted'"
+        >
+          Services Active
+        </p>
+        <p
+          class="text-2xl font-bold"
+          :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'"
+        >
+          {{ Object.keys(stats.byService).length }}
+        </p>
       </div>
     </div>
 
     <!-- Filter Bar -->
-    <div class="flex items-center gap-4 flex-wrap flex-shrink-0 p-4 rounded-xl border" :class="settingsStore.darkMode ? 'bg-dark-surface border-dark-border' : 'bg-light-surface border-light-border'">
+    <div
+      class="flex items-center gap-4 flex-wrap flex-shrink-0 p-4 rounded-xl border"
+      :class="settingsStore.darkMode ? 'bg-dark-surface border-dark-border' : 'bg-light-surface border-light-border'"
+    >
       <FormSelect
         v-model="selectedService"
         :options="serviceOptions"
@@ -424,7 +515,7 @@ async function refreshLogs() {
             placeholder="Search logs..."
             class="w-full pl-10 pr-4 py-2 rounded-lg border"
             :class="settingsStore.darkMode ? 'bg-dark-bg border-dark-border text-dark-text' : 'bg-light-bg border-light-border text-light-text'"
-          />
+          >
           <svg
             class="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5"
             :class="settingsStore.darkMode ? 'text-dark-muted' : 'text-light-muted'"
@@ -432,24 +523,41 @@ async function refreshLogs() {
             viewBox="0 0 24 24"
             stroke="currentColor"
           >
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+            />
           </svg>
         </div>
       </div>
-      <div class="text-sm" :class="settingsStore.darkMode ? 'text-dark-muted' : 'text-light-muted'">
+      <div
+        class="text-sm"
+        :class="settingsStore.darkMode ? 'text-dark-muted' : 'text-light-muted'"
+      >
         {{ filteredLogs.length }} logs
       </div>
     </div>
 
     <!-- Log List -->
-    <div class="flex-1 min-h-0 overflow-hidden rounded-xl border" :class="settingsStore.darkMode ? 'bg-dark-surface border-dark-border' : 'bg-light-surface border-light-border'">
+    <div
+      class="flex-1 min-h-0 overflow-hidden rounded-xl border"
+      :class="settingsStore.darkMode ? 'bg-dark-surface border-dark-border' : 'bg-light-surface border-light-border'"
+    >
       <!-- Loading State -->
-      <div v-if="isLoading" class="h-full flex items-center justify-center">
+      <div
+        v-if="isLoading"
+        class="h-full flex items-center justify-center"
+      >
         <LoadingSpinner size="lg" />
       </div>
 
       <!-- Empty State -->
-      <div v-else-if="filteredLogs.length === 0" class="h-full">
+      <div
+        v-else-if="filteredLogs.length === 0"
+        class="h-full"
+      >
         <EmptyState
           icon="document"
           title="No logs found"
@@ -462,7 +570,10 @@ async function refreshLogs() {
         v-else
         class="h-full overflow-y-auto"
       >
-        <div class="divide-y" :class="settingsStore.darkMode ? 'divide-dark-border' : 'divide-light-border'">
+        <div
+          class="divide-y"
+          :class="settingsStore.darkMode ? 'divide-dark-border' : 'divide-light-border'"
+        >
           <div
             v-for="log in filteredLogs"
             :key="log.id"
@@ -473,7 +584,10 @@ async function refreshLogs() {
             @click="openLogDetail(log)"
           >
             <!-- Timestamp -->
-            <div class="w-36 text-sm font-mono flex-shrink-0" :class="settingsStore.darkMode ? 'text-dark-muted' : 'text-light-muted'">
+            <div
+              class="w-36 text-sm font-mono flex-shrink-0"
+              :class="settingsStore.darkMode ? 'text-dark-muted' : 'text-light-muted'"
+            >
               {{ formatTimestamp(log.timestamp) }}
             </div>
             
@@ -490,7 +604,10 @@ async function refreshLogs() {
             <!-- Service -->
             <div class="w-28 flex-shrink-0 flex items-center gap-2">
               <span :class="serviceColors[log.service] || 'text-gray-500'">●</span>
-              <span class="text-sm font-medium truncate" :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'">
+              <span
+                class="text-sm font-medium truncate"
+                :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'"
+              >
                 {{ log.service }}
               </span>
             </div>
@@ -513,7 +630,10 @@ async function refreshLogs() {
             
             <!-- Resource -->
             <div class="flex-1 min-w-0">
-              <p class="text-sm truncate" :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'">
+              <p
+                class="text-sm truncate"
+                :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'"
+              >
                 {{ log.resource }}
               </p>
             </div>
@@ -529,7 +649,10 @@ async function refreshLogs() {
             </div>
             
             <!-- Duration -->
-            <div class="w-20 text-sm flex-shrink-0 text-right" :class="settingsStore.darkMode ? 'text-dark-muted' : 'text-light-muted'">
+            <div
+              class="w-20 text-sm flex-shrink-0 text-right"
+              :class="settingsStore.darkMode ? 'text-dark-muted' : 'text-light-muted'"
+            >
               {{ formatDuration(log.duration) }}
             </div>
           </div>
@@ -544,17 +667,33 @@ async function refreshLogs() {
       :class="settingsStore.darkMode ? 'bg-dark-surface' : 'bg-light-surface'"
     >
       <!-- Header -->
-      <div class="flex items-center justify-between p-4 border-b" :class="settingsStore.darkMode ? 'border-dark-border' : 'border-light-border'">
-        <h3 class="text-lg font-semibold" :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'">
+      <div
+        class="flex items-center justify-between p-4 border-b"
+        :class="settingsStore.darkMode ? 'border-dark-border' : 'border-light-border'"
+      >
+        <h3
+          class="text-lg font-semibold"
+          :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'"
+        >
           Log Details
         </h3>
         <button
-          @click="closeLogDetail"
           class="p-2 rounded-lg transition-colors"
           :class="settingsStore.darkMode ? 'hover:bg-dark-bg text-dark-muted' : 'hover:bg-light-bg text-light-muted'"
+          @click="closeLogDetail"
         >
-          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          <svg
+            class="w-5 h-5"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M6 18L18 6M6 6l12 12"
+            />
           </svg>
         </button>
       </div>
@@ -564,19 +703,48 @@ async function refreshLogs() {
         <!-- Summary -->
         <div class="grid grid-cols-2 gap-4">
           <div>
-            <p class="text-sm" :class="settingsStore.darkMode ? 'text-dark-muted' : 'text-light-muted'">Timestamp</p>
-            <p class="font-mono" :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'">{{ selectedLog.timestamp.toISOString() }}</p>
+            <p
+              class="text-sm"
+              :class="settingsStore.darkMode ? 'text-dark-muted' : 'text-light-muted'"
+            >
+              Timestamp
+            </p>
+            <p
+              class="font-mono"
+              :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'"
+            >
+              {{ selectedLog.timestamp.toISOString() }}
+            </p>
           </div>
           <div>
-            <p class="text-sm" :class="settingsStore.darkMode ? 'text-dark-muted' : 'text-light-muted'">Duration</p>
-            <p :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'">{{ selectedLog.duration }}ms</p>
+            <p
+              class="text-sm"
+              :class="settingsStore.darkMode ? 'text-dark-muted' : 'text-light-muted'"
+            >
+              Duration
+            </p>
+            <p :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'">
+              {{ selectedLog.duration }}ms
+            </p>
           </div>
           <div>
-            <p class="text-sm" :class="settingsStore.darkMode ? 'text-dark-muted' : 'text-light-muted'">Service</p>
-            <p :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'">{{ selectedLog.service }}</p>
+            <p
+              class="text-sm"
+              :class="settingsStore.darkMode ? 'text-dark-muted' : 'text-light-muted'"
+            >
+              Service
+            </p>
+            <p :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'">
+              {{ selectedLog.service }}
+            </p>
           </div>
           <div>
-            <p class="text-sm" :class="settingsStore.darkMode ? 'text-dark-muted' : 'text-light-muted'">Status</p>
+            <p
+              class="text-sm"
+              :class="settingsStore.darkMode ? 'text-dark-muted' : 'text-light-muted'"
+            >
+              Status
+            </p>
             <span 
               class="px-2 py-0.5 text-xs font-medium rounded-full"
               :class="selectedLog.status === 'success' ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' : 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'"
@@ -589,28 +757,66 @@ async function refreshLogs() {
         <!-- Request Section -->
         <div>
           <div class="flex items-center justify-between mb-2">
-            <h4 class="font-semibold" :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'">Request</h4>
-            <Button variant="ghost" size="sm" @click="copyToClipboard(JSON.stringify(selectedLog.request, null, 2))">
+            <h4
+              class="font-semibold"
+              :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'"
+            >
+              Request
+            </h4>
+            <Button
+              variant="ghost"
+              size="sm"
+              @click="copyToClipboard(JSON.stringify(selectedLog.request, null, 2))"
+            >
               Copy
             </Button>
           </div>
-          <div class="rounded-lg p-4" :class="settingsStore.darkMode ? 'bg-dark-bg' : 'bg-light-bg'">
+          <div
+            class="rounded-lg p-4"
+            :class="settingsStore.darkMode ? 'bg-dark-bg' : 'bg-light-bg'"
+          >
             <div class="space-y-2">
               <div>
-                <span class="text-sm font-medium" :class="settingsStore.darkMode ? 'text-dark-muted' : 'text-light-muted'">Method:</span>
-                <span class="ml-2 font-mono" :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'">{{ selectedLog.request?.method }}</span>
+                <span
+                  class="text-sm font-medium"
+                  :class="settingsStore.darkMode ? 'text-dark-muted' : 'text-light-muted'"
+                >Method:</span>
+                <span
+                  class="ml-2 font-mono"
+                  :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'"
+                >{{ selectedLog.request?.method }}</span>
               </div>
               <div>
-                <span class="text-sm font-medium" :class="settingsStore.darkMode ? 'text-dark-muted' : 'text-light-muted'">URL:</span>
-                <p class="font-mono text-sm break-all" :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'">{{ selectedLog.request?.url }}</p>
+                <span
+                  class="text-sm font-medium"
+                  :class="settingsStore.darkMode ? 'text-dark-muted' : 'text-light-muted'"
+                >URL:</span>
+                <p
+                  class="font-mono text-sm break-all"
+                  :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'"
+                >
+                  {{ selectedLog.request?.url }}
+                </p>
               </div>
               <div v-if="selectedLog.request?.headers">
-                <span class="text-sm font-medium" :class="settingsStore.darkMode ? 'text-dark-muted' : 'text-light-muted'">Headers:</span>
-                <pre class="mt-1 text-xs font-mono p-2 rounded overflow-x-auto" :class="settingsStore.darkMode ? 'bg-dark-surface text-dark-text' : 'bg-light-surface text-light-text'">{{ JSON.stringify(selectedLog.request.headers, null, 2) }}</pre>
+                <span
+                  class="text-sm font-medium"
+                  :class="settingsStore.darkMode ? 'text-dark-muted' : 'text-light-muted'"
+                >Headers:</span>
+                <pre
+                  class="mt-1 text-xs font-mono p-2 rounded overflow-x-auto"
+                  :class="settingsStore.darkMode ? 'bg-dark-surface text-dark-text' : 'bg-light-surface text-light-text'"
+                >{{ JSON.stringify(selectedLog.request.headers, null, 2) }}</pre>
               </div>
               <div v-if="selectedLog.request?.body">
-                <span class="text-sm font-medium" :class="settingsStore.darkMode ? 'text-dark-muted' : 'text-light-muted'">Body:</span>
-                <pre class="mt-1 text-xs font-mono p-2 rounded overflow-x-auto" :class="settingsStore.darkMode ? 'bg-dark-surface text-dark-text' : 'bg-light-surface text-light-text'">{{ selectedLog.request.body }}</pre>
+                <span
+                  class="text-sm font-medium"
+                  :class="settingsStore.darkMode ? 'text-dark-muted' : 'text-light-muted'"
+                >Body:</span>
+                <pre
+                  class="mt-1 text-xs font-mono p-2 rounded overflow-x-auto"
+                  :class="settingsStore.darkMode ? 'bg-dark-surface text-dark-text' : 'bg-light-surface text-light-text'"
+                >{{ selectedLog.request.body }}</pre>
               </div>
             </div>
           </div>
@@ -619,15 +825,30 @@ async function refreshLogs() {
         <!-- Response Section -->
         <div>
           <div class="flex items-center justify-between mb-2">
-            <h4 class="font-semibold" :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'">Response</h4>
-            <Button variant="ghost" size="sm" @click="copyToClipboard(JSON.stringify(selectedLog.response, null, 2))">
+            <h4
+              class="font-semibold"
+              :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'"
+            >
+              Response
+            </h4>
+            <Button
+              variant="ghost"
+              size="sm"
+              @click="copyToClipboard(JSON.stringify(selectedLog.response, null, 2))"
+            >
               Copy
             </Button>
           </div>
-          <div class="rounded-lg p-4" :class="settingsStore.darkMode ? 'bg-dark-bg' : 'bg-light-bg'">
+          <div
+            class="rounded-lg p-4"
+            :class="settingsStore.darkMode ? 'bg-dark-bg' : 'bg-light-bg'"
+          >
             <div class="space-y-2">
               <div>
-                <span class="text-sm font-medium" :class="settingsStore.darkMode ? 'text-dark-muted' : 'text-light-muted'">Status:</span>
+                <span
+                  class="text-sm font-medium"
+                  :class="settingsStore.darkMode ? 'text-dark-muted' : 'text-light-muted'"
+                >Status:</span>
                 <span 
                   class="ml-2 font-mono"
                   :class="selectedLog.response?.status && selectedLog.response.status < 300 ? 'text-green-500' : 'text-red-500'"
@@ -636,12 +857,24 @@ async function refreshLogs() {
                 </span>
               </div>
               <div v-if="selectedLog.response?.headers">
-                <span class="text-sm font-medium" :class="settingsStore.darkMode ? 'text-dark-muted' : 'text-light-muted'">Headers:</span>
-                <pre class="mt-1 text-xs font-mono p-2 rounded overflow-x-auto" :class="settingsStore.darkMode ? 'bg-dark-surface text-dark-text' : 'bg-light-surface text-light-text'">{{ JSON.stringify(selectedLog.response.headers, null, 2) }}</pre>
+                <span
+                  class="text-sm font-medium"
+                  :class="settingsStore.darkMode ? 'text-dark-muted' : 'text-light-muted'"
+                >Headers:</span>
+                <pre
+                  class="mt-1 text-xs font-mono p-2 rounded overflow-x-auto"
+                  :class="settingsStore.darkMode ? 'bg-dark-surface text-dark-text' : 'bg-light-surface text-light-text'"
+                >{{ JSON.stringify(selectedLog.response.headers, null, 2) }}</pre>
               </div>
               <div v-if="selectedLog.response?.body">
-                <span class="text-sm font-medium" :class="settingsStore.darkMode ? 'text-dark-muted' : 'text-light-muted'">Body:</span>
-                <pre class="mt-1 text-xs font-mono p-2 rounded overflow-x-auto" :class="settingsStore.darkMode ? 'bg-dark-surface text-dark-text' : 'bg-light-surface text-light-text'">{{ selectedLog.response.body }}</pre>
+                <span
+                  class="text-sm font-medium"
+                  :class="settingsStore.darkMode ? 'text-dark-muted' : 'text-light-muted'"
+                >Body:</span>
+                <pre
+                  class="mt-1 text-xs font-mono p-2 rounded overflow-x-auto"
+                  :class="settingsStore.darkMode ? 'bg-dark-surface text-dark-text' : 'bg-light-surface text-light-text'"
+                >{{ selectedLog.response.body }}</pre>
               </div>
             </div>
           </div>

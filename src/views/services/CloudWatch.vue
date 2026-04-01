@@ -267,26 +267,48 @@ onUnmounted(() => {
 
 <template>
   <div class="space-y-6">
-    <h2 class="text-xl font-semibold" :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'">
+    <h2
+      class="text-xl font-semibold"
+      :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'"
+    >
       CloudWatch
     </h2>
 
     <!-- Tabs -->
-    <Tabs v-model="activeTab" :tabs="[
-      { id: 'logs', label: 'Logs' },
-      { id: 'metrics', label: 'Metrics' },
-    ]" />
+    <Tabs
+      v-model="activeTab"
+      :tabs="[
+        { id: 'logs', label: 'Logs' },
+        { id: 'metrics', label: 'Metrics' },
+      ]"
+    />
 
     <!-- Logs Section -->
-    <div v-if="activeTab === 'logs'" class="space-y-6">
+    <div
+      v-if="activeTab === 'logs'"
+      class="space-y-6"
+    >
       <div class="flex items-center justify-between">
-        <h3 class="text-lg font-medium" :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'">
+        <h3
+          class="text-lg font-medium"
+          :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'"
+        >
           Log Groups
         </h3>
         <Button @click="showCreateLogGroupModal = true">
           <template #icon>
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+            <svg
+              class="w-4 h-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M12 4v16m8-8H4"
+              />
             </svg>
           </template>
           Create Log Group
@@ -311,8 +333,18 @@ onUnmounted(() => {
       >
         <template #cell-logGroupName="{ value }">
           <div class="flex items-center gap-2">
-            <svg class="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            <svg
+              class="w-5 h-5 text-green-500"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+              />
             </svg>
             <span class="font-medium">{{ value }}</span>
           </div>
@@ -320,7 +352,10 @@ onUnmounted(() => {
 
         <template #cell-retentionInDays="{ value }">
           <span v-if="value">{{ value }} days</span>
-          <span v-else class="text-light-muted dark:text-dark-muted">Infinite</span>
+          <span
+            v-else
+            class="text-light-muted dark:text-dark-muted"
+          >Infinite</span>
         </template>
 
         <template #cell-storedBytes="{ value }">
@@ -344,8 +379,18 @@ onUnmounted(() => {
               title="Delete"
               @click="deleteLogGroup(row)"
             >
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+              <svg
+                class="w-4 h-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                />
               </svg>
             </button>
           </div>
@@ -353,8 +398,14 @@ onUnmounted(() => {
       </DataTable>
 
       <!-- Log Streams -->
-      <div v-if="selectedLogGroup && logStreams.length > 0" class="mt-6">
-        <h4 class="text-md font-medium mb-4" :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'">
+      <div
+        v-if="selectedLogGroup && logStreams.length > 0"
+        class="mt-6"
+      >
+        <h4
+          class="text-md font-medium mb-4"
+          :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'"
+        >
           Log Streams: {{ selectedLogGroup }}
         </h4>
         
@@ -367,8 +418,18 @@ onUnmounted(() => {
         >
           <template #cell-logStreamName="{ value }">
             <div class="flex items-center gap-2">
-              <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7" />
+              <svg
+                class="w-4 h-4 text-gray-500"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M4 6h16M4 12h16M4 18h7"
+                />
               </svg>
               <span class="font-medium">{{ value }}</span>
             </div>
@@ -399,15 +460,34 @@ onUnmounted(() => {
     </div>
 
     <!-- Metrics Section -->
-    <div v-if="activeTab === 'metrics'" class="space-y-6">
+    <div
+      v-if="activeTab === 'metrics'"
+      class="space-y-6"
+    >
       <div class="flex items-center justify-between">
-        <h3 class="text-lg font-medium" :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'">
+        <h3
+          class="text-lg font-medium"
+          :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'"
+        >
           Metrics
         </h3>
-        <Button variant="secondary" @click="loadMetrics">
+        <Button
+          variant="secondary"
+          @click="loadMetrics"
+        >
           <template #icon>
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            <svg
+              class="w-4 h-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+              />
             </svg>
           </template>
           Refresh
@@ -468,8 +548,18 @@ onUnmounted(() => {
       </div>
       <template #footer>
         <div class="flex justify-end gap-2">
-          <Button variant="secondary" @click="showCreateLogGroupModal = false">Cancel</Button>
-          <Button :loading="creating" @click="createLogGroup">Create</Button>
+          <Button
+            variant="secondary"
+            @click="showCreateLogGroupModal = false"
+          >
+            Cancel
+          </Button>
+          <Button
+            :loading="creating"
+            @click="createLogGroup"
+          >
+            Create
+          </Button>
         </div>
       </template>
     </Modal>
@@ -490,7 +580,11 @@ onUnmounted(() => {
             />
           </div>
           <div class="flex items-center gap-2 mt-6">
-            <Button variant="secondary" size="sm" @click="loadLogEvents">
+            <Button
+              variant="secondary"
+              size="sm"
+              @click="loadLogEvents"
+            >
               Search
             </Button>
             <Button 
@@ -500,9 +594,24 @@ onUnmounted(() => {
               @click="startTailMode"
             >
               <template #icon>
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                <svg
+                  class="w-4 h-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"
+                  />
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                  />
                 </svg>
               </template>
               Tail
@@ -518,7 +627,10 @@ onUnmounted(() => {
           </div>
         </div>
 
-        <div v-if="loadingLogEvents" class="flex justify-center py-8">
+        <div
+          v-if="loadingLogEvents"
+          class="flex justify-center py-8"
+        >
           <LoadingSpinner />
         </div>
 
@@ -529,7 +641,10 @@ onUnmounted(() => {
           description="No log events found for this stream."
         />
 
-        <div v-else class="max-h-96 overflow-y-auto rounded-lg border border-light-border dark:border-dark-border">
+        <div
+          v-else
+          class="max-h-96 overflow-y-auto rounded-lg border border-light-border dark:border-dark-border"
+        >
           <div
             v-for="(event, index) in logEvents"
             :key="index"
@@ -545,7 +660,12 @@ onUnmounted(() => {
       </div>
       <template #footer>
         <div class="flex justify-end gap-2">
-          <Button variant="secondary" @click="stopTailMode(); showLogEventsModal = false">Close</Button>
+          <Button
+            variant="secondary"
+            @click="stopTailMode(); showLogEventsModal = false"
+          >
+            Close
+          </Button>
         </div>
       </template>
     </Modal>
@@ -561,7 +681,10 @@ onUnmounted(() => {
           Namespace: {{ selectedMetric?.Namespace }}
         </p>
 
-        <div v-if="loadingMetricData" class="flex justify-center py-8">
+        <div
+          v-if="loadingMetricData"
+          class="flex justify-center py-8"
+        >
           <LoadingSpinner />
         </div>
 
@@ -572,14 +695,22 @@ onUnmounted(() => {
           description="No metric data available for the selected time range."
         />
 
-        <div v-else class="space-y-4">
+        <div
+          v-else
+          class="space-y-4"
+        >
           <div
             v-for="result in metricData"
             :key="result.Id"
             class="p-4 rounded-lg border border-light-border dark:border-dark-border"
           >
-            <h4 class="font-medium mb-2">{{ result.Label }}</h4>
-            <div v-if="result.Timestamps && result.Timestamps.length > 0" class="space-y-2">
+            <h4 class="font-medium mb-2">
+              {{ result.Label }}
+            </h4>
+            <div
+              v-if="result.Timestamps && result.Timestamps.length > 0"
+              class="space-y-2"
+            >
               <div
                 v-for="(timestamp, idx) in result.Timestamps.slice(0, 10)"
                 :key="idx"
@@ -596,7 +727,12 @@ onUnmounted(() => {
       </div>
       <template #footer>
         <div class="flex justify-end gap-2">
-          <Button variant="secondary" @click="showMetricDataModal = false">Close</Button>
+          <Button
+            variant="secondary"
+            @click="showMetricDataModal = false"
+          >
+            Close
+          </Button>
         </div>
       </template>
     </Modal>

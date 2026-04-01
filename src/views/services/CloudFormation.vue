@@ -277,16 +277,30 @@ onMounted(() => {
       :class="settingsStore.darkMode ? 'bg-dark-surface border-dark-border' : 'bg-light-surface border-light-border'"
     >
       <div class="flex items-center gap-3">
-        <FolderIcon class="h-6 w-6" :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'" />
-        <h1 class="text-xl font-semibold" :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'">
+        <FolderIcon
+          class="h-6 w-6"
+          :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'"
+        />
+        <h1
+          class="text-xl font-semibold"
+          :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'"
+        >
           CloudFormation
         </h1>
       </div>
       <div class="flex items-center gap-2">
-        <Button variant="secondary" size="sm" :loading="loading" @click="loadStacks">
+        <Button
+          variant="secondary"
+          size="sm"
+          :loading="loading"
+          @click="loadStacks"
+        >
           <ArrowPathIcon class="h-4 w-4" />
         </Button>
-        <Button size="sm" @click="showCreateModal = true">
+        <Button
+          size="sm"
+          @click="showCreateModal = true"
+        >
           <PlusIcon class="h-4 w-4 mr-1" />
           Create Stack
         </Button>
@@ -307,7 +321,10 @@ onMounted(() => {
       <template v-else>
         <!-- Stack List -->
         <div class="mb-6">
-          <h2 class="text-lg font-medium mb-4" :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'">
+          <h2
+            class="text-lg font-medium mb-4"
+            :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'"
+          >
             Stacks
           </h2>
           
@@ -327,17 +344,26 @@ onMounted(() => {
             </template>
             
             <template #cell-StackStatus="{ value }">
-              <StatusBadge :status="getStatus(value)" :label="value" />
+              <StatusBadge
+                :status="getStatus(value)"
+                :label="value"
+              />
             </template>
             
             <template #cell-CreationTime="{ value }">
-              <span class="text-sm" :class="settingsStore.darkMode ? 'text-dark-muted' : 'text-light-muted'">
+              <span
+                class="text-sm"
+                :class="settingsStore.darkMode ? 'text-dark-muted' : 'text-light-muted'"
+              >
                 {{ formatDate(value) }}
               </span>
             </template>
             
             <template #cell-Description="{ value }">
-              <span class="text-sm truncate max-w-xs" :class="settingsStore.darkMode ? 'text-dark-muted' : 'text-light-muted'">
+              <span
+                class="text-sm truncate max-w-xs"
+                :class="settingsStore.darkMode ? 'text-dark-muted' : 'text-light-muted'"
+              >
                 {{ value || '-' }}
               </span>
             </template>
@@ -366,19 +392,36 @@ onMounted(() => {
         </div>
         
         <!-- Stack Details -->
-        <div v-if="selectedStack" class="space-y-6">
+        <div
+          v-if="selectedStack"
+          class="space-y-6"
+        >
           <!-- Stack Info -->
-          <div class="p-6 rounded-lg border" :class="settingsStore.darkMode ? 'bg-dark-surface border-dark-border' : 'bg-light-surface border-light-border'">
+          <div
+            class="p-6 rounded-lg border"
+            :class="settingsStore.darkMode ? 'bg-dark-surface border-dark-border' : 'bg-light-surface border-light-border'"
+          >
             <div class="flex items-center justify-between mb-4">
-              <h3 class="text-lg font-semibold" :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'">
+              <h3
+                class="text-lg font-semibold"
+                :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'"
+              >
                 Stack: {{ selectedStack.StackName }}
               </h3>
               <div class="flex items-center gap-2">
-                <Button variant="secondary" size="sm" @click="loadStackResources">
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  @click="loadStackResources"
+                >
                   <EyeIcon class="h-4 w-4 mr-1" />
                   Resources
                 </Button>
-                <Button variant="secondary" size="sm" @click="loadStackEvents">
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  @click="loadStackEvents"
+                >
                   Events
                 </Button>
               </div>
@@ -386,50 +429,90 @@ onMounted(() => {
             
             <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
               <div>
-                <p class="text-sm" :class="settingsStore.darkMode ? 'text-dark-muted' : 'text-light-muted'">
+                <p
+                  class="text-sm"
+                  :class="settingsStore.darkMode ? 'text-dark-muted' : 'text-light-muted'"
+                >
                   Status
                 </p>
-                <StatusBadge :status="getStatus(selectedStack.StackStatus)" class="mt-1" />
+                <StatusBadge
+                  :status="getStatus(selectedStack.StackStatus)"
+                  class="mt-1"
+                />
               </div>
               <div>
-                <p class="text-sm" :class="settingsStore.darkMode ? 'text-dark-muted' : 'text-light-muted'">
+                <p
+                  class="text-sm"
+                  :class="settingsStore.darkMode ? 'text-dark-muted' : 'text-light-muted'"
+                >
                   Created
                 </p>
-                <p class="mt-1 text-sm" :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'">
+                <p
+                  class="mt-1 text-sm"
+                  :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'"
+                >
                   {{ formatDate(selectedStack.CreationTime) }}
                 </p>
               </div>
               <div v-if="selectedStack.LastUpdatedTime">
-                <p class="text-sm" :class="settingsStore.darkMode ? 'text-dark-muted' : 'text-light-muted'">
+                <p
+                  class="text-sm"
+                  :class="settingsStore.darkMode ? 'text-dark-muted' : 'text-light-muted'"
+                >
                   Last Updated
                 </p>
-                <p class="mt-1 text-sm" :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'">
+                <p
+                  class="mt-1 text-sm"
+                  :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'"
+                >
                   {{ formatDate(selectedStack.LastUpdatedTime) }}
                 </p>
               </div>
               <div>
-                <p class="text-sm" :class="settingsStore.darkMode ? 'text-dark-muted' : 'text-light-muted'">
+                <p
+                  class="text-sm"
+                  :class="settingsStore.darkMode ? 'text-dark-muted' : 'text-light-muted'"
+                >
                   Stack ID
                 </p>
-                <code class="mt-1 text-xs block truncate" :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'">
+                <code
+                  class="mt-1 text-xs block truncate"
+                  :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'"
+                >
                   {{ selectedStack.StackId }}
                 </code>
               </div>
             </div>
             
-            <div v-if="selectedStack.Description" class="mt-4">
-              <p class="text-sm" :class="settingsStore.darkMode ? 'text-dark-muted' : 'text-light-muted'">
+            <div
+              v-if="selectedStack.Description"
+              class="mt-4"
+            >
+              <p
+                class="text-sm"
+                :class="settingsStore.darkMode ? 'text-dark-muted' : 'text-light-muted'"
+              >
                 Description
               </p>
-              <p class="mt-1 text-sm" :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'">
+              <p
+                class="mt-1 text-sm"
+                :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'"
+              >
                 {{ selectedStack.Description }}
               </p>
             </div>
           </div>
           
           <!-- Stack Outputs -->
-          <div v-if="stackDetails?.Outputs && stackDetails.Outputs.length > 0" class="p-6 rounded-lg border" :class="settingsStore.darkMode ? 'bg-dark-surface border-dark-border' : 'bg-light-surface border-light-border'">
-            <h3 class="text-lg font-semibold mb-4" :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'">
+          <div
+            v-if="stackDetails?.Outputs && stackDetails.Outputs.length > 0"
+            class="p-6 rounded-lg border"
+            :class="settingsStore.darkMode ? 'bg-dark-surface border-dark-border' : 'bg-light-surface border-light-border'"
+          >
+            <h3
+              class="text-lg font-semibold mb-4"
+              :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'"
+            >
               Outputs
             </h3>
             
@@ -440,13 +523,23 @@ onMounted(() => {
                 class="p-3 rounded border"
                 :class="settingsStore.darkMode ? 'border-dark-border bg-dark-bg' : 'border-light-border bg-light-bg'"
               >
-                <p class="text-sm font-medium" :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'">
+                <p
+                  class="text-sm font-medium"
+                  :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'"
+                >
                   {{ output.OutputKey }}
                 </p>
-                <code class="text-xs block mt-1" :class="settingsStore.darkMode ? 'text-dark-muted' : 'text-light-muted'">
+                <code
+                  class="text-xs block mt-1"
+                  :class="settingsStore.darkMode ? 'text-dark-muted' : 'text-light-muted'"
+                >
                   {{ output.OutputValue }}
                 </code>
-                <p v-if="output.Description" class="text-xs mt-1" :class="settingsStore.darkMode ? 'text-dark-muted' : 'text-light-muted'">
+                <p
+                  v-if="output.Description"
+                  class="text-xs mt-1"
+                  :class="settingsStore.darkMode ? 'text-dark-muted' : 'text-light-muted'"
+                >
                   {{ output.Description }}
                 </p>
               </div>
@@ -470,7 +563,10 @@ onMounted(() => {
           required
         />
         <div>
-          <label class="block text-sm font-medium mb-1" :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'">
+          <label
+            class="block text-sm font-medium mb-1"
+            :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'"
+          >
             Template Body (YAML)
           </label>
           <textarea
@@ -484,8 +580,18 @@ onMounted(() => {
       
       <template #footer>
         <div class="flex justify-end gap-2">
-          <Button variant="secondary" @click="showCreateModal = false">Cancel</Button>
-          <Button :loading="loading" @click="createStack">Create Stack</Button>
+          <Button
+            variant="secondary"
+            @click="showCreateModal = false"
+          >
+            Cancel
+          </Button>
+          <Button
+            :loading="loading"
+            @click="createStack"
+          >
+            Create Stack
+          </Button>
         </div>
       </template>
     </Modal>
@@ -525,13 +631,22 @@ onMounted(() => {
         </template>
         
         <template #cell-ResourceStatus="{ value }">
-          <StatusBadge :status="getStatus(value)" :label="value" size="sm" />
+          <StatusBadge
+            :status="getStatus(value)"
+            :label="value"
+            size="sm"
+          />
         </template>
       </DataTable>
       
       <template #footer>
         <div class="flex justify-end gap-2">
-          <Button variant="secondary" @click="showResourcesModal = false">Close</Button>
+          <Button
+            variant="secondary"
+            @click="showResourcesModal = false"
+          >
+            Close
+          </Button>
         </div>
       </template>
     </Modal>
@@ -571,7 +686,11 @@ onMounted(() => {
         </template>
         
         <template #cell-ResourceStatus="{ value }">
-          <StatusBadge :status="getStatus(value)" :label="value" size="sm" />
+          <StatusBadge
+            :status="getStatus(value)"
+            :label="value"
+            size="sm"
+          />
         </template>
         
         <template #cell-ResourceStatusReason="{ value }">
@@ -581,7 +700,12 @@ onMounted(() => {
       
       <template #footer>
         <div class="flex justify-end gap-2">
-          <Button variant="secondary" @click="showEventsModal = false">Close</Button>
+          <Button
+            variant="secondary"
+            @click="showEventsModal = false"
+          >
+            Close
+          </Button>
         </div>
       </template>
     </Modal>

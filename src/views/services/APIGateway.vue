@@ -898,36 +898,71 @@ onMounted(() => {
 <template>
   <div class="space-y-6">
     <div class="flex items-center justify-between">
-      <h2 class="text-xl font-semibold" :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'">
+      <h2
+        class="text-xl font-semibold"
+        :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'"
+      >
         API Gateway
       </h2>
     </div>
 
     <!-- Tabs -->
-    <Tabs v-model="activeTab" :tabs="[
-      { id: 'rest', label: 'REST APIs' },
-      { id: 'http', label: 'HTTP APIs' },
-    ]" />
+    <Tabs
+      v-model="activeTab"
+      :tabs="[
+        { id: 'rest', label: 'REST APIs' },
+        { id: 'http', label: 'HTTP APIs' },
+      ]"
+    />
 
     <!-- REST APIs -->
-    <div v-if="activeTab === 'rest'" class="space-y-6">
+    <div
+      v-if="activeTab === 'rest'"
+      class="space-y-6"
+    >
       <div class="flex items-center justify-between">
-        <h3 class="text-lg font-medium" :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'">
+        <h3
+          class="text-lg font-medium"
+          :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'"
+        >
           REST APIs
         </h3>
         <div class="flex items-center gap-2">
-          <Button variant="secondary" @click="showImportSwaggerModal = true">
+          <Button
+            variant="secondary"
+            @click="showImportSwaggerModal = true"
+          >
             <template #icon>
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+              <svg
+                class="w-4 h-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
+                />
               </svg>
             </template>
             Import Swagger
           </Button>
           <Button @click="showCreateRestModal = true">
             <template #icon>
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+              <svg
+                class="w-4 h-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M12 4v16m8-8H4"
+                />
               </svg>
             </template>
             Create REST API
@@ -953,8 +988,18 @@ onMounted(() => {
       >
         <template #cell-name="{ value }">
           <div class="flex items-center gap-2">
-            <svg class="w-5 h-5 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2" />
+            <svg
+              class="w-5 h-5 text-orange-500"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2"
+              />
             </svg>
             <span class="font-medium">{{ value }}</span>
           </div>
@@ -967,8 +1012,18 @@ onMounted(() => {
               class="text-light-muted dark:text-dark-muted hover:text-primary-500"
               @click="copyToClipboard(value)"
             >
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+              <svg
+                class="w-4 h-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"
+                />
               </svg>
             </button>
           </div>
@@ -989,9 +1044,24 @@ onMounted(() => {
               title="View Details"
               @click="viewRestApi(row)"
             >
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+              <svg
+                class="w-4 h-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                />
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                />
               </svg>
             </button>
             <button
@@ -999,8 +1069,18 @@ onMounted(() => {
               title="Edit"
               @click="openEditModal(row)"
             >
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+              <svg
+                class="w-4 h-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                />
               </svg>
             </button>
             <button
@@ -1014,8 +1094,18 @@ onMounted(() => {
               title="Delete"
               @click="openDeleteModal(row)"
             >
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+              <svg
+                class="w-4 h-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                />
               </svg>
             </button>
           </div>
@@ -1024,15 +1114,31 @@ onMounted(() => {
     </div>
 
     <!-- HTTP APIs -->
-    <div v-if="activeTab === 'http'" class="space-y-6">
+    <div
+      v-if="activeTab === 'http'"
+      class="space-y-6"
+    >
       <div class="flex items-center justify-between">
-        <h3 class="text-lg font-medium" :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'">
+        <h3
+          class="text-lg font-medium"
+          :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'"
+        >
           HTTP APIs
         </h3>
         <Button @click="showCreateHttpModal = true">
           <template #icon>
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+            <svg
+              class="w-4 h-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M12 4v16m8-8H4"
+              />
             </svg>
           </template>
           Create HTTP API
@@ -1057,8 +1163,18 @@ onMounted(() => {
       >
         <template #cell-name="{ value }">
           <div class="flex items-center gap-2">
-            <svg class="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2" />
+            <svg
+              class="w-5 h-5 text-blue-500"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2"
+              />
             </svg>
             <span class="font-medium">{{ value }}</span>
           </div>
@@ -1071,8 +1187,18 @@ onMounted(() => {
               class="text-light-muted dark:text-dark-muted hover:text-primary-500"
               @click="copyToClipboard(value)"
             >
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+              <svg
+                class="w-4 h-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"
+                />
               </svg>
             </button>
           </div>
@@ -1105,8 +1231,18 @@ onMounted(() => {
               title="Delete"
               @click="deleteHttpApi(row)"
             >
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+              <svg
+                class="w-4 h-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                />
               </svg>
             </button>
           </div>
@@ -1135,8 +1271,18 @@ onMounted(() => {
       </div>
       <template #footer>
         <div class="flex justify-end gap-2">
-          <Button variant="secondary" @click="showCreateRestModal = false">Cancel</Button>
-          <Button :loading="creating" @click="createRestApi">Create</Button>
+          <Button
+            variant="secondary"
+            @click="showCreateRestModal = false"
+          >
+            Cancel
+          </Button>
+          <Button
+            :loading="creating"
+            @click="createRestApi"
+          >
+            Create
+          </Button>
         </div>
       </template>
     </Modal>
@@ -1161,8 +1307,18 @@ onMounted(() => {
       </div>
       <template #footer>
         <div class="flex justify-end gap-2">
-          <Button variant="secondary" @click="showCreateHttpModal = false">Cancel</Button>
-          <Button :loading="creating" @click="createHttpApi">Create</Button>
+          <Button
+            variant="secondary"
+            @click="showCreateHttpModal = false"
+          >
+            Cancel
+          </Button>
+          <Button
+            :loading="creating"
+            @click="createHttpApi"
+          >
+            Create
+          </Button>
         </div>
       </template>
     </Modal>
@@ -1174,17 +1330,33 @@ onMounted(() => {
       size="lg"
     >
       <div class="flex justify-end mb-4">
-        <Button size="sm" @click="showCreateResourceModal = true">
+        <Button
+          size="sm"
+          @click="showCreateResourceModal = true"
+        >
           <template #icon>
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+            <svg
+              class="w-4 h-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M12 4v16m8-8H4"
+              />
             </svg>
           </template>
           Create Resource
         </Button>
       </div>
 
-      <div v-if="loadingResources" class="flex justify-center py-8">
+      <div
+        v-if="loadingResources"
+        class="flex justify-center py-8"
+      >
         <LoadingSpinner />
       </div>
 
@@ -1222,7 +1394,12 @@ onMounted(() => {
 
       <template #footer>
         <div class="flex justify-end gap-2">
-          <Button variant="secondary" @click="showResourcesModal = false">Close</Button>
+          <Button
+            variant="secondary"
+            @click="showResourcesModal = false"
+          >
+            Close
+          </Button>
         </div>
       </template>
     </Modal>
@@ -1243,8 +1420,18 @@ onMounted(() => {
       </div>
       <template #footer>
         <div class="flex justify-end gap-2">
-          <Button variant="secondary" @click="showCreateResourceModal = false">Cancel</Button>
-          <Button :loading="creating" @click="createResource">Create</Button>
+          <Button
+            variant="secondary"
+            @click="showCreateResourceModal = false"
+          >
+            Cancel
+          </Button>
+          <Button
+            :loading="creating"
+            @click="createResource"
+          >
+            Create
+          </Button>
         </div>
       </template>
     </Modal>
@@ -1256,17 +1443,33 @@ onMounted(() => {
       size="lg"
     >
       <div class="flex justify-end mb-4">
-        <Button size="sm" @click="showCreateRouteModal = true">
+        <Button
+          size="sm"
+          @click="showCreateRouteModal = true"
+        >
           <template #icon>
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+            <svg
+              class="w-4 h-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M12 4v16m8-8H4"
+              />
             </svg>
           </template>
           Create Route
         </Button>
       </div>
 
-      <div v-if="loadingRoutes" class="flex justify-center py-8">
+      <div
+        v-if="loadingRoutes"
+        class="flex justify-center py-8"
+      >
         <LoadingSpinner />
       </div>
 
@@ -1294,7 +1497,12 @@ onMounted(() => {
 
       <template #footer>
         <div class="flex justify-end gap-2">
-          <Button variant="secondary" @click="showRoutesModal = false">Close</Button>
+          <Button
+            variant="secondary"
+            @click="showRoutesModal = false"
+          >
+            Close
+          </Button>
         </div>
       </template>
     </Modal>
@@ -1315,8 +1523,18 @@ onMounted(() => {
       </div>
       <template #footer>
         <div class="flex justify-end gap-2">
-          <Button variant="secondary" @click="showCreateRouteModal = false">Cancel</Button>
-          <Button :loading="creating" @click="createRoute">Create</Button>
+          <Button
+            variant="secondary"
+            @click="showCreateRouteModal = false"
+          >
+            Cancel
+          </Button>
+          <Button
+            :loading="creating"
+            @click="createRoute"
+          >
+            Create
+          </Button>
         </div>
       </template>
     </Modal>
@@ -1328,17 +1546,33 @@ onMounted(() => {
       size="lg"
     >
       <div class="flex justify-end mb-4">
-        <Button size="sm" @click="showCreateIntegrationModal = true">
+        <Button
+          size="sm"
+          @click="showCreateIntegrationModal = true"
+        >
           <template #icon>
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+            <svg
+              class="w-4 h-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M12 4v16m8-8H4"
+              />
             </svg>
           </template>
           Create Integration
         </Button>
       </div>
 
-      <div v-if="loadingIntegrations" class="flex justify-center py-8">
+      <div
+        v-if="loadingIntegrations"
+        class="flex justify-center py-8"
+      >
         <LoadingSpinner />
       </div>
 
@@ -1369,7 +1603,12 @@ onMounted(() => {
 
       <template #footer>
         <div class="flex justify-end gap-2">
-          <Button variant="secondary" @click="showIntegrationsModal = false">Close</Button>
+          <Button
+            variant="secondary"
+            @click="showIntegrationsModal = false"
+          >
+            Close
+          </Button>
         </div>
       </template>
     </Modal>
@@ -1390,8 +1629,18 @@ onMounted(() => {
       </div>
       <template #footer>
         <div class="flex justify-end gap-2">
-          <Button variant="secondary" @click="showCreateIntegrationModal = false">Cancel</Button>
-          <Button :loading="creating" @click="createIntegration">Create</Button>
+          <Button
+            variant="secondary"
+            @click="showCreateIntegrationModal = false"
+          >
+            Cancel
+          </Button>
+          <Button
+            :loading="creating"
+            @click="createIntegration"
+          >
+            Create
+          </Button>
         </div>
       </template>
     </Modal>
@@ -1406,18 +1655,28 @@ onMounted(() => {
         <!-- File Upload -->
         <div class="border-2 border-dashed border-light-border dark:border-dark-border rounded-lg p-6 text-center">
           <input
+            id="swagger-file-input"
             type="file"
             accept=".json,.yaml,.yml"
             class="hidden"
-            id="swagger-file-input"
             @change="handleSwaggerFileSelect"
-          />
+          >
           <label
             for="swagger-file-input"
             class="cursor-pointer flex flex-col items-center gap-2"
           >
-            <svg class="w-12 h-12 text-light-muted dark:text-dark-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+            <svg
+              class="w-12 h-12 text-light-muted dark:text-dark-muted"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
+              />
             </svg>
             <span class="text-sm text-light-muted dark:text-dark-muted">
               Click to upload or drag and drop
@@ -1426,10 +1685,23 @@ onMounted(() => {
               JSON or YAML files (.json, .yaml, .yml)
             </span>
           </label>
-          <div v-if="swaggerFile" class="mt-4">
+          <div
+            v-if="swaggerFile"
+            class="mt-4"
+          >
             <div class="flex items-center gap-2 justify-center">
-              <svg class="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+              <svg
+                class="w-5 h-5 text-green-500"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                />
               </svg>
               <span class="text-sm font-medium">{{ swaggerFile.name }}</span>
               <span class="text-xs text-light-muted dark:text-dark-muted">
@@ -1448,9 +1720,23 @@ onMounted(() => {
             Validation Errors:
           </h4>
           <ul class="text-sm text-red-700 dark:text-red-300 space-y-1">
-            <li v-for="(error, index) in swaggerValidationErrors" :key="index" class="flex items-start gap-2">
-              <svg class="w-4 h-4 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            <li
+              v-for="(error, index) in swaggerValidationErrors"
+              :key="index"
+              class="flex items-start gap-2"
+            >
+              <svg
+                class="w-4 h-4 mt-0.5 flex-shrink-0"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M6 18L18 6M6 6l12 12"
+                />
               </svg>
               {{ error }}
             </li>
@@ -1468,15 +1754,21 @@ onMounted(() => {
           <div class="grid grid-cols-3 gap-4 text-sm">
             <div>
               <span class="text-green-600 dark:text-green-400 font-medium">Title:</span>
-              <p class="text-green-800 dark:text-green-200">{{ swaggerSpecPreview.title }}</p>
+              <p class="text-green-800 dark:text-green-200">
+                {{ swaggerSpecPreview.title }}
+              </p>
             </div>
             <div>
               <span class="text-green-600 dark:text-green-400 font-medium">Version:</span>
-              <p class="text-green-800 dark:text-green-200">{{ swaggerSpecPreview.version }}</p>
+              <p class="text-green-800 dark:text-green-200">
+                {{ swaggerSpecPreview.version }}
+              </p>
             </div>
             <div>
               <span class="text-green-600 dark:text-green-400 font-medium">Paths:</span>
-              <p class="text-green-800 dark:text-green-200">{{ swaggerSpecPreview.pathCount }} endpoints</p>
+              <p class="text-green-800 dark:text-green-200">
+                {{ swaggerSpecPreview.pathCount }} endpoints
+              </p>
             </div>
           </div>
         </div>
@@ -1488,18 +1780,46 @@ onMounted(() => {
           :class="swaggerImportResult.success ? 'bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800' : 'bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800'"
         >
           <div class="flex items-center gap-2 mb-3">
-            <svg v-if="swaggerImportResult.success" class="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            <svg
+              v-if="swaggerImportResult.success"
+              class="w-5 h-5 text-green-500"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+              />
             </svg>
-            <svg v-else class="w-5 h-5 text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+            <svg
+              v-else
+              class="w-5 h-5 text-yellow-500"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+              />
             </svg>
-            <span class="font-medium" :class="swaggerImportResult.success ? 'text-green-800 dark:text-green-200' : 'text-yellow-800 dark:text-yellow-200'">
+            <span
+              class="font-medium"
+              :class="swaggerImportResult.success ? 'text-green-800 dark:text-green-200' : 'text-yellow-800 dark:text-yellow-200'"
+            >
               {{ swaggerImportResult.success ? 'Import Successful' : 'Import Completed with Errors' }}
             </span>
           </div>
           
-          <div v-if="swaggerImportResult.success" class="grid grid-cols-3 gap-4 text-sm mb-3">
+          <div
+            v-if="swaggerImportResult.success"
+            class="grid grid-cols-3 gap-4 text-sm mb-3"
+          >
             <div>
               <span class="text-green-600 dark:text-green-400">API ID:</span>
               <code class="ml-1 text-green-800 dark:text-green-200">{{ swaggerImportResult.apiId }}</code>
@@ -1515,9 +1835,14 @@ onMounted(() => {
           </div>
           
           <div v-if="swaggerImportResult.errors && swaggerImportResult.errors.length > 0">
-            <h5 class="text-sm font-medium text-yellow-800 dark:text-yellow-200 mb-1">Errors:</h5>
+            <h5 class="text-sm font-medium text-yellow-800 dark:text-yellow-200 mb-1">
+              Errors:
+            </h5>
             <ul class="text-xs text-yellow-700 dark:text-yellow-300 space-y-1 max-h-32 overflow-y-auto">
-              <li v-for="(error, index) in swaggerImportResult.errors" :key="index">
+              <li
+                v-for="(error, index) in swaggerImportResult.errors"
+                :key="index"
+              >
                 {{ error }}
               </li>
             </ul>
@@ -1527,7 +1852,10 @@ onMounted(() => {
 
       <template #footer>
         <div class="flex justify-between items-center">
-          <Button variant="secondary" @click="closeImportModal">
+          <Button
+            variant="secondary"
+            @click="closeImportModal"
+          >
             {{ swaggerImportResult ? 'Close' : 'Cancel' }}
           </Button>
           <Button
@@ -1537,8 +1865,18 @@ onMounted(() => {
             @click="importSwaggerFile"
           >
             <template #icon>
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+              <svg
+                class="w-4 h-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"
+                />
               </svg>
             </template>
             Import Specification
@@ -1553,33 +1891,51 @@ onMounted(() => {
       :title="`API Details: ${viewRestApiDetails?.name || ''}`"
       size="md"
     >
-      <div v-if="viewLoading" class="flex justify-center py-8">
+      <div
+        v-if="viewLoading"
+        class="flex justify-center py-8"
+      >
         <LoadingSpinner />
       </div>
       
-      <div v-else-if="viewRestApiDetails" class="space-y-4">
+      <div
+        v-else-if="viewRestApiDetails"
+        class="space-y-4"
+      >
         <div class="grid grid-cols-2 gap-4">
           <div>
             <label class="text-sm font-medium text-light-muted dark:text-dark-muted">API ID</label>
-            <p class="font-mono text-sm mt-1" :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'">
+            <p
+              class="font-mono text-sm mt-1"
+              :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'"
+            >
               {{ viewRestApiDetails.id }}
             </p>
           </div>
           <div>
             <label class="text-sm font-medium text-light-muted dark:text-dark-muted">API Key Source</label>
-            <p class="text-sm mt-1" :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'">
+            <p
+              class="text-sm mt-1"
+              :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'"
+            >
               {{ viewRestApiDetails.apiKeySource || 'HEADER' }}
             </p>
           </div>
           <div>
             <label class="text-sm font-medium text-light-muted dark:text-dark-muted">Endpoint Type</label>
-            <p class="text-sm mt-1" :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'">
+            <p
+              class="text-sm mt-1"
+              :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'"
+            >
               {{ viewRestApiDetails.endpointConfiguration?.types?.join(', ') || 'REGIONAL' }}
             </p>
           </div>
           <div>
             <label class="text-sm font-medium text-light-muted dark:text-dark-muted">Created</label>
-            <p class="text-sm mt-1" :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'">
+            <p
+              class="text-sm mt-1"
+              :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'"
+            >
               {{ new Date(viewRestApiDetails.createdDate * 1000).toLocaleString() }}
             </p>
           </div>
@@ -1587,7 +1943,10 @@ onMounted(() => {
         
         <div v-if="viewRestApiDetails.description">
           <label class="text-sm font-medium text-light-muted dark:text-dark-muted">Description</label>
-          <p class="text-sm mt-1" :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'">
+          <p
+            class="text-sm mt-1"
+            :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'"
+          >
             {{ viewRestApiDetails.description }}
           </p>
         </div>
@@ -1608,12 +1967,23 @@ onMounted(() => {
 
       <template #footer>
         <div class="flex justify-between items-center">
-          <Button variant="secondary" @click="showViewRestModal = false">Close</Button>
+          <Button
+            variant="secondary"
+            @click="showViewRestModal = false"
+          >
+            Close
+          </Button>
           <div class="flex gap-2">
-            <Button variant="secondary" @click="() => { showViewRestModal = false; openEditModal(viewRestApiDetails!) }">
+            <Button
+              variant="secondary"
+              @click="() => { showViewRestModal = false; openEditModal(viewRestApiDetails!) }"
+            >
               Edit
             </Button>
-            <Button variant="danger" @click="() => { showViewRestModal = false; openDeleteModal(viewRestApiDetails!) }">
+            <Button
+              variant="danger"
+              @click="() => { showViewRestModal = false; openDeleteModal(viewRestApiDetails!) }"
+            >
               Delete
             </Button>
           </div>
@@ -1643,8 +2013,18 @@ onMounted(() => {
 
       <template #footer>
         <div class="flex justify-end gap-2">
-          <Button variant="secondary" @click="showEditRestModal = false">Cancel</Button>
-          <Button :loading="editing" @click="updateRestApi">Save Changes</Button>
+          <Button
+            variant="secondary"
+            @click="showEditRestModal = false"
+          >
+            Cancel
+          </Button>
+          <Button
+            :loading="editing"
+            @click="updateRestApi"
+          >
+            Save Changes
+          </Button>
         </div>
       </template>
     </Modal>
@@ -1666,14 +2046,28 @@ onMounted(() => {
 
       <template #footer>
         <div class="flex justify-end gap-2">
-          <Button variant="secondary" @click="showDeleteRestModal = false">Cancel</Button>
-          <Button variant="danger" :loading="deleting" @click="confirmDeleteRestApi">Delete</Button>
+          <Button
+            variant="secondary"
+            @click="showDeleteRestModal = false"
+          >
+            Cancel
+          </Button>
+          <Button
+            variant="danger"
+            :loading="deleting"
+            @click="confirmDeleteRestApi"
+          >
+            Delete
+          </Button>
         </div>
       </template>
     </Modal>
 
     <!-- Usage Examples -->
-    <div v-if="activeTab === 'rest'" class="mt-8">
+    <div
+      v-if="activeTab === 'rest'"
+      class="mt-8"
+    >
       <h3 
         class="text-lg font-semibold mb-4"
         :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'"
@@ -1684,17 +2078,20 @@ onMounted(() => {
         class="rounded-lg border overflow-hidden"
         :class="settingsStore.darkMode ? 'bg-dark-surface border-dark-border' : 'bg-light-surface border-light-border'"
       >
-        <div class="flex border-b" :class="settingsStore.darkMode ? 'border-dark-border' : 'border-light-border'">
+        <div
+          class="flex border-b"
+          :class="settingsStore.darkMode ? 'border-dark-border' : 'border-light-border'"
+        >
           <button
             v-for="(example, index) in codeExamples"
             :key="example.language"
-            @click="restExampleIndex = index"
             class="px-4 py-2 text-sm font-medium transition-colors"
             :class="[
               restExampleIndex === index
                 ? settingsStore.darkMode ? 'bg-dark-bg text-dark-text' : 'bg-light-bg text-light-text'
                 : settingsStore.darkMode ? 'text-dark-muted hover:text-dark-text hover:bg-dark-bg' : 'text-light-muted hover:text-light-text hover:bg-light-bg'
             ]"
+            @click="restExampleIndex = index"
           >
             {{ example.label }}
           </button>
@@ -1709,7 +2106,10 @@ onMounted(() => {
     </div>
 
     <!-- HTTP API Usage Examples -->
-    <div v-if="activeTab === 'http'" class="mt-8">
+    <div
+      v-if="activeTab === 'http'"
+      class="mt-8"
+    >
       <h3 
         class="text-lg font-semibold mb-4"
         :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'"
@@ -1720,17 +2120,20 @@ onMounted(() => {
         class="rounded-lg border overflow-hidden"
         :class="settingsStore.darkMode ? 'bg-dark-surface border-dark-border' : 'bg-light-surface border-light-border'"
       >
-        <div class="flex border-b" :class="settingsStore.darkMode ? 'border-dark-border' : 'border-light-border'">
+        <div
+          class="flex border-b"
+          :class="settingsStore.darkMode ? 'border-dark-border' : 'border-light-border'"
+        >
           <button
             v-for="(example, index) in httpApiExamples"
             :key="example.language"
-            @click="httpExampleIndex = index"
             class="px-4 py-2 text-sm font-medium transition-colors"
             :class="[
               httpExampleIndex === index
                 ? settingsStore.darkMode ? 'bg-dark-bg text-dark-text' : 'bg-light-bg text-light-text'
                 : settingsStore.darkMode ? 'text-dark-muted hover:text-dark-text hover:bg-dark-bg' : 'text-light-muted hover:text-light-text hover:bg-light-bg'
             ]"
+            @click="httpExampleIndex = index"
           >
             {{ example.label }}
           </button>

@@ -221,16 +221,30 @@ onMounted(() => {
       :class="settingsStore.darkMode ? 'bg-dark-surface border-dark-border' : 'bg-light-surface border-light-border'"
     >
       <div class="flex items-center gap-3">
-        <CircleStackIcon class="h-6 w-6" :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'" />
-        <h1 class="text-xl font-semibold" :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'">
+        <CircleStackIcon
+          class="h-6 w-6"
+          :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'"
+        />
+        <h1
+          class="text-xl font-semibold"
+          :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'"
+        >
           ElastiCache
         </h1>
       </div>
       <div class="flex items-center gap-2">
-        <Button variant="secondary" size="sm" :loading="loading" @click="loadClusters">
+        <Button
+          variant="secondary"
+          size="sm"
+          :loading="loading"
+          @click="loadClusters"
+        >
           <ArrowPathIcon class="h-4 w-4" />
         </Button>
-        <Button size="sm" @click="showCreateModal = true">
+        <Button
+          size="sm"
+          @click="showCreateModal = true"
+        >
           <PlusIcon class="h-4 w-4 mr-1" />
           Create Cluster
         </Button>
@@ -250,7 +264,10 @@ onMounted(() => {
       >
         <template #action>
           <div class="space-y-4">
-            <p class="text-sm" :class="settingsStore.darkMode ? 'text-dark-muted' : 'text-light-muted'">
+            <p
+              class="text-sm"
+              :class="settingsStore.darkMode ? 'text-dark-muted' : 'text-light-muted'"
+            >
               Launch MiniStack with Docker socket to manage ElastiCache clusters locally.
             </p>
             <Button @click="showCreateModal = true">
@@ -264,7 +281,10 @@ onMounted(() => {
       <template v-else>
         <!-- Cluster List -->
         <div class="mb-6">
-          <h2 class="text-lg font-medium mb-4" :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'">
+          <h2
+            class="text-lg font-medium mb-4"
+            :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'"
+          >
             Cache Clusters
           </h2>
           
@@ -284,7 +304,10 @@ onMounted(() => {
             </template>
             
             <template #cell-CacheClusterStatus="{ value }">
-              <StatusBadge :status="getClusterStatus(value)" :label="value" />
+              <StatusBadge
+                :status="getClusterStatus(value)"
+                :label="value"
+              />
             </template>
             
             <template #cell-NumCacheNodes="{ value }">
@@ -315,40 +338,73 @@ onMounted(() => {
         </div>
         
         <!-- Cluster Details -->
-        <div v-if="selectedCluster" class="space-y-6">
-          <div class="p-6 rounded-lg border" :class="settingsStore.darkMode ? 'bg-dark-surface border-dark-border' : 'bg-light-surface border-light-border'">
-            <h3 class="text-lg font-semibold mb-4" :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'">
+        <div
+          v-if="selectedCluster"
+          class="space-y-6"
+        >
+          <div
+            class="p-6 rounded-lg border"
+            :class="settingsStore.darkMode ? 'bg-dark-surface border-dark-border' : 'bg-light-surface border-light-border'"
+          >
+            <h3
+              class="text-lg font-semibold mb-4"
+              :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'"
+            >
               Cluster Details: {{ selectedCluster.CacheClusterId }}
             </h3>
             
             <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
               <div>
-                <p class="text-sm" :class="settingsStore.darkMode ? 'text-dark-muted' : 'text-light-muted'">
+                <p
+                  class="text-sm"
+                  :class="settingsStore.darkMode ? 'text-dark-muted' : 'text-light-muted'"
+                >
                   Status
                 </p>
-                <StatusBadge :status="getClusterStatus(selectedCluster.CacheClusterStatus)" class="mt-1" />
+                <StatusBadge
+                  :status="getClusterStatus(selectedCluster.CacheClusterStatus)"
+                  class="mt-1"
+                />
               </div>
               <div>
-                <p class="text-sm" :class="settingsStore.darkMode ? 'text-dark-muted' : 'text-light-muted'">
+                <p
+                  class="text-sm"
+                  :class="settingsStore.darkMode ? 'text-dark-muted' : 'text-light-muted'"
+                >
                   Node Type
                 </p>
-                <p class="mt-1 font-medium" :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'">
+                <p
+                  class="mt-1 font-medium"
+                  :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'"
+                >
                   {{ selectedCluster.CacheNodeType }}
                 </p>
               </div>
               <div>
-                <p class="text-sm" :class="settingsStore.darkMode ? 'text-dark-muted' : 'text-light-muted'">
+                <p
+                  class="text-sm"
+                  :class="settingsStore.darkMode ? 'text-dark-muted' : 'text-light-muted'"
+                >
                   Engine
                 </p>
-                <p class="mt-1 font-medium" :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'">
+                <p
+                  class="mt-1 font-medium"
+                  :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'"
+                >
                   {{ selectedCluster.Engine }} {{ selectedCluster.EngineVersion }}
                 </p>
               </div>
               <div>
-                <p class="text-sm" :class="settingsStore.darkMode ? 'text-dark-muted' : 'text-light-muted'">
+                <p
+                  class="text-sm"
+                  :class="settingsStore.darkMode ? 'text-dark-muted' : 'text-light-muted'"
+                >
                   Endpoint
                 </p>
-                <code class="mt-1 text-xs block" :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'">
+                <code
+                  class="mt-1 text-xs block"
+                  :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'"
+                >
                   {{ selectedCluster.CacheClusterId }}.{{ settingsStore.darkMode ? 'fake' : 'cache' }}.us-east-1.amazonaws.com:{{ newPort }}
                 </code>
               </div>
@@ -356,8 +412,14 @@ onMounted(() => {
           </div>
           
           <!-- Cache Nodes -->
-          <div class="p-6 rounded-lg border" :class="settingsStore.darkMode ? 'bg-dark-surface border-dark-border' : 'bg-light-surface border-light-border'">
-            <h3 class="text-lg font-semibold mb-4" :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'">
+          <div
+            class="p-6 rounded-lg border"
+            :class="settingsStore.darkMode ? 'bg-dark-surface border-dark-border' : 'bg-light-surface border-light-border'"
+          >
+            <h3
+              class="text-lg font-semibold mb-4"
+              :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'"
+            >
               Cache Nodes
             </h3>
             
@@ -368,7 +430,10 @@ onMounted(() => {
               empty-text="No cache nodes found"
             >
               <template #cell-CacheNodeStatus="{ value }">
-                <StatusBadge :status="value === 'available' ? 'active' : 'pending'" :label="value" />
+                <StatusBadge
+                  :status="value === 'available' ? 'active' : 'pending'"
+                  :label="value"
+                />
               </template>
             </DataTable>
           </div>
@@ -437,8 +502,18 @@ onMounted(() => {
       
       <template #footer>
         <div class="flex justify-end gap-2">
-          <Button variant="secondary" @click="showCreateModal = false">Cancel</Button>
-          <Button :loading="creating" @click="createCluster">Create</Button>
+          <Button
+            variant="secondary"
+            @click="showCreateModal = false"
+          >
+            Cancel
+          </Button>
+          <Button
+            :loading="creating"
+            @click="createCluster"
+          >
+            Create
+          </Button>
         </div>
       </template>
     </Modal>

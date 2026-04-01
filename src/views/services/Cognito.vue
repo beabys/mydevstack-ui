@@ -658,10 +658,23 @@ onMounted(() => {
           </span>
         </div>
         <div class="flex items-center gap-2">
-          <Button variant="primary" @click="showCreatePoolModal = true">
+          <Button
+            variant="primary"
+            @click="showCreatePoolModal = true"
+          >
             <template #icon>
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+              <svg
+                class="w-4 h-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M12 4v16m8-8H4"
+                />
               </svg>
             </template>
             Create User Pool
@@ -674,33 +687,48 @@ onMounted(() => {
     <div class="flex-1 overflow-auto p-6">
       <!-- Usage Examples -->
       <div class="mb-6">
-        <h2 class="text-lg font-semibold mb-4" :class="settingsStore.darkMode ? 'text-white' : 'text-gray-900'">
+        <h2
+          class="text-lg font-semibold mb-4"
+          :class="settingsStore.darkMode ? 'text-white' : 'text-gray-900'"
+        >
           Usage Examples
         </h2>
-        <div class="rounded-lg border overflow-hidden" :class="settingsStore.darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'">
-          <div class="flex border-b" :class="settingsStore.darkMode ? 'border-gray-700' : 'border-gray-200'">
+        <div
+          class="rounded-lg border overflow-hidden"
+          :class="settingsStore.darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'"
+        >
+          <div
+            class="flex border-b"
+            :class="settingsStore.darkMode ? 'border-gray-700' : 'border-gray-200'"
+          >
             <button
               v-for="(example, index) in codeExamples"
               :key="example.language"
-              @click="selectedExample = index"
               class="px-4 py-2 text-sm font-medium transition-colors"
               :class="[
                 selectedExample === index
                   ? settingsStore.darkMode ? 'bg-gray-700 text-white' : 'bg-gray-100 text-gray-900'
                   : settingsStore.darkMode ? 'text-gray-400 hover:text-white hover:bg-gray-700' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
               ]"
+              @click="selectedExample = index"
             >
               {{ example.label }}
             </button>
           </div>
           <div class="p-4 overflow-x-auto">
-            <pre class="text-sm font-mono" :class="settingsStore.darkMode ? 'text-gray-300' : 'text-gray-700'">{{ codeExamples[selectedExample].code }}</pre>
+            <pre
+              class="text-sm font-mono"
+              :class="settingsStore.darkMode ? 'text-gray-300' : 'text-gray-700'"
+            >{{ codeExamples[selectedExample].code }}</pre>
           </div>
         </div>
       </div>
 
       <!-- Loading State -->
-      <div v-if="loading" class="flex items-center justify-center py-12">
+      <div
+        v-if="loading"
+        class="flex items-center justify-center py-12"
+      >
         <LoadingSpinner size="lg" />
       </div>
 
@@ -725,8 +753,18 @@ onMounted(() => {
       >
         <template #cell-Name="{ value }">
           <div class="flex items-center gap-2">
-            <svg class="w-5 h-5 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+            <svg
+              class="w-5 h-5 text-indigo-500"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"
+              />
             </svg>
             <span class="font-medium text-light-text dark:text-dark-text">{{ value }}</span>
           </div>
@@ -739,8 +777,18 @@ onMounted(() => {
               class="text-light-muted dark:text-dark-muted hover:text-primary-500"
               @click="copyToClipboard(value)"
             >
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+              <svg
+                class="w-4 h-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"
+                />
               </svg>
             </button>
           </div>
@@ -792,17 +840,33 @@ onMounted(() => {
       size="xl"
     >
       <div class="flex justify-end mb-4">
-        <Button size="sm" @click="showCreateUserModal = true">
+        <Button
+          size="sm"
+          @click="showCreateUserModal = true"
+        >
           <template #icon>
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+            <svg
+              class="w-4 h-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M12 4v16m8-8H4"
+              />
             </svg>
           </template>
           Create User
         </Button>
       </div>
 
-      <div v-if="loadingUsers" class="flex justify-center py-8">
+      <div
+        v-if="loadingUsers"
+        class="flex justify-center py-8"
+      >
         <LoadingSpinner />
       </div>
 
@@ -822,7 +886,10 @@ onMounted(() => {
         empty-text="No users found."
       >
         <template #cell-Username="{ value, row }">
-          <button class="font-medium text-primary-500 hover:underline" @click="viewUserDetails(row)">
+          <button
+            class="font-medium text-primary-500 hover:underline"
+            @click="viewUserDetails(row)"
+          >
             {{ value }}
           </button>
         </template>
@@ -836,11 +903,17 @@ onMounted(() => {
         </template>
 
         <template #cell-UserStatus="{ value }">
-          <StatusBadge :status="getUserStatusType(value)" :label="value" />
+          <StatusBadge
+            :status="getUserStatusType(value)"
+            :label="value"
+          />
         </template>
 
         <template #cell-Enabled="{ value }">
-          <StatusBadge :status="value ? 'active' : 'inactive'" :label="value ? 'Enabled' : 'Disabled'" />
+          <StatusBadge
+            :status="value ? 'active' : 'inactive'"
+            :label="value ? 'Enabled' : 'Disabled'"
+          />
         </template>
 
         <template #row-actions="{ row }">
@@ -877,7 +950,12 @@ onMounted(() => {
 
       <template #footer>
         <div class="flex justify-end gap-2">
-          <Button variant="secondary" @click="showUsersModal = false">Close</Button>
+          <Button
+            variant="secondary"
+            @click="showUsersModal = false"
+          >
+            Close
+          </Button>
         </div>
       </template>
     </Modal>
@@ -889,17 +967,33 @@ onMounted(() => {
       size="lg"
     >
       <div class="flex justify-end mb-4">
-        <Button size="sm" @click="showCreateClientModal = true">
+        <Button
+          size="sm"
+          @click="showCreateClientModal = true"
+        >
           <template #icon>
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+            <svg
+              class="w-4 h-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M12 4v16m8-8H4"
+              />
             </svg>
           </template>
           Create Client
         </Button>
       </div>
 
-      <div v-if="loadingClients" class="flex justify-center py-8">
+      <div
+        v-if="loadingClients"
+        class="flex justify-center py-8"
+      >
         <LoadingSpinner />
       </div>
 
@@ -929,8 +1023,18 @@ onMounted(() => {
               class="text-light-muted dark:text-dark-muted hover:text-primary-500"
               @click="copyToClipboard(value)"
             >
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+              <svg
+                class="w-4 h-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"
+                />
               </svg>
             </button>
           </div>
@@ -943,7 +1047,12 @@ onMounted(() => {
 
       <template #footer>
         <div class="flex justify-end gap-2">
-          <Button variant="secondary" @click="showClientsModal = false">Close</Button>
+          <Button
+            variant="secondary"
+            @click="showClientsModal = false"
+          >
+            Close
+          </Button>
         </div>
       </template>
     </Modal>
@@ -964,8 +1073,18 @@ onMounted(() => {
       </div>
       <template #footer>
         <div class="flex justify-end gap-2">
-          <Button variant="secondary" @click="showCreatePoolModal = false">Cancel</Button>
-          <Button :loading="creatingPool" @click="createUserPool">Create</Button>
+          <Button
+            variant="secondary"
+            @click="showCreatePoolModal = false"
+          >
+            Cancel
+          </Button>
+          <Button
+            :loading="creatingPool"
+            @click="createUserPool"
+          >
+            Create
+          </Button>
         </div>
       </template>
     </Modal>
@@ -988,8 +1107,18 @@ onMounted(() => {
       </div>
       <template #footer>
         <div class="flex justify-end gap-2">
-          <Button variant="secondary" @click="showEditPoolModal = false">Cancel</Button>
-          <Button :loading="updatingPool" @click="updateUserPool">Save</Button>
+          <Button
+            variant="secondary"
+            @click="showEditPoolModal = false"
+          >
+            Cancel
+          </Button>
+          <Button
+            :loading="updatingPool"
+            @click="updateUserPool"
+          >
+            Save
+          </Button>
         </div>
       </template>
     </Modal>
@@ -1026,20 +1155,33 @@ onMounted(() => {
         />
         <div class="flex items-center gap-2">
           <input
-            type="checkbox"
-            v-model="newUserForm.sendInvitation"
             id="sendInvitation"
+            v-model="newUserForm.sendInvitation"
+            type="checkbox"
             class="rounded border-light-border dark:border-dark-border"
-          />
-          <label for="sendInvitation" class="text-sm text-light-text dark:text-dark-text">
+          >
+          <label
+            for="sendInvitation"
+            class="text-sm text-light-text dark:text-dark-text"
+          >
             Send invitation email
           </label>
         </div>
       </div>
       <template #footer>
         <div class="flex justify-end gap-2">
-          <Button variant="secondary" @click="showCreateUserModal = false">Cancel</Button>
-          <Button :loading="creatingUser" @click="createUser">Create</Button>
+          <Button
+            variant="secondary"
+            @click="showCreateUserModal = false"
+          >
+            Cancel
+          </Button>
+          <Button
+            :loading="creatingUser"
+            @click="createUser"
+          >
+            Create
+          </Button>
         </div>
       </template>
     </Modal>
@@ -1065,8 +1207,18 @@ onMounted(() => {
       </div>
       <template #footer>
         <div class="flex justify-end gap-2">
-          <Button variant="secondary" @click="showEditUserModal = false">Cancel</Button>
-          <Button :loading="updatingUser" @click="updateUser">Save</Button>
+          <Button
+            variant="secondary"
+            @click="showEditUserModal = false"
+          >
+            Cancel
+          </Button>
+          <Button
+            :loading="updatingUser"
+            @click="updateUser"
+          >
+            Save
+          </Button>
         </div>
       </template>
     </Modal>
@@ -1077,30 +1229,47 @@ onMounted(() => {
       :title="`User: ${selectedUser?.Username || ''}`"
       size="lg"
     >
-      <div v-if="selectedUser" class="space-y-4">
+      <div
+        v-if="selectedUser"
+        class="space-y-4"
+      >
         <div class="grid grid-cols-2 gap-4">
           <div>
             <label class="block text-xs font-medium text-light-muted dark:text-dark-muted uppercase mb-1">Username</label>
-            <p class="text-sm text-light-text dark:text-dark-text">{{ selectedUser.Username }}</p>
+            <p class="text-sm text-light-text dark:text-dark-text">
+              {{ selectedUser.Username }}
+            </p>
           </div>
           <div>
             <label class="block text-xs font-medium text-light-muted dark:text-dark-muted uppercase mb-1">Status</label>
-            <StatusBadge :status="getUserStatusType(selectedUser.UserStatus || '')" :label="selectedUser.UserStatus || ''" />
+            <StatusBadge
+              :status="getUserStatusType(selectedUser.UserStatus || '')"
+              :label="selectedUser.UserStatus || ''"
+            />
           </div>
           <div>
             <label class="block text-xs font-medium text-light-muted dark:text-dark-muted uppercase mb-1">Enabled</label>
-            <StatusBadge :status="selectedUser.Enabled ? 'active' : 'inactive'" :label="selectedUser.Enabled ? 'Enabled' : 'Disabled'" />
+            <StatusBadge
+              :status="selectedUser.Enabled ? 'active' : 'inactive'"
+              :label="selectedUser.Enabled ? 'Enabled' : 'Disabled'"
+            />
           </div>
           <div>
             <label class="block text-xs font-medium text-light-muted dark:text-dark-muted uppercase mb-1">Created</label>
-            <p class="text-sm text-light-text dark:text-dark-text">{{ selectedUser.UserCreateDate ? new Date(selectedUser.UserCreateDate).toLocaleString() : '-' }}</p>
+            <p class="text-sm text-light-text dark:text-dark-text">
+              {{ selectedUser.UserCreateDate ? new Date(selectedUser.UserCreateDate).toLocaleString() : '-' }}
+            </p>
           </div>
         </div>
 
         <div>
           <label class="block text-xs font-medium text-light-muted dark:text-dark-muted uppercase mb-2">Attributes</label>
           <div class="space-y-2">
-            <div v-for="attr in selectedUser.UserAttributes" :key="attr.Name" class="flex justify-between p-2 rounded bg-light-bg dark:bg-dark-bg">
+            <div
+              v-for="attr in selectedUser.UserAttributes"
+              :key="attr.Name"
+              class="flex justify-between p-2 rounded bg-light-bg dark:bg-dark-bg"
+            >
               <span class="text-sm text-light-muted dark:text-dark-muted">{{ attr.Name }}</span>
               <span class="text-sm text-light-text dark:text-dark-text font-mono">{{ attr.Value }}</span>
             </div>
@@ -1108,7 +1277,12 @@ onMounted(() => {
         </div>
       </div>
       <template #footer>
-        <Button variant="secondary" @click="showUserDetailsModal = false">Close</Button>
+        <Button
+          variant="secondary"
+          @click="showUserDetailsModal = false"
+        >
+          Close
+        </Button>
       </template>
     </Modal>
 
@@ -1128,8 +1302,18 @@ onMounted(() => {
       </div>
       <template #footer>
         <div class="flex justify-end gap-2">
-          <Button variant="secondary" @click="showCreateClientModal = false">Cancel</Button>
-          <Button :loading="creatingClient" @click="createClient">Create</Button>
+          <Button
+            variant="secondary"
+            @click="showCreateClientModal = false"
+          >
+            Cancel
+          </Button>
+          <Button
+            :loading="creatingClient"
+            @click="createClient"
+          >
+            Create
+          </Button>
         </div>
       </template>
     </Modal>
@@ -1148,8 +1332,18 @@ onMounted(() => {
       </div>
       <template #footer>
         <div class="flex justify-end gap-2">
-          <Button variant="secondary" @click="showDeletePoolModal = false">Cancel</Button>
-          <Button variant="danger" @click="confirmDeletePool">Delete</Button>
+          <Button
+            variant="secondary"
+            @click="showDeletePoolModal = false"
+          >
+            Cancel
+          </Button>
+          <Button
+            variant="danger"
+            @click="confirmDeletePool"
+          >
+            Delete
+          </Button>
         </div>
       </template>
     </Modal>
@@ -1168,8 +1362,18 @@ onMounted(() => {
       </div>
       <template #footer>
         <div class="flex justify-end gap-2">
-          <Button variant="secondary" @click="showDeleteUserModal = false">Cancel</Button>
-          <Button variant="danger" @click="confirmDeleteUser">Delete</Button>
+          <Button
+            variant="secondary"
+            @click="showDeleteUserModal = false"
+          >
+            Cancel
+          </Button>
+          <Button
+            variant="danger"
+            @click="confirmDeleteUser"
+          >
+            Delete
+          </Button>
         </div>
       </template>
     </Modal>

@@ -110,7 +110,10 @@ function getTabClasses(tab: Tab) {
 <template>
   <div>
     <!-- Tabs Container -->
-    <div :class="containerClasses" role="tablist">
+    <div
+      :class="containerClasses"
+      role="tablist"
+    >
       <button
         v-for="tab in tabs"
         :key="tab.id"
@@ -125,8 +128,8 @@ function getTabClasses(tab: Tab) {
       >
         <!-- Icon -->
         <component
-          v-if="tab.icon"
           :is="tab.icon"
+          v-if="tab.icon"
           class="h-4 w-4 flex-shrink-0"
         />
         <!-- Label -->

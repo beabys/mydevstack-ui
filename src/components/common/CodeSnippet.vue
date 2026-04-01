@@ -144,7 +144,10 @@ function highlightCode(code: string, language: string): string {
     <!-- Header with Tabs -->
     <div class="border-b border-light-border dark:border-dark-border">
       <div class="flex items-center justify-between px-4 py-3 bg-light-bg dark:bg-dark-bg">
-        <h3 v-if="title" class="text-sm font-semibold text-light-text dark:text-dark-text">
+        <h3
+          v-if="title"
+          class="text-sm font-semibold text-light-text dark:text-dark-text"
+        >
           {{ title }}
         </h3>
         <div class="flex items-center gap-2 ml-auto">
@@ -159,7 +162,10 @@ function highlightCode(code: string, language: string): string {
       </div>
 
       <!-- Language Tabs -->
-      <div v-if="snippets.length > 1" class="flex overflow-x-auto px-2 bg-light-bg dark:bg-dark-bg">
+      <div
+        v-if="snippets.length > 1"
+        class="flex overflow-x-auto px-2 bg-light-bg dark:bg-dark-bg"
+      >
         <button
           v-for="tab in tabs"
           :key="tab.id"
@@ -184,8 +190,14 @@ function highlightCode(code: string, language: string): string {
           :title="copiedIndex === tabs.find(t => t.id === activeTab)?.index ? 'Copied!' : 'Copy code'"
           @click="copyCode(activeSnippet?.code || '', tabs.findIndex(t => t.id === activeTab))"
         >
-          <CheckIcon v-if="copiedIndex === tabs.find(t => t.id === activeTab)?.index" class="h-4 w-4 text-emerald-500" />
-          <ClipboardDocumentIcon v-else class="h-4 w-4" />
+          <CheckIcon
+            v-if="copiedIndex === tabs.find(t => t.id === activeTab)?.index"
+            class="h-4 w-4 text-emerald-500"
+          />
+          <ClipboardDocumentIcon
+            v-else
+            class="h-4 w-4"
+          />
         </button>
         <button
           v-if="activeSnippet"

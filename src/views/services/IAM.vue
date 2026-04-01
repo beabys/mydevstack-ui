@@ -486,12 +486,15 @@ onMounted(() => {
           </h1>
         </div>
 
-        <Button variant="primary" @click="() => {
-          if (activeTab === 'users') showCreateUserModal = true
-          else if (activeTab === 'roles') showCreateRoleModal = true
-          else if (activeTab === 'policies') showPolicyModal = false
-          else if (activeTab === 'groups') showCreateGroupModal = true
-        }">
+        <Button
+          variant="primary"
+          @click="() => {
+            if (activeTab === 'users') showCreateUserModal = true
+            else if (activeTab === 'roles') showCreateRoleModal = true
+            else if (activeTab === 'policies') showPolicyModal = false
+            else if (activeTab === 'groups') showCreateGroupModal = true
+          }"
+        >
           <template #icon-left>
             <PlusIcon class="h-4 w-4" />
           </template>
@@ -502,13 +505,20 @@ onMounted(() => {
 
     <!-- Tabs -->
     <div class="flex-shrink-0 border-b border-light-border dark:border-dark-border bg-light-surface dark:bg-dark-surface px-6">
-      <Tabs :tabs="tabs" v-model:activeTab="activeTab" variant="underline" />
+      <Tabs
+        v-model:active-tab="activeTab"
+        :tabs="tabs"
+        variant="underline"
+      />
     </div>
 
     <!-- Content -->
     <div class="flex-1 overflow-auto p-6">
       <!-- Loading -->
-      <div v-if="isLoading" class="flex items-center justify-center py-12">
+      <div
+        v-if="isLoading"
+        class="flex items-center justify-center py-12"
+      >
         <LoadingSpinner size="lg" />
       </div>
 
@@ -523,7 +533,10 @@ onMounted(() => {
           @action="showCreateUserModal = true"
         />
 
-        <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div
+          v-else
+          class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
+        >
           <div
             v-for="user in users"
             :key="user.UserName"
@@ -534,8 +547,12 @@ onMounted(() => {
                 <UserIcon class="h-6 w-6" />
               </div>
               <div>
-                <h3 class="font-medium text-light-text dark:text-dark-text">{{ user.UserName }}</h3>
-                <p class="text-xs text-light-muted dark:text-dark-muted">{{ user.UserId }}</p>
+                <h3 class="font-medium text-light-text dark:text-dark-text">
+                  {{ user.UserName }}
+                </h3>
+                <p class="text-xs text-light-muted dark:text-dark-muted">
+                  {{ user.UserId }}
+                </p>
               </div>
             </div>
             <div class="text-xs text-light-muted dark:text-dark-muted mb-3">
@@ -543,13 +560,21 @@ onMounted(() => {
               <p>Created: {{ formatDate(user.CreateDate) }}</p>
             </div>
             <div class="flex items-center gap-2 pt-3 border-t border-light-border dark:border-dark-border">
-              <Button variant="ghost" size="sm" @click="selectUserForAction(user, 'keys')">
+              <Button
+                variant="ghost"
+                size="sm"
+                @click="selectUserForAction(user, 'keys')"
+              >
                 <template #icon-left>
                   <KeyIcon class="h-4 w-4" />
                 </template>
                 Keys
               </Button>
-              <Button variant="ghost" size="sm" @click="selectUserForAction(user, 'delete')">
+              <Button
+                variant="ghost"
+                size="sm"
+                @click="selectUserForAction(user, 'delete')"
+              >
                 <template #icon-left>
                   <TrashIcon class="h-4 w-4" />
                 </template>
@@ -570,7 +595,10 @@ onMounted(() => {
           @action="showCreateRoleModal = true"
         />
 
-        <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div
+          v-else
+          class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
+        >
           <div
             v-for="role in roles"
             :key="role.RoleName"
@@ -581,8 +609,12 @@ onMounted(() => {
                 <ShieldCheckIcon class="h-6 w-6" />
               </div>
               <div>
-                <h3 class="font-medium text-light-text dark:text-dark-text">{{ role.RoleName }}</h3>
-                <p class="text-xs text-light-muted dark:text-dark-muted">{{ role.RoleId }}</p>
+                <h3 class="font-medium text-light-text dark:text-dark-text">
+                  {{ role.RoleName }}
+                </h3>
+                <p class="text-xs text-light-muted dark:text-dark-muted">
+                  {{ role.RoleId }}
+                </p>
               </div>
             </div>
             <div class="text-xs text-light-muted dark:text-dark-muted mb-3">
@@ -590,13 +622,21 @@ onMounted(() => {
               <p>Created: {{ formatDate(role.CreateDate) }}</p>
             </div>
             <div class="flex items-center gap-2 pt-3 border-t border-light-border dark:border-dark-border">
-              <Button variant="ghost" size="sm" @click="selectRoleForAction(role, 'policies')">
+              <Button
+                variant="ghost"
+                size="sm"
+                @click="selectRoleForAction(role, 'policies')"
+              >
                 <template #icon-left>
                   <KeyIcon class="h-4 w-4" />
                 </template>
                 Policies
               </Button>
-              <Button variant="ghost" size="sm" @click="selectRoleForAction(role, 'delete')">
+              <Button
+                variant="ghost"
+                size="sm"
+                @click="selectRoleForAction(role, 'delete')"
+              >
                 <template #icon-left>
                   <TrashIcon class="h-4 w-4" />
                 </template>
@@ -615,7 +655,10 @@ onMounted(() => {
           description="No customer managed policies found"
         />
 
-        <div v-else class="space-y-3">
+        <div
+          v-else
+          class="space-y-3"
+        >
           <div
             v-for="policy in policies"
             :key="policy.Arn"
@@ -626,8 +669,12 @@ onMounted(() => {
                 <KeyIcon class="h-5 w-5" />
               </div>
               <div>
-                <h3 class="font-medium text-light-text dark:text-dark-text">{{ policy.PolicyName }}</h3>
-                <p class="text-xs text-light-muted dark:text-dark-muted">{{ policy.Arn }}</p>
+                <h3 class="font-medium text-light-text dark:text-dark-text">
+                  {{ policy.PolicyName }}
+                </h3>
+                <p class="text-xs text-light-muted dark:text-dark-muted">
+                  {{ policy.Arn }}
+                </p>
               </div>
             </div>
             <div class="flex items-center gap-2">
@@ -635,7 +682,11 @@ onMounted(() => {
                 :status="policy.IsAttachable ? 'active' : 'inactive'"
                 :label="policy.IsAttachable ? 'Attachable' : 'Not Attachable'"
               />
-              <Button variant="ghost" size="sm" @click="viewPolicy(policy)">
+              <Button
+                variant="ghost"
+                size="sm"
+                @click="viewPolicy(policy)"
+              >
                 <template #icon-left>
                   <EyeIcon class="h-4 w-4" />
                 </template>
@@ -657,7 +708,10 @@ onMounted(() => {
           @action="showCreateGroupModal = true"
         />
 
-        <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div
+          v-else
+          class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
+        >
           <div
             v-for="group in groups"
             :key="group.GroupName"
@@ -668,8 +722,12 @@ onMounted(() => {
                 <UserGroupIcon class="h-6 w-6" />
               </div>
               <div>
-                <h3 class="font-medium text-light-text dark:text-dark-text">{{ group.GroupName }}</h3>
-                <p class="text-xs text-light-muted dark:text-dark-muted">{{ group.GroupId }}</p>
+                <h3 class="font-medium text-light-text dark:text-dark-text">
+                  {{ group.GroupName }}
+                </h3>
+                <p class="text-xs text-light-muted dark:text-dark-muted">
+                  {{ group.GroupId }}
+                </p>
               </div>
             </div>
             <div class="text-xs text-light-muted dark:text-dark-muted mb-3">
@@ -677,13 +735,21 @@ onMounted(() => {
               <p>Created: {{ formatDate(group.CreateDate) }}</p>
             </div>
             <div class="flex items-center gap-2 pt-3 border-t border-light-border dark:border-dark-border">
-              <Button variant="ghost" size="sm" @click="selectGroupForAction(group, 'users')">
+              <Button
+                variant="ghost"
+                size="sm"
+                @click="selectGroupForAction(group, 'users')"
+              >
                 <template #icon-left>
                   <UserIcon class="h-4 w-4" />
                 </template>
                 Users
               </Button>
-              <Button variant="ghost" size="sm" @click="selectGroupForAction(group, 'delete')">
+              <Button
+                variant="ghost"
+                size="sm"
+                @click="selectGroupForAction(group, 'delete')"
+              >
                 <template #icon-left>
                   <TrashIcon class="h-4 w-4" />
                 </template>
@@ -695,223 +761,546 @@ onMounted(() => {
     </div>
 
     <!-- Create User Modal -->
-    <Modal :open="showCreateUserModal" title="Create User" size="md" @update:open="showCreateUserModal = $event">
-      <form @submit.prevent="handleCreateUser" class="space-y-4">
-        <FormInput v-model="newUser.UserName" label="User Name" placeholder="username" required />
-        <FormInput v-model="newUser.Path" label="Path" placeholder="/" help-text="Optional path for the user" />
+    <Modal
+      :open="showCreateUserModal"
+      title="Create User"
+      size="md"
+      @update:open="showCreateUserModal = $event"
+    >
+      <form
+        class="space-y-4"
+        @submit.prevent="handleCreateUser"
+      >
+        <FormInput
+          v-model="newUser.UserName"
+          label="User Name"
+          placeholder="username"
+          required
+        />
+        <FormInput
+          v-model="newUser.Path"
+          label="Path"
+          placeholder="/"
+          help-text="Optional path for the user"
+        />
       </form>
       <template #footer>
-        <Button variant="secondary" @click="showCreateUserModal = false">Cancel</Button>
-        <Button variant="primary" @click="handleCreateUser">Create</Button>
+        <Button
+          variant="secondary"
+          @click="showCreateUserModal = false"
+        >
+          Cancel
+        </Button>
+        <Button
+          variant="primary"
+          @click="handleCreateUser"
+        >
+          Create
+        </Button>
       </template>
     </Modal>
 
     <!-- Delete User Modal -->
-    <Modal :open="showDeleteUserModal" title="Delete User" size="md" @update:open="showDeleteUserModal = $event">
+    <Modal
+      :open="showDeleteUserModal"
+      title="Delete User"
+      size="md"
+      @update:open="showDeleteUserModal = $event"
+    >
       <div class="flex items-start gap-3 p-4 rounded-lg bg-red-50 dark:bg-red-900/20">
         <ExclamationCircleIcon class="h-5 w-5 text-red-500 flex-shrink-0 mt-0.5" />
         <div>
-          <p class="text-sm text-red-700 dark:text-red-400">Are you sure you want to delete <strong>{{ selectedUser?.UserName }}</strong>?</p>
+          <p class="text-sm text-red-700 dark:text-red-400">
+            Are you sure you want to delete <strong>{{ selectedUser?.UserName }}</strong>?
+          </p>
         </div>
       </div>
       <template #footer>
-        <Button variant="secondary" @click="showDeleteUserModal = false">Cancel</Button>
-        <Button variant="danger" @click="handleDeleteUser">Delete</Button>
+        <Button
+          variant="secondary"
+          @click="showDeleteUserModal = false"
+        >
+          Cancel
+        </Button>
+        <Button
+          variant="danger"
+          @click="handleDeleteUser"
+        >
+          Delete
+        </Button>
       </template>
     </Modal>
 
     <!-- User Access Keys Modal -->
-    <Modal :open="showUserKeysModal" title="Access Keys" size="lg" @update:open="showUserKeysModal = $event">
+    <Modal
+      :open="showUserKeysModal"
+      title="Access Keys"
+      size="lg"
+      @update:open="showUserKeysModal = $event"
+    >
       <div class="space-y-4">
         <div class="flex items-center justify-between">
-          <h3 class="text-sm font-medium text-light-text dark:text-dark-text">Access Keys for {{ selectedUser?.UserName }}</h3>
-          <Button variant="primary" size="sm" @click="showCreateKeyModal = true">
-            <template #icon-left><PlusIcon class="h-4 w-4" /></template>
+          <h3 class="text-sm font-medium text-light-text dark:text-dark-text">
+            Access Keys for {{ selectedUser?.UserName }}
+          </h3>
+          <Button
+            variant="primary"
+            size="sm"
+            @click="showCreateKeyModal = true"
+          >
+            <template #icon-left>
+              <PlusIcon class="h-4 w-4" />
+            </template>
             Create Key
           </Button>
         </div>
 
-        <EmptyState v-if="userAccessKeys.length === 0" icon="key" title="No access keys" description="Create an access key to enable programmatic access" compact />
+        <EmptyState
+          v-if="userAccessKeys.length === 0"
+          icon="key"
+          title="No access keys"
+          description="Create an access key to enable programmatic access"
+          compact
+        />
 
-        <div v-else class="space-y-2">
-          <div v-for="key in userAccessKeys" :key="key.AccessKeyId" class="flex items-center justify-between p-3 rounded-lg border border-light-border dark:border-dark-border bg-light-bg dark:bg-dark-bg">
+        <div
+          v-else
+          class="space-y-2"
+        >
+          <div
+            v-for="key in userAccessKeys"
+            :key="key.AccessKeyId"
+            class="flex items-center justify-between p-3 rounded-lg border border-light-border dark:border-dark-border bg-light-bg dark:bg-dark-bg"
+          >
             <div>
-              <p class="text-sm font-mono text-light-text dark:text-dark-text">{{ key.AccessKeyId }}</p>
-              <p class="text-xs text-light-muted dark:text-dark-muted">Created: {{ formatDate(key.CreateDate) }}</p>
+              <p class="text-sm font-mono text-light-text dark:text-dark-text">
+                {{ key.AccessKeyId }}
+              </p>
+              <p class="text-xs text-light-muted dark:text-dark-muted">
+                Created: {{ formatDate(key.CreateDate) }}
+              </p>
             </div>
             <div class="flex items-center gap-2">
-              <StatusBadge :status="key.Status === 'Active' ? 'active' : 'inactive'" :label="key.Status" />
-              <Button variant="ghost" size="sm" @click="handleDeleteAccessKey(key.AccessKeyId)">
-                <template #icon-left><TrashIcon class="h-4 w-4" /></template>
+              <StatusBadge
+                :status="key.Status === 'Active' ? 'active' : 'inactive'"
+                :label="key.Status"
+              />
+              <Button
+                variant="ghost"
+                size="sm"
+                @click="handleDeleteAccessKey(key.AccessKeyId)"
+              >
+                <template #icon-left>
+                  <TrashIcon class="h-4 w-4" />
+                </template>
               </Button>
             </div>
           </div>
         </div>
       </div>
       <template #footer>
-        <Button variant="secondary" @click="showUserKeysModal = false">Close</Button>
+        <Button
+          variant="secondary"
+          @click="showUserKeysModal = false"
+        >
+          Close
+        </Button>
       </template>
     </Modal>
 
     <!-- Create Access Key Modal -->
-    <Modal :open="showCreateKeyModal" title="Create Access Key" size="md" @update:open="showCreateKeyModal = $event">
+    <Modal
+      :open="showCreateKeyModal"
+      title="Create Access Key"
+      size="md"
+      @update:open="showCreateKeyModal = $event"
+    >
       <div class="p-4 rounded-lg bg-yellow-50 dark:bg-yellow-900/20">
-        <p class="text-sm text-yellow-800 dark:text-yellow-200">Make sure to save the Secret Access Key. It cannot be retrieved after closing this modal.</p>
+        <p class="text-sm text-yellow-800 dark:text-yellow-200">
+          Make sure to save the Secret Access Key. It cannot be retrieved after closing this modal.
+        </p>
       </div>
       <template #footer>
-        <Button variant="secondary" @click="showCreateKeyModal = false">Cancel</Button>
-        <Button variant="primary" @click="handleCreateAccessKey">Create Key</Button>
+        <Button
+          variant="secondary"
+          @click="showCreateKeyModal = false"
+        >
+          Cancel
+        </Button>
+        <Button
+          variant="primary"
+          @click="handleCreateAccessKey"
+        >
+          Create Key
+        </Button>
       </template>
     </Modal>
 
     <!-- Create Role Modal -->
-    <Modal :open="showCreateRoleModal" title="Create Role" size="lg" @update:open="showCreateRoleModal = $event">
-      <form @submit.prevent="handleCreateRole" class="space-y-4">
-        <FormInput v-model="newRole.RoleName" label="Role Name" placeholder="my-role" required />
-        <FormInput v-model="newRole.Description" label="Description" placeholder="Role description" />
+    <Modal
+      :open="showCreateRoleModal"
+      title="Create Role"
+      size="lg"
+      @update:open="showCreateRoleModal = $event"
+    >
+      <form
+        class="space-y-4"
+        @submit.prevent="handleCreateRole"
+      >
+        <FormInput
+          v-model="newRole.RoleName"
+          label="Role Name"
+          placeholder="my-role"
+          required
+        />
+        <FormInput
+          v-model="newRole.Description"
+          label="Description"
+          placeholder="Role description"
+        />
         <div>
           <label class="block text-sm font-medium text-light-text dark:text-dark-text mb-1.5">Assume Role Policy</label>
-          <textarea v-model="newRole.AssumeRolePolicyDocument" rows="10" class="block w-full rounded-md shadow-sm border border-light-border dark:border-dark-border bg-light-surface dark:bg-dark-surface text-light-text dark:text-dark-text px-3 py-2 font-mono text-sm focus:outline-none focus:ring-1 focus:ring-primary-500" />
+          <textarea
+            v-model="newRole.AssumeRolePolicyDocument"
+            rows="10"
+            class="block w-full rounded-md shadow-sm border border-light-border dark:border-dark-border bg-light-surface dark:bg-dark-surface text-light-text dark:text-dark-text px-3 py-2 font-mono text-sm focus:outline-none focus:ring-1 focus:ring-primary-500"
+          />
         </div>
       </form>
       <template #footer>
-        <Button variant="secondary" @click="showCreateRoleModal = false">Cancel</Button>
-        <Button variant="primary" @click="handleCreateRole">Create</Button>
+        <Button
+          variant="secondary"
+          @click="showCreateRoleModal = false"
+        >
+          Cancel
+        </Button>
+        <Button
+          variant="primary"
+          @click="handleCreateRole"
+        >
+          Create
+        </Button>
       </template>
     </Modal>
 
     <!-- Delete Role Modal -->
-    <Modal :open="showDeleteRoleModal" title="Delete Role" size="md" @update:open="showDeleteRoleModal = $event">
+    <Modal
+      :open="showDeleteRoleModal"
+      title="Delete Role"
+      size="md"
+      @update:open="showDeleteRoleModal = $event"
+    >
       <div class="flex items-start gap-3 p-4 rounded-lg bg-red-50 dark:bg-red-900/20">
         <ExclamationCircleIcon class="h-5 w-5 text-red-500 flex-shrink-0 mt-0.5" />
         <div>
-          <p class="text-sm text-red-700 dark:text-red-400">Are you sure you want to delete <strong>{{ selectedRole?.RoleName }}</strong>?</p>
+          <p class="text-sm text-red-700 dark:text-red-400">
+            Are you sure you want to delete <strong>{{ selectedRole?.RoleName }}</strong>?
+          </p>
         </div>
       </div>
       <template #footer>
-        <Button variant="secondary" @click="showDeleteRoleModal = false">Cancel</Button>
-        <Button variant="danger" @click="handleDeleteRole">Delete</Button>
+        <Button
+          variant="secondary"
+          @click="showDeleteRoleModal = false"
+        >
+          Cancel
+        </Button>
+        <Button
+          variant="danger"
+          @click="handleDeleteRole"
+        >
+          Delete
+        </Button>
       </template>
     </Modal>
 
     <!-- Role Policies Modal -->
-    <Modal :open="showRolePoliciesModal" title="Attached Policies" size="lg" @update:open="showRolePoliciesModal = $event">
+    <Modal
+      :open="showRolePoliciesModal"
+      title="Attached Policies"
+      size="lg"
+      @update:open="showRolePoliciesModal = $event"
+    >
       <div class="space-y-4">
         <div class="flex items-center justify-between">
-          <h3 class="text-sm font-medium text-light-text dark:text-dark-text">Policies for {{ selectedRole?.RoleName }}</h3>
-          <Button variant="primary" size="sm" @click="openAttachPolicy">
-            <template #icon-left><PlusCircleIcon class="h-4 w-4" /></template>
+          <h3 class="text-sm font-medium text-light-text dark:text-dark-text">
+            Policies for {{ selectedRole?.RoleName }}
+          </h3>
+          <Button
+            variant="primary"
+            size="sm"
+            @click="openAttachPolicy"
+          >
+            <template #icon-left>
+              <PlusCircleIcon class="h-4 w-4" />
+            </template>
             Attach Policy
           </Button>
         </div>
 
-        <EmptyState v-if="rolePolicies.length === 0" icon="key" title="No attached policies" description="Attach a policy to this role" compact />
+        <EmptyState
+          v-if="rolePolicies.length === 0"
+          icon="key"
+          title="No attached policies"
+          description="Attach a policy to this role"
+          compact
+        />
 
-        <div v-else class="space-y-2">
-          <div v-for="policy in rolePolicies" :key="policy.PolicyArn" class="flex items-center justify-between p-3 rounded-lg border border-light-border dark:border-dark-border bg-light-bg dark:bg-dark-bg">
+        <div
+          v-else
+          class="space-y-2"
+        >
+          <div
+            v-for="policy in rolePolicies"
+            :key="policy.PolicyArn"
+            class="flex items-center justify-between p-3 rounded-lg border border-light-border dark:border-dark-border bg-light-bg dark:bg-dark-bg"
+          >
             <div>
-              <p class="text-sm text-light-text dark:text-dark-text">{{ policy.PolicyName }}</p>
-              <p class="text-xs text-light-muted dark:text-dark-muted font-mono truncate">{{ policy.PolicyArn }}</p>
+              <p class="text-sm text-light-text dark:text-dark-text">
+                {{ policy.PolicyName }}
+              </p>
+              <p class="text-xs text-light-muted dark:text-dark-muted font-mono truncate">
+                {{ policy.PolicyArn }}
+              </p>
             </div>
-            <Button variant="ghost" size="sm" @click="handleDetachPolicy(policy.PolicyArn)">
-              <template #icon-left><MinusCircleIcon class="h-4 w-4" /></template>
+            <Button
+              variant="ghost"
+              size="sm"
+              @click="handleDetachPolicy(policy.PolicyArn)"
+            >
+              <template #icon-left>
+                <MinusCircleIcon class="h-4 w-4" />
+              </template>
             </Button>
           </div>
         </div>
       </div>
       <template #footer>
-        <Button variant="secondary" @click="showRolePoliciesModal = false">Close</Button>
+        <Button
+          variant="secondary"
+          @click="showRolePoliciesModal = false"
+        >
+          Close
+        </Button>
       </template>
     </Modal>
 
     <!-- Attach Policy Modal -->
-    <Modal :open="showAttachPolicyModal" title="Attach Policy" size="lg" @update:open="showAttachPolicyModal = $event">
+    <Modal
+      :open="showAttachPolicyModal"
+      title="Attach Policy"
+      size="lg"
+      @update:open="showAttachPolicyModal = $event"
+    >
       <div class="space-y-3">
-        <EmptyState v-if="allPolicies.length === 0" icon="key" title="No policies available" description="No policies found" compact />
-        <div v-else class="max-h-96 overflow-auto">
-          <div v-for="policy in allPolicies" :key="policy.Arn" class="flex items-center justify-between p-3 rounded-lg border border-light-border dark:border-dark-border bg-light-bg dark:bg-dark-bg mb-2">
+        <EmptyState
+          v-if="allPolicies.length === 0"
+          icon="key"
+          title="No policies available"
+          description="No policies found"
+          compact
+        />
+        <div
+          v-else
+          class="max-h-96 overflow-auto"
+        >
+          <div
+            v-for="policy in allPolicies"
+            :key="policy.Arn"
+            class="flex items-center justify-between p-3 rounded-lg border border-light-border dark:border-dark-border bg-light-bg dark:bg-dark-bg mb-2"
+          >
             <div>
-              <p class="text-sm text-light-text dark:text-dark-text">{{ policy.PolicyName }}</p>
-              <p class="text-xs text-light-muted dark:text-dark-muted">{{ policy.Arn }}</p>
+              <p class="text-sm text-light-text dark:text-dark-text">
+                {{ policy.PolicyName }}
+              </p>
+              <p class="text-xs text-light-muted dark:text-dark-muted">
+                {{ policy.Arn }}
+              </p>
             </div>
-            <Button variant="secondary" size="sm" @click="handleAttachPolicy(policy.Arn)">Attach</Button>
+            <Button
+              variant="secondary"
+              size="sm"
+              @click="handleAttachPolicy(policy.Arn)"
+            >
+              Attach
+            </Button>
           </div>
         </div>
       </div>
       <template #footer>
-        <Button variant="secondary" @click="showAttachPolicyModal = false">Cancel</Button>
+        <Button
+          variant="secondary"
+          @click="showAttachPolicyModal = false"
+        >
+          Cancel
+        </Button>
       </template>
     </Modal>
 
     <!-- Policy Details Modal -->
-    <Modal :open="showPolicyModal" title="Policy Details" size="xl" @update:open="showPolicyModal = $event">
-      <div v-if="selectedPolicy" class="space-y-4">
+    <Modal
+      :open="showPolicyModal"
+      title="Policy Details"
+      size="xl"
+      @update:open="showPolicyModal = $event"
+    >
+      <div
+        v-if="selectedPolicy"
+        class="space-y-4"
+      >
         <div class="grid grid-cols-2 gap-4">
           <div>
             <label class="block text-xs font-medium text-light-muted dark:text-dark-muted uppercase mb-1">Name</label>
-            <p class="text-sm text-light-text dark:text-dark-text">{{ selectedPolicy.PolicyName }}</p>
+            <p class="text-sm text-light-text dark:text-dark-text">
+              {{ selectedPolicy.PolicyName }}
+            </p>
           </div>
           <div>
             <label class="block text-xs font-medium text-light-muted dark:text-dark-muted uppercase mb-1">ARN</label>
-            <p class="text-sm text-light-text dark:text-dark-text font-mono">{{ selectedPolicy.Arn }}</p>
+            <p class="text-sm text-light-text dark:text-dark-text font-mono">
+              {{ selectedPolicy.Arn }}
+            </p>
           </div>
           <div>
             <label class="block text-xs font-medium text-light-muted dark:text-dark-muted uppercase mb-1">ID</label>
-            <p class="text-sm text-light-text dark:text-dark-text">{{ selectedPolicy.PolicyId }}</p>
+            <p class="text-sm text-light-text dark:text-dark-text">
+              {{ selectedPolicy.PolicyId }}
+            </p>
           </div>
           <div>
             <label class="block text-xs font-medium text-light-muted dark:text-dark-muted uppercase mb-1">Attachments</label>
-            <p class="text-sm text-light-text dark:text-dark-text">{{ selectedPolicy.AttachmentCount }}</p>
+            <p class="text-sm text-light-text dark:text-dark-text">
+              {{ selectedPolicy.AttachmentCount }}
+            </p>
           </div>
         </div>
       </div>
       <template #footer>
-        <Button variant="secondary" @click="showPolicyModal = false">Close</Button>
+        <Button
+          variant="secondary"
+          @click="showPolicyModal = false"
+        >
+          Close
+        </Button>
       </template>
     </Modal>
 
     <!-- Create Group Modal -->
-    <Modal :open="showCreateGroupModal" title="Create Group" size="md" @update:open="showCreateGroupModal = $event">
-      <form @submit.prevent="handleCreateGroup" class="space-y-4">
-        <FormInput v-model="newGroup.GroupName" label="Group Name" placeholder="my-group" required />
-        <FormInput v-model="newGroup.Path" label="Path" placeholder="/" help-text="Optional path for the group" />
+    <Modal
+      :open="showCreateGroupModal"
+      title="Create Group"
+      size="md"
+      @update:open="showCreateGroupModal = $event"
+    >
+      <form
+        class="space-y-4"
+        @submit.prevent="handleCreateGroup"
+      >
+        <FormInput
+          v-model="newGroup.GroupName"
+          label="Group Name"
+          placeholder="my-group"
+          required
+        />
+        <FormInput
+          v-model="newGroup.Path"
+          label="Path"
+          placeholder="/"
+          help-text="Optional path for the group"
+        />
       </form>
       <template #footer>
-        <Button variant="secondary" @click="showCreateGroupModal = false">Cancel</Button>
-        <Button variant="primary" @click="handleCreateGroup">Create</Button>
+        <Button
+          variant="secondary"
+          @click="showCreateGroupModal = false"
+        >
+          Cancel
+        </Button>
+        <Button
+          variant="primary"
+          @click="handleCreateGroup"
+        >
+          Create
+        </Button>
       </template>
     </Modal>
 
     <!-- Delete Group Modal -->
-    <Modal :open="showDeleteGroupModal" title="Delete Group" size="md" @update:open="showDeleteGroupModal = $event">
+    <Modal
+      :open="showDeleteGroupModal"
+      title="Delete Group"
+      size="md"
+      @update:open="showDeleteGroupModal = $event"
+    >
       <div class="flex items-start gap-3 p-4 rounded-lg bg-red-50 dark:bg-red-900/20">
         <ExclamationCircleIcon class="h-5 w-5 text-red-500 flex-shrink-0 mt-0.5" />
         <div>
-          <p class="text-sm text-red-700 dark:text-red-400">Are you sure you want to delete <strong>{{ selectedGroup?.GroupName }}</strong>?</p>
+          <p class="text-sm text-red-700 dark:text-red-400">
+            Are you sure you want to delete <strong>{{ selectedGroup?.GroupName }}</strong>?
+          </p>
         </div>
       </div>
       <template #footer>
-        <Button variant="secondary" @click="showDeleteGroupModal = false">Cancel</Button>
-        <Button variant="danger" @click="handleDeleteGroup">Delete</Button>
+        <Button
+          variant="secondary"
+          @click="showDeleteGroupModal = false"
+        >
+          Cancel
+        </Button>
+        <Button
+          variant="danger"
+          @click="handleDeleteGroup"
+        >
+          Delete
+        </Button>
       </template>
     </Modal>
 
     <!-- Group Users Modal -->
-    <Modal :open="showGroupUsersModal" title="Group Users" size="lg" @update:open="showGroupUsersModal = $event">
+    <Modal
+      :open="showGroupUsersModal"
+      title="Group Users"
+      size="lg"
+      @update:open="showGroupUsersModal = $event"
+    >
       <div class="space-y-4">
-        <h3 class="text-sm font-medium text-light-text dark:text-dark-text">Users in {{ selectedGroup?.GroupName }}</h3>
-        <EmptyState v-if="groupUsers.length === 0" icon="user" title="No users" description="This group has no users" compact />
-        <div v-else class="space-y-2">
-          <div v-for="user in groupUsers" :key="user.UserName" class="flex items-center justify-between p-3 rounded-lg border border-light-border dark:border-dark-border bg-light-bg dark:bg-dark-bg">
+        <h3 class="text-sm font-medium text-light-text dark:text-dark-text">
+          Users in {{ selectedGroup?.GroupName }}
+        </h3>
+        <EmptyState
+          v-if="groupUsers.length === 0"
+          icon="user"
+          title="No users"
+          description="This group has no users"
+          compact
+        />
+        <div
+          v-else
+          class="space-y-2"
+        >
+          <div
+            v-for="user in groupUsers"
+            :key="user.UserName"
+            class="flex items-center justify-between p-3 rounded-lg border border-light-border dark:border-dark-border bg-light-bg dark:bg-dark-bg"
+          >
             <div>
-              <p class="text-sm text-light-text dark:text-dark-text">{{ user.UserName }}</p>
-              <p class="text-xs text-light-muted dark:text-dark-muted">{{ user.Arn }}</p>
+              <p class="text-sm text-light-text dark:text-dark-text">
+                {{ user.UserName }}
+              </p>
+              <p class="text-xs text-light-muted dark:text-dark-muted">
+                {{ user.Arn }}
+              </p>
             </div>
           </div>
         </div>
       </div>
       <template #footer>
-        <Button variant="secondary" @click="showGroupUsersModal = false">Close</Button>
+        <Button
+          variant="secondary"
+          @click="showGroupUsersModal = false"
+        >
+          Close
+        </Button>
       </template>
     </Modal>
   </div>

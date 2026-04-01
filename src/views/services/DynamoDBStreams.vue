@@ -266,7 +266,7 @@ async function getMoreRecords() {
   
   recordsLoading.value = true
   try {
-    const result = await dynamoDBService.getRecords(nextShardIterator.value, 100)
+    const result = await getRecords(nextShardIterator.value, 100)
     records.value = [...records.value, ...(result.Records || [])]
     nextShardIterator.value = result.NextShardIterator
     millisBehindLatest.value = result.MillisBehindLatest
@@ -353,7 +353,10 @@ onMounted(() => {
           compact
         />
         
-        <div v-else class="py-2">
+        <div
+          v-else
+          class="py-2"
+        >
           <button
             v-for="tableName in tables"
             :key="tableName"
@@ -378,11 +381,17 @@ onMounted(() => {
     
     <!-- Main Content -->
     <div class="flex-1 flex flex-col overflow-hidden">
-      <LoadingSpinner v-if="loading && !streamDescription" full-screen />
+      <LoadingSpinner
+        v-if="loading && !streamDescription"
+        full-screen
+      />
       
       <template v-else>
         <!-- Empty State -->
-        <div v-if="!selectedTable" class="flex-1 flex items-center justify-center">
+        <div
+          v-if="!selectedTable"
+          class="flex-1 flex items-center justify-center"
+        >
           <EmptyState
             icon="folder"
             title="No Table Selected"
@@ -417,7 +426,10 @@ onMounted(() => {
           </div>
           
           <!-- Streams List -->
-          <div class="p-4 border-b" :class="settingsStore.darkMode ? 'border-dark-border' : 'border-light-border'">
+          <div
+            class="p-4 border-b"
+            :class="settingsStore.darkMode ? 'border-dark-border' : 'border-light-border'"
+          >
             <div class="flex items-center justify-between mb-4">
               <h2 
                 class="font-semibold"
@@ -425,7 +437,12 @@ onMounted(() => {
               >
                 Streams
               </h2>
-              <Button variant="ghost" size="sm" :loading="loading" @click="loadStreams">
+              <Button
+                variant="ghost"
+                size="sm"
+                :loading="loading"
+                @click="loadStreams"
+              >
                 <ArrowPathIcon class="h-4 w-4" />
               </Button>
             </div>
@@ -438,7 +455,10 @@ onMounted(() => {
               compact
             />
             
-            <div v-else class="flex flex-wrap gap-2">
+            <div
+              v-else
+              class="flex flex-wrap gap-2"
+            >
               <button
                 v-for="stream in streams"
                 :key="stream.StreamArn"
@@ -453,11 +473,17 @@ onMounted(() => {
                 ]"
                 @click="selectStream(stream)"
               >
-                <QueueListIcon class="h-4 w-4" :class="settingsStore.darkMode ? 'text-dark-muted' : 'text-light-muted'" />
+                <QueueListIcon
+                  class="h-4 w-4"
+                  :class="settingsStore.darkMode ? 'text-dark-muted' : 'text-light-muted'"
+                />
                 <span :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'">
                   {{ stream.StreamLabel }}
                 </span>
-                <StatusBadge :status="getStreamStatus(stream.StreamStatus)" size="sm" />
+                <StatusBadge
+                  :status="getStreamStatus(stream.StreamStatus)"
+                  size="sm"
+                />
               </button>
             </div>
           </div>
@@ -465,35 +491,62 @@ onMounted(() => {
           <!-- Stream Details -->
           <template v-if="selectedStream && streamDescription">
             <!-- Stream Info -->
-            <div class="p-4 border-b" :class="settingsStore.darkMode ? 'border-dark-border' : 'border-light-border'">
+            <div
+              class="p-4 border-b"
+              :class="settingsStore.darkMode ? 'border-dark-border' : 'border-light-border'"
+            >
               <div class="grid grid-cols-4 gap-4">
                 <div>
-                  <p class="text-sm" :class="settingsStore.darkMode ? 'text-dark-muted' : 'text-light-muted'">
+                  <p
+                    class="text-sm"
+                    :class="settingsStore.darkMode ? 'text-dark-muted' : 'text-light-muted'"
+                  >
                     Stream ARN
                   </p>
-                  <code class="text-xs mt-1 block truncate" :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'">
+                  <code
+                    class="text-xs mt-1 block truncate"
+                    :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'"
+                  >
                     {{ streamDescription.StreamArn }}
                   </code>
                 </div>
                 <div>
-                  <p class="text-sm" :class="settingsStore.darkMode ? 'text-dark-muted' : 'text-light-muted'">
+                  <p
+                    class="text-sm"
+                    :class="settingsStore.darkMode ? 'text-dark-muted' : 'text-light-muted'"
+                  >
                     Status
                   </p>
-                  <StatusBadge :status="getStreamStatus(streamDescription.StreamStatus)" class="mt-1" />
+                  <StatusBadge
+                    :status="getStreamStatus(streamDescription.StreamStatus)"
+                    class="mt-1"
+                  />
                 </div>
                 <div>
-                  <p class="text-sm" :class="settingsStore.darkMode ? 'text-dark-muted' : 'text-light-muted'">
+                  <p
+                    class="text-sm"
+                    :class="settingsStore.darkMode ? 'text-dark-muted' : 'text-light-muted'"
+                  >
                     View Type
                   </p>
-                  <p class="mt-1 font-medium" :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'">
+                  <p
+                    class="mt-1 font-medium"
+                    :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'"
+                  >
                     {{ streamDescription.StreamViewType }}
                   </p>
                 </div>
                 <div>
-                  <p class="text-sm" :class="settingsStore.darkMode ? 'text-dark-muted' : 'text-light-muted'">
+                  <p
+                    class="text-sm"
+                    :class="settingsStore.darkMode ? 'text-dark-muted' : 'text-light-muted'"
+                  >
                     Shards
                   </p>
-                  <p class="mt-1 font-medium" :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'">
+                  <p
+                    class="mt-1 font-medium"
+                    :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'"
+                  >
                     {{ shards.length }}
                   </p>
                 </div>
@@ -501,7 +554,10 @@ onMounted(() => {
             </div>
             
             <!-- Get Records Controls -->
-            <div class="p-4 border-b" :class="settingsStore.darkMode ? 'bg-dark-surface border-dark-border' : 'bg-light-surface border-light-border'">
+            <div
+              class="p-4 border-b"
+              :class="settingsStore.darkMode ? 'bg-dark-surface border-dark-border' : 'bg-light-surface border-light-border'"
+            >
               <div class="flex items-center gap-4">
                 <FormSelect
                   v-model="iteratorType"
@@ -586,7 +642,10 @@ onMounted(() => {
               </DataTable>
               
               <!-- Records -->
-              <div v-if="selectedShard" class="mt-6">
+              <div
+                v-if="selectedShard"
+                class="mt-6"
+              >
                 <div class="flex items-center justify-between mb-4">
                   <h3 
                     class="font-semibold"
@@ -674,10 +733,16 @@ onMounted(() => {
       title="Stream Record"
       size="lg"
     >
-      <div v-if="selectedRecord" class="space-y-4">
+      <div
+        v-if="selectedRecord"
+        class="space-y-4"
+      >
         <div class="grid grid-cols-2 gap-4">
           <div>
-            <p class="text-sm" :class="settingsStore.darkMode ? 'text-dark-muted' : 'text-light-muted'">
+            <p
+              class="text-sm"
+              :class="settingsStore.darkMode ? 'text-dark-muted' : 'text-light-muted'"
+            >
               Event Name
             </p>
             <StatusBadge 
@@ -687,7 +752,10 @@ onMounted(() => {
             />
           </div>
           <div>
-            <p class="text-sm" :class="settingsStore.darkMode ? 'text-dark-muted' : 'text-light-muted'">
+            <p
+              class="text-sm"
+              :class="settingsStore.darkMode ? 'text-dark-muted' : 'text-light-muted'"
+            >
               AWS Region
             </p>
             <p :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'">
@@ -697,7 +765,10 @@ onMounted(() => {
         </div>
         
         <div>
-          <p class="text-sm mb-2" :class="settingsStore.darkMode ? 'text-dark-muted' : 'text-light-muted'">
+          <p
+            class="text-sm mb-2"
+            :class="settingsStore.darkMode ? 'text-dark-muted' : 'text-light-muted'"
+          >
             Record Data
           </p>
           <JsonViewer :data="getRecordData(selectedRecord)" />
@@ -705,7 +776,12 @@ onMounted(() => {
       </div>
       <template #footer>
         <div class="flex justify-end gap-2">
-          <Button variant="secondary" @click="showRecordModal = false">Close</Button>
+          <Button
+            variant="secondary"
+            @click="showRecordModal = false"
+          >
+            Close
+          </Button>
         </div>
       </template>
     </Modal>

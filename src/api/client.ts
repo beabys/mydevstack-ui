@@ -133,10 +133,12 @@ function createApiClient(): AxiosInstance {
       )
 
       const payload = config.data ? JSON.stringify(config.data) : ''
-      let host = 'localhost'
+      let _host = 'localhost'
       try {
-        host = new URL(settingsStore.endpoint || 'http://localhost:4566').host
-      } catch {}
+        _host = new URL(settingsStore.endpoint || 'http://localhost:4566').host
+      } catch {
+        // Use default host if URL parsing fails
+      }
 
       const signedHeaders = signer.sign()
 

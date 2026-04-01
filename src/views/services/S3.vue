@@ -457,10 +457,16 @@ onMounted(() => {
     <!-- Header -->
     <div class="flex items-center justify-between mb-6">
       <div>
-        <h1 class="text-2xl font-bold" :class="settingsStore.darkMode ? 'text-white' : 'text-gray-900'">
+        <h1
+          class="text-2xl font-bold"
+          :class="settingsStore.darkMode ? 'text-white' : 'text-gray-900'"
+        >
           {{ selectedBucket ? `📦 ${selectedBucket}` : 'S3 Buckets' }}
         </h1>
-        <p class="text-sm mt-1" :class="settingsStore.darkMode ? 'text-gray-400' : 'text-gray-600'">
+        <p
+          class="text-sm mt-1"
+          :class="settingsStore.darkMode ? 'text-gray-400' : 'text-gray-600'"
+        >
           {{ selectedBucket ? `${objects.length} object(s)` : `${buckets.length} bucket(s)` }}
         </p>
       </div>
@@ -468,29 +474,29 @@ onMounted(() => {
       <div class="flex gap-2">
         <button
           v-if="selectedBucket"
-          @click="goBack"
           class="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600"
+          @click="goBack"
         >
           ← Back to Buckets
         </button>
         <button
           v-if="selectedBucket"
-          @click="loadObjects(selectedBucket!)"
           class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+          @click="loadObjects(selectedBucket!)"
         >
           ↻ Refresh
         </button>
         <button
           v-if="!selectedBucket"
-          @click="openCreateModal"
           class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+          @click="openCreateModal"
         >
           + Create Bucket
         </button>
         <button
           v-if="!selectedBucket"
-          @click="loadBuckets"
           class="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600"
+          @click="loadBuckets"
         >
           ↻ Refresh
         </button>
@@ -498,26 +504,51 @@ onMounted(() => {
     </div>
 
     <!-- Error -->
-    <div v-if="error" class="mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg">
+    <div
+      v-if="error"
+      class="mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg"
+    >
       {{ error }}
-      <button @click="error = null" class="float-right font-bold">×</button>
+      <button
+        class="float-right font-bold"
+        @click="error = null"
+      >
+        ×
+      </button>
     </div>
 
     <!-- Loading -->
-    <div v-if="loading" class="text-center py-12">
-      <div class="inline-block animate-spin rounded-full h-8 w-8 border-4 border-blue-600 border-t-transparent"></div>
-      <p class="mt-2" :class="settingsStore.darkMode ? 'text-gray-400' : 'text-gray-600'">Loading...</p>
+    <div
+      v-if="loading"
+      class="text-center py-12"
+    >
+      <div class="inline-block animate-spin rounded-full h-8 w-8 border-4 border-blue-600 border-t-transparent" />
+      <p
+        class="mt-2"
+        :class="settingsStore.darkMode ? 'text-gray-400' : 'text-gray-600'"
+      >
+        Loading...
+      </p>
     </div>
 
     <!-- Buckets List -->
     <div v-if="!loading && !selectedBucket">
-      <div v-if="buckets.length === 0" class="text-center py-12">
-        <p class="text-lg" :class="settingsStore.darkMode ? 'text-gray-400' : 'text-gray-600'">
+      <div
+        v-if="buckets.length === 0"
+        class="text-center py-12"
+      >
+        <p
+          class="text-lg"
+          :class="settingsStore.darkMode ? 'text-gray-400' : 'text-gray-600'"
+        >
           No buckets found. Create one to get started!
         </p>
       </div>
       
-      <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div
+        v-else
+        class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
+      >
         <div
           v-for="bucket in buckets"
           :key="bucket.Name"
@@ -526,17 +557,23 @@ onMounted(() => {
           @click="loadObjects(bucket.Name)"
         >
           <div class="flex items-center justify-between">
-            <h3 class="font-semibold text-lg" :class="settingsStore.darkMode ? 'text-white' : 'text-gray-900'">
+            <h3
+              class="font-semibold text-lg"
+              :class="settingsStore.darkMode ? 'text-white' : 'text-gray-900'"
+            >
               📦 {{ bucket.Name }}
             </h3>
             <button
-              @click.stop="deleteBucket(bucket.Name)"
               class="text-red-500 hover:text-red-700 text-sm px-2 py-1 rounded hover:bg-red-100"
+              @click.stop="deleteBucket(bucket.Name)"
             >
               Delete
             </button>
           </div>
-          <p class="text-xs mt-2" :class="settingsStore.darkMode ? 'text-gray-400' : 'text-gray-500'">
+          <p
+            class="text-xs mt-2"
+            :class="settingsStore.darkMode ? 'text-gray-400' : 'text-gray-500'"
+          >
             Created: {{ formatDate(bucket.CreationDate) }}
           </p>
         </div>
@@ -546,8 +583,14 @@ onMounted(() => {
     <!-- Objects List -->
     <div v-if="!loading && selectedBucket">
       <!-- Upload Section -->
-      <div class="mb-6 p-4 rounded-lg border" :class="settingsStore.darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'">
-        <h3 class="font-semibold mb-3" :class="settingsStore.darkMode ? 'text-white' : 'text-gray-900'">
+      <div
+        class="mb-6 p-4 rounded-lg border"
+        :class="settingsStore.darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'"
+      >
+        <h3
+          class="font-semibold mb-3"
+          :class="settingsStore.darkMode ? 'text-white' : 'text-gray-900'"
+        >
           Upload File
         </h3>
         <label class="inline-block px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 cursor-pointer">
@@ -556,30 +599,50 @@ onMounted(() => {
           <input 
             type="file" 
             class="hidden" 
-            @change="uploadFile" 
-            :disabled="uploading"
-          />
+            :disabled="uploading" 
+            @change="uploadFile"
+          >
         </label>
-        <span v-if="uploading" class="ml-4">
+        <span
+          v-if="uploading"
+          class="ml-4"
+        >
           <span class="animate-pulse">Uploading...</span>
         </span>
       </div>
 
       <!-- Objects Table -->
-      <div v-if="objects.length === 0" class="text-center py-12">
-        <p class="text-lg" :class="settingsStore.darkMode ? 'text-gray-400' : 'text-gray-600'">
+      <div
+        v-if="objects.length === 0"
+        class="text-center py-12"
+      >
+        <p
+          class="text-lg"
+          :class="settingsStore.darkMode ? 'text-gray-400' : 'text-gray-600'"
+        >
           No objects in this bucket. Upload a file to get started!
         </p>
       </div>
       
-      <div v-else class="overflow-x-auto">
+      <div
+        v-else
+        class="overflow-x-auto"
+      >
         <table class="w-full">
           <thead>
             <tr :class="settingsStore.darkMode ? 'bg-gray-800 text-gray-300' : 'bg-gray-50 text-gray-600'">
-              <th class="px-4 py-3 text-left text-sm font-medium">Name</th>
-              <th class="px-4 py-3 text-left text-sm font-medium">Size</th>
-              <th class="px-4 py-3 text-left text-sm font-medium">Last Modified</th>
-              <th class="px-4 py-3 text-left text-sm font-medium">Actions</th>
+              <th class="px-4 py-3 text-left text-sm font-medium">
+                Name
+              </th>
+              <th class="px-4 py-3 text-left text-sm font-medium">
+                Size
+              </th>
+              <th class="px-4 py-3 text-left text-sm font-medium">
+                Last Modified
+              </th>
+              <th class="px-4 py-3 text-left text-sm font-medium">
+                Actions
+              </th>
             </tr>
           </thead>
           <tbody :class="settingsStore.darkMode ? 'bg-gray-900 text-gray-300' : 'bg-white text-gray-700'">
@@ -589,25 +652,31 @@ onMounted(() => {
               class="border-t"
               :class="settingsStore.darkMode ? 'border-gray-700' : 'border-gray-200'"
             >
-              <td class="px-4 py-3 font-mono text-sm">{{ obj.Key }}</td>
-              <td class="px-4 py-3">{{ formatSize(obj.Size) }}</td>
-              <td class="px-4 py-3">{{ formatDate(obj.LastModified) }}</td>
+              <td class="px-4 py-3 font-mono text-sm">
+                {{ obj.Key }}
+              </td>
+              <td class="px-4 py-3">
+                {{ formatSize(obj.Size) }}
+              </td>
+              <td class="px-4 py-3">
+                {{ formatDate(obj.LastModified) }}
+              </td>
               <td class="px-4 py-3">
                 <button
-                  @click="viewObject(obj.Key)"
                   class="text-blue-500 hover:text-blue-700 text-sm mr-3"
+                  @click="viewObject(obj.Key)"
                 >
                   View
                 </button>
                 <button
-                  @click="downloadObject(obj.Key)"
                   class="text-green-500 hover:text-green-700 text-sm mr-3"
+                  @click="downloadObject(obj.Key)"
                 >
                   Download
                 </button>
                 <button
-                  @click="deleteObject(obj.Key)"
                   class="text-red-500 hover:text-red-700 text-sm"
+                  @click="deleteObject(obj.Key)"
                 >
                   Delete
                 </button>
@@ -628,7 +697,10 @@ onMounted(() => {
         class="p-6 rounded-lg w-96 shadow-xl"
         :class="settingsStore.darkMode ? 'bg-gray-800' : 'bg-white'"
       >
-        <h2 class="text-xl font-bold mb-4" :class="settingsStore.darkMode ? 'text-white' : 'text-gray-900'">
+        <h2
+          class="text-xl font-bold mb-4"
+          :class="settingsStore.darkMode ? 'text-white' : 'text-gray-900'"
+        >
           Create New Bucket
         </h2>
         <input
@@ -638,21 +710,24 @@ onMounted(() => {
           class="w-full px-3 py-2 border rounded-lg mb-4"
           :class="settingsStore.darkMode ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300'"
           @keyup.enter="handleCreateBucket"
-        />
-        <p class="text-sm mb-4" :class="settingsStore.darkMode ? 'text-gray-400' : 'text-gray-500'">
+        >
+        <p
+          class="text-sm mb-4"
+          :class="settingsStore.darkMode ? 'text-gray-400' : 'text-gray-500'"
+        >
           Bucket names must be unique and lowercase.
         </p>
         <div class="flex gap-2 justify-end">
           <button
-            @click="showCreateModal = false"
             class="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600"
+            @click="showCreateModal = false"
           >
             Cancel
           </button>
           <button
-            @click="handleCreateBucket"
             :disabled="!newBucketName.trim() || loading"
             class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
+            @click="handleCreateBucket"
           >
             Create
           </button>
@@ -669,23 +744,37 @@ onMounted(() => {
       @close="closeViewModal"
     >
       <!-- Loading state -->
-      <div v-if="viewLoading" class="text-center py-8">
-        <div class="inline-block animate-spin rounded-full h-8 w-8 border-4 border-blue-600 border-t-transparent"></div>
-        <p class="mt-2" :class="settingsStore.darkMode ? 'text-gray-400' : 'text-gray-600'">Loading file...</p>
+      <div
+        v-if="viewLoading"
+        class="text-center py-8"
+      >
+        <div class="inline-block animate-spin rounded-full h-8 w-8 border-4 border-blue-600 border-t-transparent" />
+        <p
+          class="mt-2"
+          :class="settingsStore.darkMode ? 'text-gray-400' : 'text-gray-600'"
+        >
+          Loading file...
+        </p>
       </div>
 
       <!-- Error state -->
-      <div v-else-if="viewError" class="p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg">
+      <div
+        v-else-if="viewError"
+        class="p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg"
+      >
         {{ viewError }}
       </div>
 
       <!-- Image content -->
-      <div v-else-if="isImageContent" class="text-center">
+      <div
+        v-else-if="isImageContent"
+        class="text-center"
+      >
         <img 
           :src="`/s3/${selectedBucket}/${encodeURIComponent(viewFileName)}`" 
           :alt="viewFileName"
           class="max-w-full max-h-[60vh] mx-auto rounded-lg"
-        />
+        >
       </div>
 
       <!-- JSON content -->
@@ -705,11 +794,20 @@ onMounted(() => {
       </div>
 
       <!-- Binary file info -->
-      <div v-else class="text-center py-8">
-        <p class="text-lg mb-4" :class="settingsStore.darkMode ? 'text-gray-300' : 'text-gray-700'">
+      <div
+        v-else
+        class="text-center py-8"
+      >
+        <p
+          class="text-lg mb-4"
+          :class="settingsStore.darkMode ? 'text-gray-300' : 'text-gray-700'"
+        >
           Binary file - cannot display content
         </p>
-        <p class="text-sm" :class="settingsStore.darkMode ? 'text-gray-400' : 'text-gray-500'">
+        <p
+          class="text-sm"
+          :class="settingsStore.darkMode ? 'text-gray-400' : 'text-gray-500'"
+        >
           Type: {{ viewContentType }}
         </p>
       </div>
@@ -717,17 +815,28 @@ onMounted(() => {
       <template #footer>
         <div class="flex gap-2">
           <button
-            @click="downloadObject(viewFileName)"
             class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 flex items-center gap-2"
+            @click="downloadObject(viewFileName)"
           >
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke-width="1.5"
+              stroke="currentColor"
+              class="w-4 h-4"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3"
+              />
             </svg>
             Download
           </button>
           <button
-            @click="closeViewModal"
             class="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600"
+            @click="closeViewModal"
           >
             Close
           </button>
@@ -736,28 +845,43 @@ onMounted(() => {
     </Modal>
 
     <!-- Usage Examples Section -->
-    <div class="mt-8" v-if="!selectedBucket">
-      <h2 class="text-lg font-semibold mb-4" :class="settingsStore.darkMode ? 'text-white' : 'text-gray-900'">
+    <div
+      v-if="!selectedBucket"
+      class="mt-8"
+    >
+      <h2
+        class="text-lg font-semibold mb-4"
+        :class="settingsStore.darkMode ? 'text-white' : 'text-gray-900'"
+      >
         Usage Examples
       </h2>
-      <div class="rounded-lg border overflow-hidden" :class="settingsStore.darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'">
-        <div class="flex border-b" :class="settingsStore.darkMode ? 'border-gray-700' : 'border-gray-200'">
+      <div
+        class="rounded-lg border overflow-hidden"
+        :class="settingsStore.darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'"
+      >
+        <div
+          class="flex border-b"
+          :class="settingsStore.darkMode ? 'border-gray-700' : 'border-gray-200'"
+        >
           <button
             v-for="(example, index) in codeExamples"
             :key="example.language"
-            @click="selectedExample = index"
             class="px-4 py-2 text-sm font-medium transition-colors"
             :class="[
               selectedExample === index
                 ? settingsStore.darkMode ? 'bg-gray-700 text-white' : 'bg-gray-100 text-gray-900'
                 : settingsStore.darkMode ? 'text-gray-400 hover:text-white hover:bg-gray-700' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
             ]"
+            @click="selectedExample = index"
           >
             {{ example.label }}
           </button>
         </div>
         <div class="p-4 overflow-x-auto">
-          <pre class="text-sm font-mono" :class="settingsStore.darkMode ? 'text-gray-300' : 'text-gray-700'">{{ codeExamples[selectedExample].code }}</pre>
+          <pre
+            class="text-sm font-mono"
+            :class="settingsStore.darkMode ? 'text-gray-300' : 'text-gray-700'"
+          >{{ codeExamples[selectedExample].code }}</pre>
         </div>
       </div>
     </div>
