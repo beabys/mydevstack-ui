@@ -1,380 +1,243 @@
 /**
- * Secrets Manager Service API
- * Handles all AWS Secrets Manager operations via the API client
+ * Secrets Manager Service API Client
+ * AWS SDK v3 implementation for AWS Secrets Manager
+ * @module api/services/secrets-manager
  */
 
-import { api } from '../client'
-import type { SecretsManagerSecret, SecretsManagerGetSecretValueResponse } from '../types/aws'
+import {
+  SecretsManagerClient,
+  CreateSecretCommand,
+  GetSecretValueCommand,
+  PutSecretValueCommand,
+  DeleteSecretCommand,
+  UpdateSecretCommand,
+  DescribeSecretCommand,
+  ListSecretsCommand,
+  RotateSecretCommand,
+  GetRandomPasswordCommand,
+  RestoreSecretCommand,
+  type CreateSecretCommandOutput,
+  type GetSecretValueCommandOutput,
+  type PutSecretValueCommandOutput,
+  type DeleteSecretCommandOutput,
+  type UpdateSecretCommandOutput,
+  type DescribeSecretCommandOutput,
+  type ListSecretsCommandOutput,
+  type RotateSecretCommandOutput,
+  type GetRandomPasswordCommandOutput,
+} from '@aws-sdk/client-secrets-manager'
+import { useSettingsStore } from '@/stores/settings'
+import { APIError } from '../client'
 
-const TARGET_PREFIX = 'secretsmanager'
+let secretsManagerClient: SecretsManagerClient | null = null
 
-// Response types
-interface CreateSecretResponse {
-  ARN: string
-  Name: string
-  VersionId: string
-}
-
-interface ListSecretsResponse {
-  SecretList: SecretsManagerSecret[]
-  NextToken?: string
-}
-
-interface PutSecretValueResponse {
-  ARN: string
-  Name: string
-  VersionId: string
-  VersionStages: string[]
-}
-
-interface DeleteSecretResponse {
-  ARN: string
-  Name: string
-  DeletionDate: string
-}
-
-interface UpdateSecretResponse {
-  ARN: string
-  Name: string
-  VersionId: string
-}
-
-interface DescribeSecretResponse {
-  ARN: string
-  Name: string
-  Description?: string
-  KmsKeyId?: string
-  RotationEnabled?: boolean
-  RotationLambdaARN?: string
-  RotationRules?: {
-    AutomaticallyAfterDays: number
-  }
-  LastRotatedDate?: string
-  LastChangedDate: string
-  LastAccessedDate?: string
-  Tags?: Array<{ Key: string; Value: string }>
-  SecretVersionsToStages?: Record<string, string[]>
-  CreatedDate: string
-}
-
-interface RotateSecretResponse {
-  ARN: string
-  Name: string
-  VersionId: string
-  RotationRules?: {
-    AutomaticallyAfterDays: number
-  }
-  RotationLambdaArn?: string
-}
-
-interface GetRandomPasswordResponse {
-  RandomPassword: string
-}
-
-interface RestoreSecretResponse {
-  ARN: string
-  Name: string
-}
-
-/**
- * Create a new secret
- */
-export async function createSecret(params: {
-  Name: string
-  SecretString?: string
-  SecretBinary?: string
-  Description?: string
-  KmsKeyId?: string
-  Tags?: Array<{ Key: string; Value: string }>
-  ClientRequestToken?: string
-}): Promise<CreateSecretResponse> {
-  try {
-    const response = await api.post<CreateSecretResponse>('/secretsmanager', {
-      Action: 'CreateSecret',
-      ...params,
-    }, {
-      headers: {
-        'X-Amz-Target': `${TARGET_PREFIX}.CreateSecret`,
-        'Content-Type': 'application/x-amz-json-1.1',
+function getSecretsManagerClient(): SecretsManagerClient {
+  const settingsStore = useSettingsStore()
+  
+  if (!secretsManagerClient) {
+    secretsManagerClient = new SecretsManagerClient({
+      endpoint: settingsStore.endpoint,
+      region: settingsStore.region,
+      credentials: {
+        accessKeyId: settingsStore.accessKey,
+        secretAccessKey: settingsStore.secretKey,
       },
+      tls: false,
     })
-    return response.data
-  } catch (error) {
-    console.error('Error creating secret:', error)
-    throw error
   }
+  
+  return secretsManagerClient
 }
 
-/**
- * Get a secret value
- */
-export async function getSecretValue(SecretId: string, VersionId?: string, VersionStage?: string): Promise<SecretsManagerGetSecretValueResponse> {
-  try {
-    const response = await api.post<SecretsManagerGetSecretValueResponse>('/secretsmanager', {
-      Action: 'GetSecretValue',
-      SecretId,
-      VersionId,
-      VersionStage,
-    }, {
-      headers: {
-        'X-Amz-Target': `${TARGET_PREFIX}.GetSecretValue`,
-        'Content-Type': 'application/x-amz-json-1.1',
-      },
-    })
-    return response.data
-  } catch (error) {
-    console.error('Error getting secret value:', error)
-    throw error
-  }
+export function refreshSecretsManagerClient(): void {
+  secretsManagerClient = null
+  getSecretsManagerClient()
 }
 
-/**
- * List secrets
- */
-export async function listSecrets(params?: {
-  MaxResults?: number
-  NextToken?: string
-  Filters?: Array<{
-    Key?: 'name' | 'tag-key' | 'tag-value' | 'all'
-    Values?: string[]
-  }>
-}): Promise<ListSecretsResponse> {
-  try {
-    const response = await api.post<ListSecretsResponse>('/secretsmanager', {
-      Action: 'ListSecrets',
-      ...params,
-    }, {
-      headers: {
-        'X-Amz-Target': `${TARGET_PREFIX}.ListSecrets`,
-        'Content-Type': 'application/x-amz-json-1.1',
-      },
-    })
-    return response.data
-  } catch (error) {
-    console.error('Error listing secrets:', error)
-    throw error
+export class SecretsManagerService {
+  private getClient(): SecretsManagerClient {
+    return getSecretsManagerClient()
   }
-}
 
-/**
- * Put a secret value
- */
-export async function putSecretValue(params: {
-  SecretId: string
-  SecretString?: string
-  SecretBinary?: string
-  ClientRequestToken?: string
-  VersionStages?: string[]
-}): Promise<PutSecretValueResponse> {
-  try {
-    const response = await api.post<PutSecretValueResponse>('/secretsmanager', {
-      Action: 'PutSecretValue',
-      ...params,
-    }, {
-      headers: {
-        'X-Amz-Target': `${TARGET_PREFIX}.PutSecretValue`,
-        'Content-Type': 'application/x-amz-json-1.1',
-      },
-    })
-    return response.data
-  } catch (error) {
-    console.error('Error putting secret value:', error)
-    throw error
+  async createSecret(params: {
+    Name: string
+    SecretString?: string
+    SecretBinary?: string
+    Description?: string
+    KmsKeyId?: string
+    Tags?: Array<{ Key: string; Value: string }>
+    ClientRequestToken?: string
+  }): Promise<any> {
+    try {
+      const client = this.getClient()
+      const command = new CreateSecretCommand(params as any)
+      const response: CreateSecretCommandOutput = await client.send(command)
+      return response
+    } catch (error) {
+      if (error instanceof APIError) throw error
+      throw new APIError(`Failed to create secret: ${params.Name}`, 500, 'secrets-manager')
+    }
   }
-}
 
-/**
- * Delete a secret
- */
-export async function deleteSecret(
-  SecretId: string,
-  options?: {
+  async getSecretValue(secretName: string): Promise<any> {
+    try {
+      const client = this.getClient()
+      const command = new GetSecretValueCommand({ SecretId: secretName })
+      const response: GetSecretValueCommandOutput = await client.send(command)
+      return response
+    } catch (error) {
+      if (error instanceof APIError) throw error
+      throw new APIError(`Failed to get secret value: ${secretName}`, 500, 'secrets-manager')
+    }
+  }
+
+  async putSecretValue(params: {
+    SecretId: string
+    SecretString?: string
+    SecretBinary?: string
+    VersionStages?: string[]
+    ClientRequestToken?: string
+  }): Promise<any> {
+    try {
+      const client = this.getClient()
+      const command = new PutSecretValueCommand(params as any)
+      const response: PutSecretValueCommandOutput = await client.send(command)
+      return response
+    } catch (error) {
+      if (error instanceof APIError) throw error
+      throw new APIError(`Failed to put secret value: ${params.SecretId}`, 500, 'secrets-manager')
+    }
+  }
+
+  async deleteSecret(secretName: string, options?: {
     RecoveryWindowInDays?: number
     ForceDeleteWithoutRecovery?: boolean
+  }): Promise<any> {
+    try {
+      const client = this.getClient()
+      const command = new DeleteSecretCommand({
+        SecretId: secretName,
+        ...options,
+      })
+      const response: DeleteSecretCommandOutput = await client.send(command)
+      return response
+    } catch (error) {
+      if (error instanceof APIError) throw error
+      throw new APIError(`Failed to delete secret: ${secretName}`, 500, 'secrets-manager')
+    }
   }
-): Promise<DeleteSecretResponse> {
-  try {
-    const response = await api.post<DeleteSecretResponse>('/secretsmanager', {
-      Action: 'DeleteSecret',
-      SecretId,
-      ...options,
-    }, {
-      headers: {
-        'X-Amz-Target': `${TARGET_PREFIX}.DeleteSecret`,
-        'Content-Type': 'application/x-amz-json-1.1',
-      },
-    })
-    return response.data
-  } catch (error) {
-    console.error('Error deleting secret:', error)
-    throw error
+
+  async updateSecret(params: {
+    SecretId: string
+    SecretString?: string
+    SecretBinary?: string
+    Description?: string
+    KmsKeyId?: string
+  }): Promise<any> {
+    try {
+      const client = this.getClient()
+      const command = new UpdateSecretCommand(params as any)
+      const response: UpdateSecretCommandOutput = await client.send(command)
+      return response
+    } catch (error) {
+      if (error instanceof APIError) throw error
+      throw new APIError(`Failed to update secret: ${params.SecretId}`, 500, 'secrets-manager')
+    }
+  }
+
+  async describeSecret(secretName: string): Promise<any> {
+    try {
+      const client = this.getClient()
+      const command = new DescribeSecretCommand({ SecretId: secretName })
+      const response: DescribeSecretCommandOutput = await client.send(command)
+      return response
+    } catch (error) {
+      if (error instanceof APIError) throw error
+      throw new APIError(`Failed to describe secret: ${secretName}`, 500, 'secrets-manager')
+    }
+  }
+
+  async listSecrets(options?: { MaxResults?: number; NextToken?: string }): Promise<any> {
+    try {
+      const client = this.getClient()
+      const command = new ListSecretsCommand(options as any)
+      const response: ListSecretsCommandOutput = await client.send(command)
+      return response
+    } catch (error) {
+      if (error instanceof APIError) throw error
+      throw new APIError('Failed to list secrets', 500, 'secrets-manager')
+    }
+  }
+
+  async rotateSecret(secretName: string, options?: {
+    RotationLambdaARN?: string
+    RotationRules?: { AutomaticallyAfterDays?: number }
+    ClientRequestToken?: string
+  }): Promise<any> {
+    try {
+      const client = this.getClient()
+      const command = new RotateSecretCommand({
+        SecretId: secretName,
+        ...options,
+      })
+      const response: RotateSecretCommandOutput = await client.send(command)
+      return response
+    } catch (error) {
+      if (error instanceof APIError) throw error
+      throw new APIError(`Failed to rotate secret: ${secretName}`, 500, 'secrets-manager')
+    }
+  }
+
+  async getRandomPassword(options?: {
+    PasswordLength?: number
+    ExcludeCharacters?: string
+    ExcludePunctuation?: boolean
+    ExcludeNumbers?: boolean
+    ExcludeUppercase?: boolean
+    ExcludeLowercase?: boolean
+    IncludeSpace?: boolean
+  }): Promise<any> {
+    try {
+      const client = this.getClient()
+      const command = new GetRandomPasswordCommand(options as any)
+      const response: GetRandomPasswordCommandOutput = await client.send(command)
+      return response
+    } catch (error) {
+      if (error instanceof APIError) throw error
+      throw new APIError('Failed to generate random password', 500, 'secrets-manager')
+    }
+  }
+
+  async restoreSecret(secretName: string): Promise<any> {
+    try {
+      const client = this.getClient()
+      const command = new RestoreSecretCommand({ SecretId: secretName })
+      return await client.send(command)
+    } catch (error) {
+      if (error instanceof APIError) throw error
+      throw new APIError(`Failed to restore secret: ${secretName}`, 500, 'secrets-manager')
+    }
   }
 }
 
-/**
- * Update a secret
- */
-export async function updateSecret(params: {
-  SecretId: string
-  SecretString?: string
-  SecretBinary?: string
-  Description?: string
-  KmsKeyId?: string
-}): Promise<UpdateSecretResponse> {
-  try {
-    const response = await api.post<UpdateSecretResponse>('/secretsmanager', {
-      Action: 'UpdateSecret',
-      ...params,
-    }, {
-      headers: {
-        'X-Amz-Target': `${TARGET_PREFIX}.UpdateSecret`,
-        'Content-Type': 'application/x-amz-json-1.1',
-      },
-    })
-    return response.data
-  } catch (error) {
-    console.error('Error updating secret:', error)
-    throw error
-  }
-}
+export const secretsManagerService = new SecretsManagerService()
 
-/**
- * Describe a secret
- */
-export async function describeSecret(SecretId: string): Promise<DescribeSecretResponse> {
-  try {
-    const response = await api.post<DescribeSecretResponse>('/secretsmanager', {
-      Action: 'DescribeSecret',
-      SecretId,
-    }, {
-      headers: {
-        'X-Amz-Target': `${TARGET_PREFIX}.DescribeSecret`,
-        'Content-Type': 'application/x-amz-json-1.1',
-      },
-    })
-    return response.data
-  } catch (error) {
-    console.error('Error describing secret:', error)
-    throw error
-  }
-}
+export const createSecret = (params: Parameters<SecretsManagerService['createSecret']>[0]) => 
+  secretsManagerService.createSecret(params)
+export const getSecretValue = (secretName: string) => secretsManagerService.getSecretValue(secretName)
+export const putSecretValue = (params: Parameters<SecretsManagerService['putSecretValue']>[0]) => 
+  secretsManagerService.putSecretValue(params)
+export const deleteSecret = (secretName: string, options?: Parameters<SecretsManagerService['deleteSecret']>[1]) => 
+  secretsManagerService.deleteSecret(secretName, options)
+export const updateSecret = (params: Parameters<SecretsManagerService['updateSecret']>[0]) => 
+  secretsManagerService.updateSecret(params)
+export const describeSecret = (secretName: string) => secretsManagerService.describeSecret(secretName)
+export const listSecrets = (options?: Parameters<SecretsManagerService['listSecrets']>[0]) => 
+  secretsManagerService.listSecrets(options)
+export const rotateSecret = (secretName: string, options?: Parameters<SecretsManagerService['rotateSecret']>[1]) => 
+  secretsManagerService.rotateSecret(secretName, options)
+export const getRandomPassword = (options?: Parameters<SecretsManagerService['getRandomPassword']>[0]) => 
+  secretsManagerService.getRandomPassword(options)
+export const restoreSecret = (secretName: string) => secretsManagerService.restoreSecret(secretName)
 
-/**
- * Rotate a secret
- */
-export async function rotateSecret(SecretId: string, options?: {
-  RotationLambdaArn?: string
-  RotationRules?: {
-    AutomaticallyAfterDays: number
-  }
-  ClientRequestToken?: string
-}): Promise<RotateSecretResponse> {
-  try {
-    const response = await api.post<RotateSecretResponse>('/secretsmanager', {
-      Action: 'RotateSecret',
-      SecretId,
-      ...options,
-    }, {
-      headers: {
-        'X-Amz-Target': `${TARGET_PREFIX}.RotateSecret`,
-        'Content-Type': 'application/x-amz-json-1.1',
-      },
-    })
-    return response.data
-  } catch (error) {
-    console.error('Error rotating secret:', error)
-    throw error
-  }
-}
-
-/**
- * Get random password
- */
-export async function getRandomPassword(params?: {
-  PasswordLength?: number
-  ExcludeCharacters?: string
-  ExcludePunctuation?: boolean
-  ExcludeUppercase?: boolean
-  ExcludeLowercase?: boolean
-  IncludeEveryCharacterType?: boolean
-  SpacesAllowed?: boolean
-}): Promise<GetRandomPasswordResponse> {
-  try {
-    const response = await api.post<GetRandomPasswordResponse>('/secretsmanager', {
-      Action: 'GetRandomPassword',
-      ...params,
-    }, {
-      headers: {
-        'X-Amz-Target': `${TARGET_PREFIX}.GetRandomPassword`,
-        'Content-Type': 'application/x-amz-json-1.1',
-      },
-    })
-    return response.data
-  } catch (error) {
-    console.error('Error getting random password:', error)
-    throw error
-  }
-}
-
-/**
- * Tag a secret
- */
-export async function tagSecret(SecretId: string, Tags: Array<{ Key: string; Value: string }>): Promise<void> {
-  try {
-    await api.post('/secretsmanager', {
-      Action: 'TagResource',
-      SecretId,
-      Tags,
-    }, {
-      headers: {
-        'X-Amz-Target': `${TARGET_PREFIX}.TagResource`,
-        'Content-Type': 'application/x-amz-json-1.1',
-      },
-    })
-  } catch (error) {
-    console.error('Error tagging secret:', error)
-    throw error
-  }
-}
-
-/**
- * Untag a secret
- */
-export async function untagSecret(SecretId: string, TagKeys: string[]): Promise<void> {
-  try {
-    await api.post('/secretsmanager', {
-      Action: 'UntagResource',
-      SecretId,
-      TagKeys,
-    }, {
-      headers: {
-        'X-Amz-Target': `${TARGET_PREFIX}.UntagResource`,
-        'Content-Type': 'application/x-amz-json-1.1',
-      },
-    })
-  } catch (error) {
-    console.error('Error untagging secret:', error)
-    throw error
-  }
-}
-
-/**
- * Restore a secret
- */
-export async function restoreSecret(SecretId: string): Promise<RestoreSecretResponse> {
-  try {
-    const response = await api.post<RestoreSecretResponse>('/secretsmanager', {
-      Action: 'RestoreSecret',
-      SecretId,
-    }, {
-      headers: {
-        'X-Amz-Target': `${TARGET_PREFIX}.RestoreSecret`,
-        'Content-Type': 'application/x-amz-json-1.1',
-      },
-    })
-    return response.data
-  } catch (error) {
-    console.error('Error restoring secret:', error)
-    throw error
-  }
-}
+export default secretsManagerService

@@ -1,630 +1,284 @@
 /**
- * SNS Service API
- * Handles all AWS Simple Notification Service operations via the API client
+ * SNS Service API Client
+ * AWS SDK v3 implementation for SNS
+ * @module api/services/sns
  */
 
-import { api, parseXML } from '../client'
-import type { SNSTopic, SNSSubscription, SNSPublishRequest, SNSPublishResponse } from '../types/aws'
+import {
+  SNSClient,
+  ListTopicsCommand,
+  ListSubscriptionsCommand,
+  ListSubscriptionsByTopicCommand,
+  GetTopicAttributesCommand,
+  CreateTopicCommand,
+  DeleteTopicCommand,
+  SubscribeCommand,
+  UnsubscribeCommand,
+  PublishCommand,
+  ConfirmSubscriptionCommand,
+  GetSubscriptionAttributesCommand,
+  SetSubscriptionAttributesCommand,
+  ListTagsForResourceCommand,
+  type ListTopicsCommandOutput,
+  type ListSubscriptionsCommandOutput,
+  type ListSubscriptionsByTopicCommandOutput,
+  type GetTopicAttributesCommandOutput,
+  type CreateTopicCommandOutput,
+  type SubscribeCommandOutput,
+  type PublishCommandOutput,
+  type ConfirmSubscriptionCommandOutput,
+} from '@aws-sdk/client-sns'
+import { useSettingsStore } from '@/stores/settings'
+import { APIError } from '../client'
 
-// Response types for XML parsing
-interface ListTopicsResponse {
-  ListTopicsResult?: {
-    Topic?: Array<{
-      TopicArn: string
-    }>
-    NextToken?: string
+let snsClient: SNSClient | null = null
+
+function getSNSClient(): SNSClient {
+  const settingsStore = useSettingsStore()
+  
+  if (!snsClient) {
+    snsClient = new SNSClient({
+      endpoint: settingsStore.endpoint,
+      region: settingsStore.region,
+      credentials: {
+        accessKeyId: settingsStore.accessKey,
+        secretAccessKey: settingsStore.secretKey,
+      },
+      tls: false,
+    })
   }
+  
+  return snsClient
 }
 
-interface ListSubscriptionsResponse {
-  ListSubscriptionsResult?: {
-    Subscription?: Array<{
-      SubscriptionArn: string
-      Owner: string
-      Protocol: string
-      Endpoint?: string
-      TopicArn: string
-      ConfirmationWasAuthenticated?: string
-    }>
-    NextToken?: string
-  }
+export function refreshSNSClient(): void {
+  snsClient = null
+  getSNSClient()
 }
 
-interface ListSubscriptionsByTopicResponse {
-  ListSubscriptionsByTopicResult?: {
-    Subscription?: Array<{
-      SubscriptionArn: string
-      Owner: string
-      Protocol: string
-      Endpoint?: string
-      TopicArn: string
-      ConfirmationWasAuthenticated?: string
-    }>
-    NextToken?: string
+export class SNSService {
+  private getClient(): SNSClient {
+    return getSNSClient()
   }
-}
 
-interface GetTopicAttributesResponse {
-  GetTopicAttributesResult?: {
-    Attributes?: {
-      Entry?: Array<{
-        Key: string
-        Value: string
-      }>
+  async listTopics(): Promise<any[]> {
+    try {
+      const client = this.getClient()
+      const command = new ListTopicsCommand({})
+      const response: ListTopicsCommandOutput = await client.send(command)
+      return response.Topics || []
+    } catch (error) {
+      if (error instanceof APIError) throw error
+      throw new APIError('Failed to list topics', 500, 'sns')
     }
   }
-}
 
-interface CreateTopicResponse {
-  CreateTopicResult?: {
-    TopicArn: string
-  }
-}
-
-interface SubscribeResponse {
-  SubscribeResult?: {
-    SubscriptionArn: string
-  }
-}
-
-interface PublishResponse {
-  PublishResult?: {
-    MessageId: string
-    SequenceNumber?: string
-  }
-}
-
-interface ConfirmSubscriptionResponse {
-  ConfirmSubscriptionResult?: {
-    SubscriptionArn: string
-  }
-}
-
-interface GetSubscriptionAttributesResponse {
-  GetSubscriptionAttributesResult?: {
-    Attributes?: {
-      Entry?: Array<{
-        Key: string
-        Value: string
-      }>
+  async listSubscriptions(): Promise<any[]> {
+    try {
+      const client = this.getClient()
+      const command = new ListSubscriptionsCommand({})
+      const response: ListSubscriptionsCommandOutput = await client.send(command)
+      return response.Subscriptions || []
+    } catch (error) {
+      if (error instanceof APIError) throw error
+      throw new APIError('Failed to list subscriptions', 500, 'sns')
     }
   }
-}
 
-interface ListTagsForResourceResponse {
-  ListTagsForResourceResult?: {
-    Tags?: {
-      Tag?: Array<{
-        Key: string
-        Value: string
-      }>
-      Key?: string
-      Value?: string
+  async listSubscriptionsByTopic(topicArn: string): Promise<any[]> {
+    try {
+      const client = this.getClient()
+      const command = new ListSubscriptionsByTopicCommand({ TopicArn: topicArn })
+      const response: ListSubscriptionsByTopicCommandOutput = await client.send(command)
+      return response.Subscriptions || []
+    } catch (error) {
+      if (error instanceof APIError) throw error
+      throw new APIError(`Failed to list subscriptions for topic: ${topicArn}`, 500, 'sns')
     }
   }
-}
 
-/**
- * List all SNS topics
- */
-export async function listTopics(): Promise<SNSTopic[]> {
-  try {
-    const response = await api.get('/sns?Action=ListTopics')
-
-    const xmlData = typeof response.data === 'string' ? response.data : JSON.stringify(response.data)
-    const parsed = parseXML<ListTopicsResponse>(xmlData)
-
-    if (!parsed?.ListTopicsResult?.Topic) {
-      return []
+  async getTopicAttributes(topicArn: string): Promise<Record<string, string>> {
+    try {
+      const client = this.getClient()
+      const command = new GetTopicAttributesCommand({ TopicArn: topicArn })
+      const response: GetTopicAttributesCommandOutput = await client.send(command)
+      
+      const attrs: Record<string, string> = {}
+      if (response.Attributes) {
+        Object.entries(response.Attributes).forEach(([key, value]) => {
+          attrs[key] = String(value)
+        })
+      }
+      return attrs
+    } catch (error) {
+      if (error instanceof APIError) throw error
+      throw new APIError(`Failed to get topic attributes: ${topicArn}`, 500, 'sns')
     }
-
-    const topics = parsed.ListTopicsResult.Topic
-    const topicArray = Array.isArray(topics) ? topics : [topics]
-
-    return topicArray.map((topic) => ({
-      TopicArn: topic.TopicArn,
-      TopicName: topic.TopicArn.split(':').pop() || '',
-    }))
-  } catch (error) {
-    console.error('Error listing topics:', error)
-    throw error
   }
-}
 
-/**
- * Create a new SNS topic
- */
-export async function createTopic(
-  name: string,
-  options?: {
-    displayName?: string
+  async createTopic(name: string, options?: {
+    DisplayName?: string
+    Attributes?: Record<string, string>
     tags?: Record<string, string>
-    fifoTopic?: boolean
-  }
-): Promise<string> {
-  try {
-    const params = new URLSearchParams()
-    params.append('Name', name)
-
-    if (options?.displayName) {
-      params.append('DisplayName', options.displayName)
-    }
-
-    if (options?.fifoTopic) {
-      params.append('Attributes.entry.1.Key', 'FifoTopic')
-      params.append('Attributes.entry.1.Value', 'true')
-    }
-
-    const queryParams: string[] = [`Action=CreateTopic`]
-    
-    if (options?.displayName) {
-      queryParams.push(`DisplayName=${encodeURIComponent(options.displayName)}`)
-    }
-
-    let attrIndex = 1
-    if (options?.fifoTopic) {
-      queryParams.push(`Attribute.${attrIndex}.Name=FifoTopic`)
-      queryParams.push(`Attribute.${attrIndex}.Value=true`)
-      attrIndex++
-    }
-
-    // Add tags
-    if (options?.tags) {
-      let tagIndex = 1
-      for (const [key, value] of Object.entries(options.tags)) {
-        queryParams.push(`Tags.${tagIndex}.Key=${encodeURIComponent(key)}`)
-        queryParams.push(`Tags.${tagIndex}.Value=${encodeURIComponent(value)}`)
-        tagIndex++
-      }
-    }
-
-    const queryString = queryParams.join('&')
-    const response = await api.get(`/sns?${queryString}`)
-
-    const xmlData = typeof response.data === 'string' ? response.data : JSON.stringify(response.data)
-    const parsed = parseXML<CreateTopicResponse>(xmlData)
-
-    if (!parsed?.CreateTopicResult?.TopicArn) {
-      throw new Error('Failed to create topic: No ARN returned')
-    }
-
-    return parsed.CreateTopicResult.TopicArn
-  } catch (error) {
-    console.error('Error creating topic:', error)
-    throw error
-  }
-}
-
-/**
- * Delete an SNS topic
- */
-export async function deleteTopic(topicArn: string): Promise<void> {
-  try {
-    await api.get(`/sns?Action=DeleteTopic&TopicArn=${encodeURIComponent(topicArn)}`)
-  } catch (error) {
-    console.error('Error deleting topic:', error)
-    throw error
-  }
-}
-
-/**
- * Get topic attributes
- */
-export async function getTopicAttributes(topicArn: string): Promise<Record<string, string>> {
-  try {
-    const response = await api.get(
-      `/sns?Action=GetTopicAttributes&TopicArn=${encodeURIComponent(topicArn)}`
-    )
-
-    const xmlData = typeof response.data === 'string' ? response.data : JSON.stringify(response.data)
-    const parsed = parseXML<GetTopicAttributesResponse>(xmlData)
-
-    const attributes: Record<string, string> = {}
-    if (parsed?.GetTopicAttributesResult?.Attributes?.Entry) {
-      const entries = parsed.GetTopicAttributesResult.Attributes.Entry
-      const entryArray = Array.isArray(entries) ? entries : [entries]
-      entryArray.forEach((entry) => {
-        attributes[entry.Key] = entry.Value
+  }): Promise<{ TopicArn: string }> {
+    try {
+      const client = this.getClient()
+      const command = new CreateTopicCommand({
+        Name: name,
+        DisplayName: options?.DisplayName,
+        ...options,
       })
+      const response: CreateTopicCommandOutput = await client.send(command)
+      return { TopicArn: response.TopicArn || '' }
+    } catch (error) {
+      console.error('CreateTopic error:', error)
+      if (error instanceof APIError) throw error
+      throw new APIError(`Failed to create topic: ${name}`, 500, 'sns')
     }
-
-    return attributes
-  } catch (error) {
-    console.error('Error getting topic attributes:', error)
-    throw error
   }
-}
 
-/**
- * Set topic attributes
- */
-export async function setTopicAttributes(
-  topicArn: string,
-  attributeName: string,
-  attributeValue: string
-): Promise<void> {
-  try {
-    await api.get(
-      `/sns?Action=SetTopicAttributes&TopicArn=${encodeURIComponent(topicArn)}&AttributeName=${encodeURIComponent(attributeName)}&AttributeValue=${encodeURIComponent(attributeValue)}`
-    )
-  } catch (error) {
-    console.error('Error setting topic attributes:', error)
-    throw error
+  async deleteTopic(topicArn: string): Promise<void> {
+    try {
+      const client = this.getClient()
+      const command = new DeleteTopicCommand({ TopicArn: topicArn })
+      await client.send(command)
+    } catch (error) {
+      if (error instanceof APIError) throw error
+      throw new APIError(`Failed to delete topic: ${topicArn}`, 500, 'sns')
+    }
   }
-}
 
-/**
- * Subscribe to a topic
- */
-export async function subscribe(
-  topicArn: string,
-  protocol: string,
-  endpoint: string
-): Promise<string> {
-  try {
-    const response = await api.get(
-      `/sns?Action=Subscribe&TopicArn=${encodeURIComponent(topicArn)}&Protocol=${encodeURIComponent(protocol)}&Endpoint=${encodeURIComponent(endpoint)}`
-    )
-
-    const xmlData = typeof response.data === 'string' ? response.data : JSON.stringify(response.data)
-    const parsed = parseXML<SubscribeResponse>(xmlData)
-
-    return parsed?.SubscribeResult?.SubscriptionArn || ''
-  } catch (error) {
-    console.error('Error subscribing:', error)
-    throw error
-  }
-}
-
-/**
- * List all subscriptions
- */
-export async function listSubscriptions(): Promise<SNSSubscription[]> {
-  try {
-    const response = await api.get('/sns?Action=ListSubscriptions')
-
-    const xmlData = typeof response.data === 'string' ? response.data : JSON.stringify(response.data)
-    const parsed = parseXML<ListSubscriptionsResponse>(xmlData)
-
-    if (!parsed?.ListSubscriptionsResult?.Subscription) {
-      return []
-    }
-
-    const subscriptions = parsed.ListSubscriptionsResult.Subscription
-    const subArray = Array.isArray(subscriptions) ? subscriptions : [subscriptions]
-
-    return subArray.map((sub) => ({
-      SubscriptionArn: sub.SubscriptionArn,
-      Owner: sub.Owner,
-      Protocol: sub.Protocol,
-      Endpoint: sub.Endpoint,
-      TopicArn: sub.TopicArn,
-      ConfirmationWasAuthenticated: sub.ConfirmationWasAuthenticated === 'true',
-    }))
-  } catch (error) {
-    console.error('Error listing subscriptions:', error)
-    throw error
-  }
-}
-
-/**
- * List subscriptions by topic
- */
-export async function listSubscriptionsByTopic(topicArn: string): Promise<SNSSubscription[]> {
-  try {
-    const response = await api.get(
-      `/sns?Action=ListSubscriptionsByTopic&TopicArn=${encodeURIComponent(topicArn)}`
-    )
-
-    const xmlData = typeof response.data === 'string' ? response.data : JSON.stringify(response.data)
-    const parsed = parseXML<ListSubscriptionsByTopicResponse>(xmlData)
-
-    if (!parsed?.ListSubscriptionsByTopicResult?.Subscription) {
-      return []
-    }
-
-    const subscriptions = parsed.ListSubscriptionsByTopicResult.Subscription
-    const subArray = Array.isArray(subscriptions) ? subscriptions : [subscriptions]
-
-    return subArray.map((sub) => ({
-      SubscriptionArn: sub.SubscriptionArn,
-      Owner: sub.Owner,
-      Protocol: sub.Protocol,
-      Endpoint: sub.Endpoint,
-      TopicArn: sub.TopicArn,
-      ConfirmationWasAuthenticated: sub.ConfirmationWasAuthenticated === 'true',
-    }))
-  } catch (error) {
-    console.error('Error listing subscriptions by topic:', error)
-    throw error
-  }
-}
-
-/**
- * Unsubscribe from a topic
- */
-export async function unsubscribe(subscriptionArn: string): Promise<void> {
-  try {
-    await api.get(
-      `/sns?Action=Unsubscribe&SubscriptionArn=${encodeURIComponent(subscriptionArn)}`
-    )
-  } catch (error) {
-    console.error('Error unsubscribing:', error)
-    throw error
-  }
-}
-
-/**
- * Publish a message to a topic
- */
-export async function publish(
-  request: SNSPublishRequest
-): Promise<{ MessageId: string }> {
-  try {
-    const params = new URLSearchParams()
-    
-    if (request.TopicArn) {
-      params.append('TopicArn', request.TopicArn)
-    }
-    if (request.TargetArn) {
-      params.append('TargetArn', request.TargetArn)
-    }
-    if (request.PhoneNumber) {
-      params.append('PhoneNumber', request.PhoneNumber)
-    }
-    if (request.Subject) {
-      params.append('Subject', request.Subject)
-    }
-    params.append('Message', request.Message)
-    if (request.MessageStructure) {
-      params.append('MessageStructure', request.MessageStructure)
-    }
-
-    if (request.MessageAttributes) {
-      let attrIndex = 1
-      for (const [key, value] of Object.entries(request.MessageAttributes)) {
-        params.append(`MessageAttributes.${attrIndex}.Name`, key)
-        params.append(`MessageAttributes.${attrIndex}.Value.DataType`, value.DataType)
-        if (value.StringValue) {
-          params.append(`MessageAttributes.${attrIndex}.Value.StringValue`, value.StringValue)
-        }
-        if (value.BinaryValue) {
-          params.append(`MessageAttributes.${attrIndex}.Value.BinaryValue`, value.BinaryValue)
-        }
-        attrIndex++
-      }
-    }
-
-    const queryString = params.toString().replace(/&/g, '&')
-    const response = await api.get(`/sns?Action=Publish&${queryString}`)
-
-    const xmlData = typeof response.data === 'string' ? response.data : JSON.stringify(response.data)
-    const parsed = parseXML<PublishResponse>(xmlData)
-
-    return {
-      MessageId: parsed?.PublishResult?.MessageId || '',
-    }
-  } catch (error) {
-    console.error('Error publishing message:', error)
-    throw error
-  }
-}
-
-/**
- * Publish to a topic with JSON payload
- */
-export async function publishJSON(
-  topicArn: string,
-  payload: Record<string, unknown>,
-  options?: {
-    subject?: string
-    messageAttributes?: Record<string, { DataType: string; StringValue?: string }>
-  }
-): Promise<{ MessageId: string }> {
-  return publish({
-    TopicArn: topicArn,
-    Message: JSON.stringify(payload),
-    Subject: options?.subject,
-    MessageAttributes: options?.messageAttributes,
-  })
-}
-
-/**
- * Confirm a subscription
- */
-export async function confirmSubscription(
-  topicArn: string,
-  token: string,
-  nonce?: string
-): Promise<string> {
-  try {
-    let url = `/sns?Action=ConfirmSubscription&TopicArn=${encodeURIComponent(topicArn)}&Token=${encodeURIComponent(token)}`
-    if (nonce) {
-      url += `&AuthenticateOnUnsubscribe=${encodeURIComponent(nonce)}`
-    }
-
-    const response = await api.get(url)
-
-    const xmlData = typeof response.data === 'string' ? response.data : JSON.stringify(response.data)
-    const parsed = parseXML<ConfirmSubscriptionResponse>(xmlData)
-
-    return parsed?.ConfirmSubscriptionResult?.SubscriptionArn || ''
-  } catch (error) {
-    console.error('Error confirming subscription:', error)
-    throw error
-  }
-}
-
-/**
- * Get subscription attributes
- */
-export async function getSubscriptionAttributes(
-  subscriptionArn: string
-): Promise<Record<string, string>> {
-  try {
-    const response = await api.get(
-      `/sns?Action=GetSubscriptionAttributes&SubscriptionArn=${encodeURIComponent(subscriptionArn)}`
-    )
-
-    const xmlData = typeof response.data === 'string' ? response.data : JSON.stringify(response.data)
-    const parsed = parseXML<GetSubscriptionAttributesResponse>(xmlData)
-
-    const attributes: Record<string, string> = {}
-    if (parsed?.GetSubscriptionAttributesResult?.Attributes?.Entry) {
-      const entries = parsed.GetSubscriptionAttributesResult.Attributes.Entry
-      const entryArray = Array.isArray(entries) ? entries : [entries]
-      entryArray.forEach((entry) => {
-        attributes[entry.Key] = entry.Value
+  async subscribe(topicArn: string, protocol: string, endpoint: string): Promise<{ SubscriptionArn: string }> {
+    try {
+      const client = this.getClient()
+      const command = new SubscribeCommand({
+        TopicArn: topicArn,
+        Protocol: protocol,
+        Endpoint: endpoint,
       })
+      const response: SubscribeCommandOutput = await client.send(command)
+      return { SubscriptionArn: response.SubscriptionArn || '' }
+    } catch (error) {
+      if (error instanceof APIError) throw error
+      throw new APIError(`Failed to subscribe to topic: ${topicArn}`, 500, 'sns')
     }
-
-    return attributes
-  } catch (error) {
-    console.error('Error getting subscription attributes:', error)
-    throw error
   }
-}
 
-/**
- * Set subscription attributes
- */
-export async function setSubscriptionAttributes(
-  subscriptionArn: string,
-  attributeName: string,
-  attributeValue: string
-): Promise<void> {
-  try {
-    await api.get(
-      `/sns?Action=SetSubscriptionAttributes&SubscriptionArn=${encodeURIComponent(subscriptionArn)}&AttributeName=${encodeURIComponent(attributeName)}&AttributeValue=${encodeURIComponent(attributeValue)}`
-    )
-  } catch (error) {
-    console.error('Error setting subscription attributes:', error)
-    throw error
-  }
-}
-
-/**
- * Tag a topic
- */
-export async function tagResource(topicArn: string, tags: Record<string, string>): Promise<void> {
-  try {
-    const params: string[] = [`Action=Tag`]
-    params.push(`ResourceArn=${encodeURIComponent(topicArn)}`)
-
-    let tagIndex = 1
-    for (const [key, value] of Object.entries(tags)) {
-      params.push(`Tags.${tagIndex}.Key=${encodeURIComponent(key)}`)
-      params.push(`Tags.${tagIndex}.Value=${encodeURIComponent(value)}`)
-      tagIndex++
+  async unsubscribe(subscriptionArn: string): Promise<void> {
+    try {
+      const client = this.getClient()
+      const command = new UnsubscribeCommand({ SubscriptionArn: subscriptionArn })
+      await client.send(command)
+    } catch (error) {
+      if (error instanceof APIError) throw error
+      throw new APIError(`Failed to unsubscribe: ${subscriptionArn}`, 500, 'sns')
     }
-
-    const queryString = params.join('&')
-    await api.get(`/sns?${queryString}`)
-  } catch (error) {
-    console.error('Error tagging resource:', error)
-    throw error
   }
-}
 
-/**
- * Untag a topic
- */
-export async function untagResource(topicArn: string, tagKeys: string[]): Promise<void> {
-  try {
-    const params: string[] = [`Action=UntagResource`]
-    params.push(`ResourceArn=${encodeURIComponent(topicArn)}`)
-
-    tagKeys.forEach((key, index) => {
-      params.push(`TagKeys.${index + 1}=${encodeURIComponent(key)}`)
-    })
-
-    const queryString = params.join('&')
-    await api.get(`/sns?${queryString}`)
-  } catch (error) {
-    console.error('Error untagging resource:', error)
-    throw error
-  }
-}
-
-/**
- * List tags for a topic
- */
-export async function listTagsForResource(topicArn: string): Promise<Record<string, string>> {
-  try {
-    const response = await api.get(
-      `/sns?Action=ListTagsForResource&ResourceArn=${encodeURIComponent(topicArn)}`
-    )
-
-    const xmlData = typeof response.data === 'string' ? response.data : JSON.stringify(response.data)
-    const parsed = parseXML<ListTagsForResourceResponse>(xmlData)
-
-    const tags: Record<string, string> = {}
-    if (parsed?.ListTagsForResourceResult?.Tags) {
-      const tagsData = parsed.ListTagsForResourceResult.Tags
-      if ('Tag' in tagsData) {
-        const tagArray = Array.isArray(tagsData.Tag) ? tagsData.Tag : [tagsData.Tag]
-        tagArray.forEach((tag) => {
-          tags[tag.Key] = tag.Value
-        })
-      } else if ('Key' in tagsData && 'Value' in tagsData) {
-        tags[tagsData.Key as string] = tagsData.Value as string
-      }
+  async publish(topicArn: string, message: string, options?: {
+    Subject?: string
+    MessageStructure?: string
+    MessageAttributes?: Record<string, any>
+    TargetArn?: string
+    PhoneNumber?: string
+  }): Promise<{ MessageId: string }> {
+    try {
+      const client = this.getClient()
+      const command = new PublishCommand({
+        TopicArn: topicArn,
+        Message: message,
+        ...options,
+      })
+      const response: PublishCommandOutput = await client.send(command)
+      return { MessageId: response.MessageId || '' }
+    } catch (error) {
+      if (error instanceof APIError) throw error
+      throw new APIError(`Failed to publish message to topic: ${topicArn}`, 500, 'sns')
     }
-
-    return tags
-  } catch (error) {
-    console.error('Error listing tags:', error)
-    throw error
   }
-}
 
-/**
- * Get platform application attributes
- */
-export async function listEndpointsByPlatformApplication(
-  platformApplicationArn: string
-): Promise<Array<{ EndpointArn: string; Attributes: Record<string, string> }>> {
-  try {
-    const response = await api.get(
-      `/sns?Action=ListEndpointsByPlatformApplication&PlatformApplicationArn=${encodeURIComponent(platformApplicationArn)}`
-    )
-
-    const xmlData = typeof response.data === 'string' ? response.data : JSON.stringify(response.data)
-    const parsed = parseXML<{
-      ListEndpointsByPlatformApplicationResult?: {
-        Endpoint?: Array<{
-          EndpointArn: string
-          Attributes?: {
-            Entry?: Array<{ Key: string; Value: string }>
-          }
-        }>
-      }
-    }>(xmlData)
-
-    if (!parsed?.ListEndpointsByPlatformApplicationResult?.Endpoint) {
-      return []
+  async confirmSubscription(topicArn: string, token: string): Promise<{ SubscriptionArn: string }> {
+    try {
+      const client = this.getClient()
+      const command = new ConfirmSubscriptionCommand({
+        TopicArn: topicArn,
+        Token: token,
+      })
+      const response: ConfirmSubscriptionCommandOutput = await client.send(command)
+      return { SubscriptionArn: response.SubscriptionArn || '' }
+    } catch (error) {
+      if (error instanceof APIError) throw error
+      throw new APIError(`Failed to confirm subscription: ${topicArn}`, 500, 'sns')
     }
+  }
 
-    const endpoints = parsed.ListEndpointsByPlatformApplicationResult.Endpoint
-    const endpointArray = Array.isArray(endpoints) ? endpoints : [endpoints]
-
-    return endpointArray.map((endpoint) => {
-      const attributes: Record<string, string> = {}
-      if (endpoint.Attributes?.Entry) {
-        const entries = Array.isArray(endpoint.Attributes.Entry)
-          ? endpoint.Attributes.Entry
-          : [endpoint.Attributes.Entry]
-        entries.forEach((entry) => {
-          attributes[entry.Key] = entry.Value
+  async getSubscriptionAttributes(subscriptionArn: string): Promise<Record<string, string>> {
+    try {
+      const client = this.getClient()
+      const command = new GetSubscriptionAttributesCommand({ SubscriptionArn: subscriptionArn })
+      const response = await client.send(command)
+      
+      const attrs: Record<string, string> = {}
+      if (response.Attributes) {
+        Object.entries(response.Attributes).forEach(([key, value]) => {
+          attrs[key] = String(value)
         })
       }
-      return {
-        EndpointArn: endpoint.EndpointArn,
-        Attributes: attributes,
-      }
-    })
-  } catch (error) {
-    console.error('Error listing endpoints:', error)
-    throw error
+      return attrs
+    } catch (error) {
+      if (error instanceof APIError) throw error
+      throw new APIError(`Failed to get subscription attributes: ${subscriptionArn}`, 500, 'sns')
+    }
+  }
+
+  async setSubscriptionAttributes(subscriptionArn: string, attributeName: string, attributeValue: string): Promise<void> {
+    try {
+      const client = this.getClient()
+      const command = new SetSubscriptionAttributesCommand({
+        SubscriptionArn: subscriptionArn,
+        AttributeName: attributeName,
+        AttributeValue: attributeValue,
+      })
+      await client.send(command)
+    } catch (error) {
+      if (error instanceof APIError) throw error
+      throw new APIError(`Failed to set subscription attributes: ${subscriptionArn}`, 500, 'sns')
+    }
+  }
+
+  async listTagsForResource(resourceArn: string): Promise<{ Tags: any[] }> {
+    try {
+      const client = this.getClient()
+      const command = new ListTagsForResourceCommand({ ResourceArn: resourceArn })
+      const response = await client.send(command)
+      return { Tags: response.Tags || [] }
+    } catch (error) {
+      if (error instanceof APIError) throw error
+      throw new APIError(`Failed to list tags for resource: ${resourceArn}`, 500, 'sns')
+    }
   }
 }
+
+export const snsService = new SNSService()
+
+export const listTopics = () => snsService.listTopics()
+export const listSubscriptions = () => snsService.listSubscriptions()
+export const listSubscriptionsByTopic = (topicArn: string) => snsService.listSubscriptionsByTopic(topicArn)
+export const getTopicAttributes = (topicArn: string) => snsService.getTopicAttributes(topicArn)
+export const createTopic = (name: string, options?: Parameters<SNSService['createTopic']>[1]) => 
+  snsService.createTopic(name, options)
+export const deleteTopic = (topicArn: string) => snsService.deleteTopic(topicArn)
+export const subscribe = (topicArn: string, protocol: string, endpoint: string) => 
+  snsService.subscribe(topicArn, protocol, endpoint)
+export const unsubscribe = (subscriptionArn: string) => snsService.unsubscribe(subscriptionArn)
+export const publish = (topicArn: string, message: string, options?: Parameters<SNSService['publish']>[2]) => 
+  snsService.publish(topicArn, message, options)
+export const confirmSubscription = (topicArn: string, token: string) => 
+  snsService.confirmSubscription(topicArn, token)
+export const getSubscriptionAttributes = (subscriptionArn: string) => 
+  snsService.getSubscriptionAttributes(subscriptionArn)
+export const setSubscriptionAttributes = (subscriptionArn: string, attributeName: string, attributeValue: string) => 
+  snsService.setSubscriptionAttributes(subscriptionArn, attributeName, attributeValue)
+export const listTagsForResource = (resourceArn: string) => snsService.listTagsForResource(resourceArn)
+
+export default snsService

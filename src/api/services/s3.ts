@@ -1,104 +1,70 @@
 /**
  * S3 Service API Client
- * Provides operations for Amazon S3 bucket and object management
+ * AWS SDK v3 implementation for S3-compatible storage
  * @module api/services/s3
  */
 
-import { api, APIError } from '../client'
-import type {
-  S3Bucket,
-  S3Object,
-} from '../types/aws'
+import {
+  S3Client,
+  ListBucketsCommand,
+  CreateBucketCommand,
+  DeleteBucketCommand,
+  HeadBucketCommand,
+  ListObjectsCommand,
+  GetObjectCommand,
+  PutObjectCommand,
+  DeleteObjectCommand,
+  HeadObjectCommand,
+  type ListBucketsCommandOutput,
+  type CreateBucketCommandOutput,
+  type ListObjectsCommandOutput,
+  type GetObjectCommandOutput,
+  type PutObjectCommandOutput,
+  type DeleteObjectCommandOutput,
+} from '@aws-sdk/client-s3'
+import { useSettingsStore } from '@/stores/settings'
+import { APIError } from '../client'
+import type { S3Bucket, S3Object } from '../types/aws'
 
-// Type exports
-export type UploadProgressCallback = (progress: number) => void
+let s3Client: S3Client | null = null
 
-// Parse XML string to JSON
-function parseXMLString(xml: string): any {
-  const parser = new DOMParser()
-  const doc = parser.parseFromString(xml, 'text/xml')
-  
-  // Check for parse errors
-  const error = doc.querySelector('parsererror')
-  if (error) {
-    console.error('XML Parse Error:', error.textContent)
-    return null
-  }
-  
-  return xmlToJson(doc.documentElement)
+function getS3Client(): S3Client {
+  const settingsStore = useSettingsStore()
+  const endpoint = settingsStore.endpoint
+
+  s3Client = new S3Client({
+    endpoint,
+    region: settingsStore.region,
+    credentials: {
+      accessKeyId: settingsStore.accessKey,
+      secretAccessKey: settingsStore.secretKey,
+    },
+    forcePathStyle: true,
+    tls: false,
+  })
+
+  return s3Client
 }
 
-// Convert XML element to JSON object
-function xmlToJson(element: Element): any {
-  const obj: any = {}
-  
-  // Process attributes
-  if (element.attributes && element.attributes.length > 0) {
-    for (let i = 0; i < element.attributes.length; i++) {
-      const attr = element.attributes[i]
-      obj[`@${attr.name}`] = attr.value
-    }
-  }
-  
-  // Process child nodes
-  const children = element.children
-  const textContent: string[] = []
-  
-  for (const child of children) {
-    const childName = child.tagName
-    const childValue = xmlToJson(child)
-    
-    if (obj[childName]) {
-      // Multiple children with same name - convert to array
-      if (!Array.isArray(obj[childName])) {
-        obj[childName] = [obj[childName]]
-      }
-      obj[childName].push(childValue)
-    } else {
-      obj[childName] = childValue
-    }
-  }
-  
-  // If no children, get text content
-  if (children.length === 0) {
-    return element.textContent?.trim() || ''
-  }
-  
-  return obj
+export function refreshS3Client(): void {
+  s3Client = null
+  getS3Client()
 }
 
-/**
- * S3 Service client for interacting with S3-compatible storage
- */
 export class S3Service {
-  /**
-   * List all buckets
-   */
+  private getClient(): S3Client {
+    return getS3Client()
+  }
+
   async listBuckets(): Promise<S3Bucket[]> {
     try {
-      const response = await api.get('/', {
-        headers: {
-          Accept: 'application/xml',
-        },
-      })
+      const client = this.getClient()
+      const command = new ListBucketsCommand({})
+      const response: ListBucketsCommandOutput = await client.send(command)
       
-      // Parse XML response
-      const xmlData = parseXMLString(response.data as string)
-      if (!xmlData) {
-        throw new Error('Failed to parse XML response')
-      }
-      
-      // Extract buckets from the response
-      // Supports different response formats from various AWS emulators
-      const bucketsResult = xmlData.ListAllMyBucketsResult || xmlData.ListAllMyBucketsResponse || {}
-      const bucketsArray = bucketsResult.Buckets?.Bucket || []
-      
-      // Normalize to array
-      const buckets = Array.isArray(bucketsArray) ? bucketsArray : [bucketsArray]
-      
-      return buckets.map((bucket: any) => ({
-        Name: bucket.Name,
-        CreationDate: bucket.CreationDate,
+      return (response.Buckets || []).map(bucket => ({
+        Name: bucket.Name || '',
+        CreationDate: bucket.CreationDate?.toISOString() || '',
       }))
     } catch (error) {
       if (error instanceof APIError) throw error
@@ -107,42 +73,56 @@ export class S3Service {
     }
   }
 
-  /**
-   * Create a new bucket
-   */
-  async createBucket(bucket: string): Promise<void> {
+  async createBucket(bucket: string, options?: {
+    enableCors?: boolean
+  }): Promise<CreateBucketCommandOutput> {
     try {
-      await api.put(`/${bucket}`)
+      const client = this.getClient()
+      const command = new CreateBucketCommand({
+        Bucket: bucket,
+        ...(options?.enableCors && {
+          CORSConfiguration: {
+            CORSRules: [
+              {
+                AllowedHeaders: ['*'],
+                AllowedMethods: ['GET', 'PUT', 'POST', 'DELETE', 'HEAD'],
+                AllowedOrigins: ['*'],
+                ExposeHeaders: ['x-amz-server-side-encryption', 'x-amz-request-id', 'x-amz-id-2'],
+                MaxAge: 3000,
+              },
+            ],
+          },
+        }),
+      })
+      return await client.send(command)
     } catch (error) {
       if (error instanceof APIError) throw error
       throw new APIError(`Failed to create bucket: ${bucket}`, 500, 's3')
     }
   }
 
-  /**
-   * Delete a bucket
-   */
   async deleteBucket(bucket: string): Promise<void> {
     try {
-      await api.delete(`/${bucket}`)
+      const client = this.getClient()
+      const command = new DeleteBucketCommand({
+        Bucket: bucket,
+      })
+      await client.send(command)
     } catch (error) {
       if (error instanceof APIError) throw error
       throw new APIError(`Failed to delete bucket: ${bucket}`, 500, 's3')
     }
   }
 
-  /**
-   * Check if a bucket exists
-   */
   async headBucket(bucket: string): Promise<Record<string, string>> {
     try {
-      const response = await api.head(`/${bucket}`)
-      const headers: Record<string, string> = {}
-      Object.entries(response.headers).forEach(([key, value]) => {
-        if (typeof value === 'string') {
-          headers[key] = value
-        }
+      const client = this.getClient()
+      const command = new HeadBucketCommand({
+        Bucket: bucket,
       })
+      const response = await client.send(command)
+      
+      const headers: Record<string, string> = {}
       return headers
     } catch (error) {
       if (error instanceof APIError) throw error
@@ -150,9 +130,6 @@ export class S3Service {
     }
   }
 
-  /**
-   * List objects in a bucket
-   */
   async listObjects(
     bucket: string,
     options?: {
@@ -161,47 +138,34 @@ export class S3Service {
       marker?: string
       maxKeys?: number
     }
-  ): Promise<{ objects: S3Object[]; prefixes: string[] }> {
+  ): Promise<{ objects: S3Object[]; prefixes: string[]; isTruncated: boolean; nextMarker?: string }> {
     try {
-      const params = new URLSearchParams()
-      if (options?.prefix) params.append('prefix', options.prefix)
-      if (options?.delimiter) params.append('delimiter', options.delimiter || '/')
-      if (options?.marker) params.append('marker', options.marker)
-      if (options?.maxKeys) params.append('max-keys', String(options.maxKeys))
-      
-      const queryString = params.toString()
-      const url = queryString ? `/${bucket}?${queryString}` : `/${bucket}`
-      
-      const response = await api.get(url, {
-        headers: {
-          Accept: 'application/xml',
-        },
+      const client = this.getClient()
+      const command = new ListObjectsCommand({
+        Bucket: bucket,
+        Prefix: options?.prefix,
+        Delimiter: options?.delimiter,
+        Marker: options?.marker,
+        MaxKeys: options?.maxKeys,
       })
       
-      // Parse XML response
-      const xmlData = parseXMLString(response.data as string)
-      if (!xmlData) {
-        return { objects: [], prefixes: [] }
-      }
+      const response: ListObjectsCommandOutput = await client.send(command)
       
-      // Extract results - handles both ListBucketResult and ListBucketResponse
-      const listResult = xmlData.ListBucketResult || xmlData.ListBucketResponse?.ListBucketResult || {}
-      const contents = listResult.Contents || []
-      const commonPrefixes = listResult.CommonPrefixes || []
+      const objects = (response.Contents || []).map(obj => ({
+        Key: obj.Key || '',
+        LastModified: obj.LastModified?.toISOString() || '',
+        Size: obj.Size || 0,
+        ETag: obj.ETag?.replace(/"/g, '') || '',
+        StorageClass: obj.StorageClass || 'STANDARD',
+      }))
       
-      // Normalize to arrays
-      const objectsArray = Array.isArray(contents) ? contents : contents ? [contents] : []
-      const prefixesArray = Array.isArray(commonPrefixes) ? commonPrefixes : commonPrefixes ? [commonPrefixes] : []
+      const prefixes = (response.CommonPrefixes || []).map(p => p.Prefix || '')
       
       return {
-        objects: objectsArray.map((obj: any) => ({
-          Key: obj.Key,
-          LastModified: obj.LastModified,
-          Size: parseInt(obj.Size, 10) || 0,
-          ETag: obj.ETag?.replace(/"/g, '') || '',
-          StorageClass: obj.StorageClass || 'STANDARD',
-        })),
-        prefixes: prefixesArray.map((p: any) => p.Prefix),
+        objects,
+        prefixes,
+        isTruncated: response.IsTruncated || false,
+        nextMarker: response.NextMarker,
       }
     } catch (error) {
       if (error instanceof APIError) throw error
@@ -209,23 +173,31 @@ export class S3Service {
     }
   }
 
-  /**
-   * Get an object
-   */
   async getObject(bucket: string, key: string): Promise<{
-    data: unknown
+    body: string
     contentType: string
     metadata: Record<string, string>
   }> {
     try {
-      const response = await api.get(`/${bucket}/${key}`, {
-        responseType: 'arraybuffer',
+      const client = this.getClient()
+      const command = new GetObjectCommand({
+        Bucket: bucket,
+        Key: key,
       })
-      const contentType = response.headers['content-type'] || 'application/octet-stream'
+      
+      const response: GetObjectCommandOutput = await client.send(command)
+      
+      const contentType = response.ContentType || 'application/octet-stream'
+      let body = ''
+      
+      if (response.Body) {
+        body = await response.Body.transformToString()
+      }
+      
       return {
-        data: response.data,
+        body,
         contentType,
-        metadata: {},
+        metadata: response.Metadata || {},
       }
     } catch (error) {
       if (error instanceof APIError) throw error
@@ -233,171 +205,92 @@ export class S3Service {
     }
   }
 
-  /**
-   * Upload an object
-   */
   async putObject(
     bucket: string,
     key: string,
-    body: Blob | ArrayBuffer | string,
+    body: string | Uint8Array | Blob,
     contentType?: string
-  ): Promise<string> {
+  ): Promise<PutObjectCommandOutput> {
     try {
-      const response = await api.put(`/${bucket}/${key}`, body, {
-        headers: {
-          'Content-Type': contentType || 'application/octet-stream',
-        },
+      const client = this.getClient()
+      const command = new PutObjectCommand({
+        Bucket: bucket,
+        Key: key,
+        Body: body,
+        ContentType: contentType,
       })
-      return response.headers.etag?.replace(/"/g, '') || ''
+      
+      return await client.send(command)
     } catch (error) {
       if (error instanceof APIError) throw error
       throw new APIError(`Failed to upload object: ${key}`, 500, 's3')
     }
   }
 
-  /**
-   * Delete an object
-   */
-  async deleteObject(bucket: string, key: string): Promise<void> {
+  async deleteObject(bucket: string, key: string): Promise<DeleteObjectCommandOutput> {
     try {
-      await api.delete(`/${bucket}/${key}`)
+      const client = this.getClient()
+      const command = new DeleteObjectCommand({
+        Bucket: bucket,
+        Key: key,
+      })
+      
+      return await client.send(command)
     } catch (error) {
       if (error instanceof APIError) throw error
       throw new APIError(`Failed to delete object: ${key}`, 500, 's3')
     }
   }
 
-  /**
-   * Delete multiple objects
-   */
-  async deleteObjects(bucket: string, keys: string[]): Promise<{
-    deleted: string[]
-    errors: string[]
-  }> {
-    try {
-      const xml = `<?xml version="1.0" encoding="UTF-8"?>
-<Delete>
-${keys.map(key => `  <Object><Key>${key}</Key></Object>`).join('\n')}
-</Delete>`
-      
-      await api.post(`/${bucket}?delete`, xml, {
-        headers: {
-          'Content-Type': 'application/xml',
-        },
-      })
-      
-      return { deleted: keys, errors: [] }
-    } catch (error) {
-      if (error instanceof APIError) throw error
-      throw new APIError(`Failed to delete objects from bucket: ${bucket}`, 500, 's3')
-    }
-  }
-
-  /**
-   * Get object metadata (HEAD request)
-   */
   async headObject(bucket: string, key: string): Promise<Record<string, string>> {
     try {
-      const response = await api.head(`/${bucket}/${key}`)
-      const metadata: Record<string, string> = {}
-      Object.entries(response.headers).forEach(([key, value]) => {
-        if (typeof value === 'string') {
-          metadata[key] = value
-        }
+      const client = this.getClient()
+      const command = new HeadObjectCommand({
+        Bucket: bucket,
+        Key: key,
       })
+      
+      const response = await client.send(command)
+      
+      const metadata: Record<string, string> = {
+        contentLength: String(response.ContentLength || 0),
+        contentType: response.ContentType || '',
+        etag: response.ETag?.replace(/"/g, '') || '',
+        lastModified: response.LastModified?.toISOString() || '',
+      }
+      
       return metadata
     } catch (error) {
       if (error instanceof APIError) throw error
       throw new APIError(`Failed to head object: ${key}`, 500, 's3')
     }
   }
-
-  /**
-   * Get presigned URL
-   */
-  getPresignedUrl(bucket: string, key: string): string {
-    return `/${bucket}/${key}`
-  }
 }
 
-// Export singleton instance
 export const s3Service = new S3Service()
 
-// Export convenience functions
 export const listBuckets = () => s3Service.listBuckets()
-export const createBucket = (bucket: string) => s3Service.createBucket(bucket)
+export const createBucket = (bucket: string, options?: { enableCors?: boolean }) => 
+  s3Service.createBucket(bucket, options)
 export const deleteBucket = (bucket: string) => s3Service.deleteBucket(bucket)
 export const headBucket = (bucket: string) => s3Service.headBucket(bucket)
 export const headObject = (bucket: string, key: string) => s3Service.headObject(bucket, key)
-export const listObjects = (bucket: string, options?: { prefix?: string; delimiter?: string; marker?: string; maxKeys?: number }) => 
+export const listObjects = (bucket: string, options?: Parameters<S3Service['listObjects']>[1]) => 
   s3Service.listObjects(bucket, options)
-// listObjectsV2 is an alias for listObjects (AWS API uses both names)
-export const listObjectsV2 = (bucket: string, options?: { prefix?: string; delimiter?: string; continuationToken?: string; maxKeys?: number }) => 
+export const listObjectsV2 = (bucket: string, options?: Parameters<S3Service['listObjects']>[1]) => 
   s3Service.listObjects(bucket, options)
 export const getObject = (bucket: string, key: string) => s3Service.getObject(bucket, key)
-export const putObject = (bucket: string, key: string, body: Blob | ArrayBuffer | string, contentType?: string) => 
+export const putObject = (bucket: string, key: string, body: string | Uint8Array | Blob, contentType?: string) => 
   s3Service.putObject(bucket, key, body, contentType)
 export const deleteObject = (bucket: string, key: string) => s3Service.deleteObject(bucket, key)
-export const deleteObjects = (bucket: string, keys: string[]) => s3Service.deleteObjects(bucket, keys)
 
-/**
- * Create a folder (empty object with key ending in /)
- */
-export const createFolder = async (bucket: string, folderPath: string): Promise<string> => {
+export const createFolder = async (bucket: string, folderPath: string): Promise<PutObjectCommandOutput> => {
   const path = folderPath.endsWith('/') ? folderPath : `${folderPath}/`
   return s3Service.putObject(bucket, path, new Blob([''], { type: 'application/directory' }), 'application/directory')
 }
 
-/**
- * Upload object with progress callback
- */
-export const uploadObjectWithProgress = async (
-  bucket: string,
-  key: string,
-  file: File,
-  onProgress?: UploadProgressCallback
-): Promise<string> => {
-  return new Promise((resolve, reject) => {
-    const xhr = new XMLHttpRequest()
-    
-    xhr.upload.addEventListener('progress', (event) => {
-      if (event.lengthComputable && onProgress) {
-        const progress = Math.round((event.loaded / event.total) * 100)
-        onProgress(progress)
-      }
-    })
-    
-    xhr.addEventListener('load', () => {
-      if (xhr.status >= 200 && xhr.status < 300) {
-        const etag = xhr.getResponseHeader('ETag')?.replace(/"/g, '') || ''
-        resolve(etag)
-      } else {
-        reject(new Error(`Upload failed with status ${xhr.status}`))
-      }
-    })
-    
-    xhr.addEventListener('error', () => {
-      reject(new Error('Upload failed'))
-    })
-    
-    xhr.open('PUT', `/${bucket}/${key}`)
-    xhr.setRequestHeader('Content-Type', file.type || 'application/octet-stream')
-    xhr.send(file)
-  })
-}
-
-/**
- * Get presigned URL
- */
 export const getPresignedUrl = (bucket: string, key: string): string => {
   return `/${bucket}/${key}`
-}
-
-/**
- * Generate presigned URL
- */
-export const generatePresignedUrl = (bucket: string, key: string): string => {
-  return getPresignedUrl(bucket, key)
 }
 
 export default s3Service

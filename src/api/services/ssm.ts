@@ -1,531 +1,234 @@
 /**
- * SSM Parameter Store Service API
- * Handles all AWS Systems Manager Parameter Store operations via the API client
+ * SSM Parameter Store Service API Client
+ * AWS SDK v3 implementation for AWS Systems Manager Parameter Store
+ * @module api/services/ssm
  */
 
-import { api } from '../client'
-import type { SSMParameter, SSMParameterHistory } from '../types/aws'
+import {
+  SSMClient,
+  GetParameterCommand,
+  GetParametersCommand,
+  GetParametersByPathCommand,
+  PutParameterCommand,
+  DeleteParameterCommand,
+  DescribeParametersCommand,
+  GetParameterHistoryCommand,
+  ListTagsForResourceCommand,
+  AddTagsToResourceCommand,
+  RemoveTagsFromResourceCommand,
+  type GetParameterCommandOutput,
+  type GetParametersCommandOutput,
+  type GetParametersByPathCommandOutput,
+  type PutParameterCommandOutput,
+  type DescribeParametersCommandOutput,
+  type GetParameterHistoryCommandOutput,
+} from '@aws-sdk/client-ssm'
+import { useSettingsStore } from '@/stores/settings'
+import { APIError } from '../client'
 
-const TARGET_PREFIX = 'AmazonSSM'
+let ssmClient: SSMClient | null = null
 
-// Response type for putParameter
-interface PutParameterResponse {
-  Version: number
-  Tier: string
+function getSSMClient(): SSMClient {
+  const settingsStore = useSettingsStore()
+  
+  if (!ssmClient) {
+    ssmClient = new SSMClient({
+      endpoint: settingsStore.endpoint,
+      region: settingsStore.region,
+      credentials: {
+        accessKeyId: settingsStore.accessKey,
+        secretAccessKey: settingsStore.secretKey,
+      },
+      tls: false,
+    })
+  }
+  
+  return ssmClient
 }
 
-// Response type for getParameter
-interface GetParameterResponse {
-  Parameter: SSMParameter
+export function refreshSSMClient(): void {
+  ssmClient = null
+  getSSMClient()
 }
 
-// Response type for getParameters
-interface GetParametersResponse {
-  Parameters: SSMParameter[]
-  InvalidParameters: string[]
-}
+export class SSMService {
+  private getClient(): SSMClient {
+    return getSSMClient()
+  }
 
-// Response type for getParametersByPath
-interface GetParametersByPathResponse {
-  Parameters: SSMParameter[]
-  NextToken?: string
-}
+  async getParameter(name: string, options?: { WithDecryption?: boolean }): Promise<any> {
+    try {
+      const client = this.getClient()
+      const command = new GetParameterCommand({
+        Name: name,
+        WithDecryption: options?.WithDecryption,
+      })
+      const response: GetParameterCommandOutput = await client.send(command)
+      return response
+    } catch (error) {
+      if (error instanceof APIError) throw error
+      throw new APIError(`Failed to get parameter: ${name}`, 500, 'ssm')
+    }
+  }
 
-// Response type for deleteParameters
-interface DeleteParametersResponse {
-  DeletedParameters: string[]
-  InvalidParameters: string[]
-}
+  async getParameters(names: string[], options?: { WithDecryption?: boolean }): Promise<any> {
+    try {
+      const client = this.getClient()
+      const command = new GetParametersCommand({
+        Names: names,
+        WithDecryption: options?.WithDecryption,
+      })
+      const response: GetParametersCommandOutput = await client.send(command)
+      return response
+    } catch (error) {
+      if (error instanceof APIError) throw error
+      throw new APIError('Failed to get parameters', 500, 'ssm')
+    }
+  }
 
-// Extended parameter type for describeParameters (without extending SSMParameter to avoid conflicts)
-interface DescribeParameter {
-  Name: string
-  Type: string
-  Value?: string
-  Version?: number
-  Tier?: string
-  LastModifiedDate?: string
-  ARN?: string
-  Description?: string
-  AllowedPattern?: string
-  Policies?: Array<{
-    PolicyType: string
-    PolicyContent: string
-  }>
-  DataType?: string
-}
+  async getParametersByPath(path: string, options?: {
+    WithDecryption?: boolean
+    Recursive?: boolean
+    NextToken?: string
+  }): Promise<any> {
+    try {
+      const client = this.getClient()
+      const command = new GetParametersByPathCommand({
+        Path: path,
+        ...options,
+      } as any)
+      const response: GetParametersByPathCommandOutput = await client.send(command)
+      return response
+    } catch (error) {
+      if (error instanceof APIError) throw error
+      throw new APIError(`Failed to get parameters by path: ${path}`, 500, 'ssm')
+    }
+  }
 
-// Response type for describeParameters
-interface DescribeParametersResponse {
-  Parameters: DescribeParameter[]
-  NextToken?: string
-}
-
-// Response type for getParameterHistory
-interface GetParameterHistoryResponse {
-  Parameters: SSMParameterHistory[]
-  NextToken?: string
-}
-
-// Response type for listTagsForResource
-interface ListTagsForResourceResponse {
-  TagList: Array<{ Key: string; Value: string }>
-}
-
-// Response type for labelParameterVersion
-interface LabelParameterVersionResponse {
-  InvalidLabels: string[]
-  ParameterVersion: number
-}
-
-// Response type for getParameterPolicy
-interface GetParameterPolicyResponse {
-  Policy: string
-  PolicyType: string
-  PolicyStatus: string
-}
-
-// Response type for listParameterPolicies
-interface ListParameterPoliciesResponse {
-  Policies: Array<{
+  async putParameter(params: {
     Name: string
-    PolicyType: string
-    PolicyStatus: string
-    CreationDate: string
-    LastModifiedDate: string
-  }>
-}
+    Value: string
+    Type: 'String' | 'SecureString' | 'StringList'
+    Description?: string
+    Overwrite?: boolean
+    AllowedPattern?: string
+    Tier?: 'Standard' | 'Advanced' | 'Intelligent-Tiering'
+    DataType?: string
+    Policies?: string
+  }): Promise<any> {
+    try {
+      const client = this.getClient()
+      const command = new PutParameterCommand(params as any)
+      const response: PutParameterCommandOutput = await client.send(command)
+      return response
+    } catch (error) {
+      if (error instanceof APIError) throw error
+      throw new APIError(`Failed to put parameter: ${params.Name}`, 500, 'ssm')
+    }
+  }
 
-/**
- * Put a parameter
- */
-export async function putParameter(params: {
-  Name: string
-  Type: 'String' | 'StringList' | 'SecureString'
-  Value: string
-  Description?: string
-  AllowedPattern?: string
-  KeyId?: string
-  Overwrite?: boolean
-  Tags?: Array<{ Key: string; Value: string }>
-  Tier?: 'Standard' | 'Advanced' | 'Intelligent-Tiering'
-  Policies?: string
-  DataType?: string
-}): Promise<PutParameterResponse> {
-  try {
-    const response = await api.post<PutParameterResponse>('/ssm', {
-      Action: 'PutParameter',
-      ...params,
-    }, {
-      headers: {
-        'X-Amz-Target': `${TARGET_PREFIX}.PutParameter`,
-        'Content-Type': 'application/x-amz-json-1.1',
-      },
-    })
-    return response.data
-  } catch (error) {
-    console.error('Error putting parameter:', error)
-    throw error
+  async deleteParameter(name: string): Promise<any> {
+    try {
+      const client = this.getClient()
+      const command = new DeleteParameterCommand({ Name: name })
+      return await client.send(command)
+    } catch (error) {
+      if (error instanceof APIError) throw error
+      throw new APIError(`Failed to delete parameter: ${name}`, 500, 'ssm')
+    }
+  }
+
+  async describeParameters(options?: {
+    ParameterFilters?: any[]
+    NextToken?: string
+    MaxResults?: number
+  }): Promise<any> {
+    try {
+      const client = this.getClient()
+      const command = new DescribeParametersCommand(options as any)
+      const response: DescribeParametersCommandOutput = await client.send(command)
+      return response
+    } catch (error) {
+      if (error instanceof APIError) throw error
+      throw new APIError('Failed to describe parameters', 500, 'ssm')
+    }
+  }
+
+  async getParameterHistory(name: string, options?: { WithDecryption?: boolean; MaxResults?: number }): Promise<any> {
+    try {
+      const client = this.getClient()
+      const command = new GetParameterHistoryCommand({
+        Name: name,
+        ...options,
+      } as any)
+      const response: GetParameterHistoryCommandOutput = await client.send(command)
+      return response
+    } catch (error) {
+      if (error instanceof APIError) throw error
+      throw new APIError(`Failed to get parameter history: ${name}`, 500, 'ssm')
+    }
+  }
+
+  async listTagsForResource(resourceType: string, resourceId: string): Promise<any> {
+    try {
+      const client = this.getClient()
+      const command = new ListTagsForResourceCommand({
+        ResourceType: resourceType as any,
+        ResourceId: resourceId,
+      })
+      return await client.send(command)
+    } catch (error) {
+      if (error instanceof APIError) throw error
+      throw new APIError(`Failed to list tags for resource: ${resourceId}`, 500, 'ssm')
+    }
+  }
+
+  async addTagsToResource(resourceType: string, resourceId: string, tags: Record<string, string>): Promise<any> {
+    try {
+      const client = this.getClient()
+      const tagArray = Object.entries(tags).map(([Key, Value]) => ({ Key, Value }))
+      const command = new AddTagsToResourceCommand({
+        ResourceType: resourceType as any,
+        ResourceId: resourceId,
+        Tags: tagArray,
+      })
+      return await client.send(command)
+    } catch (error) {
+      if (error instanceof APIError) throw error
+      throw new APIError(`Failed to add tags to resource: ${resourceId}`, 500, 'ssm')
+    }
+  }
+
+  async removeTagsFromResource(resourceType: string, resourceId: string, keys: string[]): Promise<any> {
+    try {
+      const client = this.getClient()
+      const command = new RemoveTagsFromResourceCommand({
+        ResourceType: resourceType as any,
+        ResourceId: resourceId,
+        TagKeys: keys,
+      })
+      return await client.send(command)
+    } catch (error) {
+      if (error instanceof APIError) throw error
+      throw new APIError(`Failed to remove tags from resource: ${resourceId}`, 500, 'ssm')
+    }
   }
 }
 
-/**
- * Get a parameter
- */
-export async function getParameter(Name: string, params?: {
-  WithDecryption?: boolean
-}): Promise<GetParameterResponse> {
-  try {
-    const response = await api.post<GetParameterResponse>('/ssm', {
-      Action: 'GetParameter',
-      Name,
-      ...params,
-    }, {
-      headers: {
-        'X-Amz-Target': `${TARGET_PREFIX}.GetParameter`,
-        'Content-Type': 'application/x-amz-json-1.1',
-      },
-    })
-    return response.data
-  } catch (error) {
-    console.error('Error getting parameter:', error)
-    throw error
-  }
-}
+export const ssmService = new SSMService()
 
-/**
- * Get parameters
- */
-export async function getParameters(params: {
-  Names: string[]
-  WithDecryption?: boolean
-}): Promise<GetParametersResponse> {
-  try {
-    const response = await api.post<GetParametersResponse>('/ssm', {
-      Action: 'GetParameters',
-      Names: params.Names,
-      WithDecryption: params.WithDecryption,
-    }, {
-      headers: {
-        'X-Amz-Target': `${TARGET_PREFIX}.GetParameters`,
-        'Content-Type': 'application/x-amz-json-1.1',
-      },
-    })
-    return response.data
-  } catch (error) {
-    console.error('Error getting parameters:', error)
-    throw error
-  }
-}
+export const getParameter = (name: string, options?: any) => ssmService.getParameter(name, options)
+export const getParameters = (names: string[], options?: any) => ssmService.getParameters(names, options)
+export const getParametersByPath = (path: string, options?: any) => ssmService.getParametersByPath(path, options)
+export const putParameter = (params: any) => ssmService.putParameter(params)
+export const deleteParameter = (name: string) => ssmService.deleteParameter(name)
+export const describeParameters = (options?: any) => ssmService.describeParameters(options)
+export const getParameterHistory = (name: string, options?: any) => ssmService.getParameterHistory(name, options)
+export const listTagsForResource = (resourceType: string, resourceId: string) => 
+  ssmService.listTagsForResource(resourceType, resourceId)
+export const addTagsToResource = (resourceType: string, resourceId: string, tags: Record<string, string>) => 
+  ssmService.addTagsToResource(resourceType, resourceId, tags)
+export const removeTagsFromResource = (resourceType: string, resourceId: string, keys: string[]) => 
+  ssmService.removeTagsFromResource(resourceType, resourceId, keys)
 
-/**
- * Get parameters by path
- */
-export async function getParametersByPath(params: {
-  Path: string
-  Recursive?: boolean
-  WithDecryption?: boolean
-  ParameterFilters?: Array<{
-    Key: string
-    Option?: string
-    Values?: string[]
-  }>
-  MaxResults?: number
-  NextToken?: string
-}): Promise<GetParametersByPathResponse> {
-  try {
-    const response = await api.post<GetParametersByPathResponse>('/ssm', {
-      Action: 'GetParametersByPath',
-      ...params,
-    }, {
-      headers: {
-        'X-Amz-Target': `${TARGET_PREFIX}.GetParametersByPath`,
-        'Content-Type': 'application/x-amz-json-1.1',
-      },
-    })
-    return response.data
-  } catch (error) {
-    console.error('Error getting parameters by path:', error)
-    throw error
-  }
-}
-
-/**
- * Delete a parameter
- */
-export async function deleteParameter(Name: string): Promise<void> {
-  try {
-    await api.post('/ssm', {
-      Action: 'DeleteParameter',
-      Name,
-    }, {
-      headers: {
-        'X-Amz-Target': `${TARGET_PREFIX}.DeleteParameter`,
-        'Content-Type': 'application/x-amz-json-1.1',
-      },
-    })
-  } catch (error) {
-    console.error('Error deleting parameter:', error)
-    throw error
-  }
-}
-
-/**
- * Delete parameters
- */
-export async function deleteParameters(Names: string[]): Promise<DeleteParametersResponse> {
-  try {
-    const response = await api.post<DeleteParametersResponse>('/ssm', {
-      Action: 'DeleteParameters',
-      Names,
-    }, {
-      headers: {
-        'X-Amz-Target': `${TARGET_PREFIX}.DeleteParameters`,
-        'Content-Type': 'application/x-amz-json-1.1',
-      },
-    })
-    return response.data
-  } catch (error) {
-    console.error('Error deleting parameters:', error)
-    throw error
-  }
-}
-
-/**
- * Describe parameters
- */
-export async function describeParameters(params?: {
-  ParameterFilters?: Array<{
-    Key: string
-    Option?: string
-    Values?: string[]
-  }>
-  ParameterValidators?: Array<{
-    Type: string
-    ValidatorType: string
-    ValidatorJson?: string
-  }>
-  MaxResults?: number
-  NextToken?: string
-}): Promise<DescribeParametersResponse> {
-  try {
-    const response = await api.post<DescribeParametersResponse>('/ssm', {
-      Action: 'DescribeParameters',
-      ...params,
-    }, {
-      headers: {
-        'X-Amz-Target': `${TARGET_PREFIX}.DescribeParameters`,
-        'Content-Type': 'application/x-amz-json-1.1',
-      },
-    })
-    return response.data
-  } catch (error) {
-    console.error('Error describing parameters:', error)
-    throw error
-  }
-}
-
-/**
- * Get parameter history
- */
-export async function getParameterHistory(Name: string, params?: {
-  MaxResults?: number
-  NextToken?: string
-  WithDecryption?: boolean
-  ParameterFilters?: Array<{
-    Key: string
-    Option?: string
-    Values?: string[]
-  }>
-}): Promise<GetParameterHistoryResponse> {
-  try {
-    const response = await api.post<GetParameterHistoryResponse>('/ssm', {
-      Action: 'GetParameterHistory',
-      Name,
-      ...params,
-    }, {
-      headers: {
-        'X-Amz-Target': `${TARGET_PREFIX}.GetParameterHistory`,
-        'Content-Type': 'application/x-amz-json-1.1',
-      },
-    })
-    return response.data
-  } catch (error) {
-    console.error('Error getting parameter history:', error)
-    throw error
-  }
-}
-
-/**
- * Add tags to a parameter
- */
-export async function addTagsToResource(params: {
-  ResourceType: 'Parameter'
-  ResourceId: string
-  Tags: Array<{ Key: string; Value: string }>
-}): Promise<void> {
-  try {
-    await api.post('/ssm', {
-      Action: 'AddTagsToResource',
-      ...params,
-    }, {
-      headers: {
-        'X-Amz-Target': `${TARGET_PREFIX}.AddTagsToResource`,
-        'Content-Type': 'application/x-amz-json-1.1',
-      },
-    })
-  } catch (error) {
-    console.error('Error adding tags to parameter:', error)
-    throw error
-  }
-}
-
-/**
- * Remove tags from a parameter
- */
-export async function removeTagsFromResource(params: {
-  ResourceType: 'Parameter'
-  ResourceId: string
-  TagKeys: string[]
-}): Promise<void> {
-  try {
-    await api.post('/ssm', {
-      Action: 'RemoveTagsFromResource',
-      ...params,
-    }, {
-      headers: {
-        'X-Amz-Target': `${TARGET_PREFIX}.RemoveTagsFromResource`,
-        'Content-Type': 'application/x-amz-json-1.1',
-      },
-    })
-  } catch (error) {
-    console.error('Error removing tags from parameter:', error)
-    throw error
-  }
-}
-
-/**
- * List tags for a parameter
- */
-export async function listTagsForResource(params: {
-  ResourceType: 'Parameter'
-  ResourceId: string
-}): Promise<ListTagsForResourceResponse> {
-  try {
-    const response = await api.post<ListTagsForResourceResponse>('/ssm', {
-      Action: 'ListTagsForResource',
-      ...params,
-    }, {
-      headers: {
-        'X-Amz-Target': `${TARGET_PREFIX}.ListTagsForResource`,
-        'Content-Type': 'application/x-amz-json-1.1',
-      },
-    })
-    return response.data
-  } catch (error) {
-    console.error('Error listing tags for parameter:', error)
-    throw error
-  }
-}
-
-/**
- * Label parameter version
- */
-export async function labelParameterVersion(params: {
-  Name: string
-  Labels: string[]
-  ParameterVersion?: number
-}): Promise<LabelParameterVersionResponse> {
-  try {
-    const response = await api.post<LabelParameterVersionResponse>('/ssm', {
-      Action: 'LabelParameterVersion',
-      ...params,
-    }, {
-      headers: {
-        'X-Amz-Target': `${TARGET_PREFIX}.LabelParameterVersion`,
-        'Content-Type': 'application/x-amz-json-1.1',
-      },
-    })
-    return response.data
-  } catch (error) {
-    console.error('Error labeling parameter version:', error)
-    throw error
-  }
-}
-
-/**
- * Get parameter policy
- */
-export async function getParameterPolicy(Name: string): Promise<GetParameterPolicyResponse> {
-  try {
-    const response = await api.post<GetParameterPolicyResponse>('/ssm', {
-      Action: 'GetParameterPolicy',
-      Name,
-    }, {
-      headers: {
-        'X-Amz-Target': `${TARGET_PREFIX}.GetParameterPolicy`,
-        'Content-Type': 'application/x-amz-json-1.1',
-      },
-    })
-    return response.data
-  } catch (error) {
-    console.error('Error getting parameter policy:', error)
-    throw error
-  }
-}
-
-/**
- * Put parameter policy
- */
-export async function putParameterPolicy(params: {
-  Name: string
-  Policy: string
-  PolicyType: string
-  PolicyStatus?: 'Attached' | 'Detached'
-}): Promise<void> {
-  try {
-    await api.post('/ssm', {
-      Action: 'PutParameterPolicy',
-      ...params,
-    }, {
-      headers: {
-        'X-Amz-Target': `${TARGET_PREFIX}.PutParameterPolicy`,
-        'Content-Type': 'application/x-amz-json-1.1',
-      },
-    })
-  } catch (error) {
-    console.error('Error putting parameter policy:', error)
-    throw error
-  }
-}
-
-/**
- * Delete parameter policy
- */
-export async function deleteParameterPolicy(Name: string): Promise<void> {
-  try {
-    await api.post('/ssm', {
-      Action: 'DeleteParameterPolicy',
-      Name,
-    }, {
-      headers: {
-        'X-Amz-Target': `${TARGET_PREFIX}.DeleteParameterPolicy`,
-        'Content-Type': 'application/x-amz-json-1.1',
-      },
-    })
-  } catch (error) {
-    console.error('Error deleting parameter policy:', error)
-    throw error
-  }
-}
-
-/**
- * List parameter policies
- */
-export async function listParameterPolicies(Name: string): Promise<ListParameterPoliciesResponse> {
-  try {
-    const response = await api.post<ListParameterPoliciesResponse>('/ssm', {
-      Action: 'ListParameterPolicies',
-      Name,
-    }, {
-      headers: {
-        'X-Amz-Target': `${TARGET_PREFIX}.ListParameterPolicies`,
-        'Content-Type': 'application/x-amz-json-1.1',
-      },
-    })
-    return response.data
-  } catch (error) {
-    console.error('Error listing parameter policies:', error)
-    throw error
-  }
-}
-
-/**
- * Get parameters with path (alternative method)
- */
-export async function getParametersByPathAlt(params: {
-  Path: string
-  Recursive?: boolean
-  WithDecryption?: boolean
-  Filters?: Array<{
-    Key: string
-    Values: string[]
-    Option?: string
-  }>
-}): Promise<GetParametersByPathResponse> {
-  try {
-    const response = await api.post<GetParametersByPathResponse>('/ssm', {
-      Action: 'GetParametersByPath',
-      ...params,
-    }, {
-      headers: {
-        'X-Amz-Target': `${TARGET_PREFIX}.GetParametersByPath`,
-        'Content-Type': 'application/x-amz-json-1.1',
-      },
-    })
-    return response.data
-  } catch (error) {
-    console.error('Error getting parameters by path:', error)
-    throw error
-  }
-}
+export default ssmService

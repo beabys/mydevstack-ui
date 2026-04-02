@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue'
 import { useSettingsStore } from '@/stores/settings'
+import { s3Service, refreshS3Client } from '@/api/services/s3'
 import Modal from '@/components/common/Modal.vue'
 
 const settingsStore = useSettingsStore()
@@ -200,22 +201,9 @@ async function loadBuckets() {
   error.value = null
   
   try {
-    const response = await fetch('/s3/')
-    const xml = await response.text()
-    
-    const parser = new DOMParser()
-    const doc = parser.parseFromString(xml, 'text/xml')
-    
-    const bucketElements = doc.querySelectorAll('Bucket')
-    const parsedBuckets: any[] = []
-    
-    bucketElements.forEach((bucketEl) => {
-      const name = bucketEl.querySelector('Name')?.textContent || ''
-      const date = bucketEl.querySelector('CreationDate')?.textContent || ''
-      parsedBuckets.push({ Name: name, CreationDate: date })
-    })
-    
-    buckets.value = parsedBuckets
+    refreshS3Client()
+    const response = await s3Service.listBuckets()
+    buckets.value = response
   } catch (e: any) {
     error.value = 'Failed to load buckets: ' + e.message
   } finally {
@@ -230,24 +218,9 @@ async function loadObjects(bucketName: string) {
   error.value = null
   
   try {
-    const response = await fetch(`/s3/${bucketName}`)
-    const xml = await response.text()
-    
-    const parser = new DOMParser()
-    const doc = parser.parseFromString(xml, 'text/xml')
-    
-    const contentElements = doc.querySelectorAll('Contents')
-    const parsedObjects: any[] = []
-    
-    contentElements.forEach((contentEl) => {
-      const key = contentEl.querySelector('Key')?.textContent || ''
-      const size = contentEl.querySelector('Size')?.textContent || '0'
-      const lastModified = contentEl.querySelector('LastModified')?.textContent || ''
-      const etag = contentEl.querySelector('ETag')?.textContent || ''
-      parsedObjects.push({ Key: key, Size: size, LastModified: lastModified, ETag: etag })
-    })
-    
-    objects.value = parsedObjects
+    refreshS3Client()
+    const response = await s3Service.listObjects(bucketName)
+    objects.value = response.objects
   } catch (e: any) {
     error.value = 'Failed to load objects: ' + e.message
   } finally {
@@ -256,14 +229,15 @@ async function loadObjects(bucketName: string) {
 }
 
 // Create bucket
-async function createBucket(name: string) {
+async function createBucket(name: string, options?: { enableCors?: boolean }) {
   if (!name.trim()) return
   
   loading.value = true
   error.value = null
   
   try {
-    await fetch(`/s3/${name.trim()}`, { method: 'PUT' })
+    refreshS3Client()
+    await s3Service.createBucket(name.trim(), options)
     await loadBuckets()
   } catch (e: any) {
     error.value = 'Failed to create bucket: ' + e.message
@@ -280,7 +254,8 @@ async function deleteBucket(name: string) {
   error.value = null
   
   try {
-    await fetch(`/s3/${name}`, { method: 'DELETE' })
+    refreshS3Client()
+    await s3Service.deleteBucket(name)
     await loadBuckets()
   } catch (e: any) {
     error.value = 'Failed to delete bucket: ' + e.message
@@ -300,26 +275,21 @@ async function uploadFile(event: Event) {
   error.value = null
   
   try {
-    // Simple upload using fetch
-    const response = await fetch(`/s3/${selectedBucket.value}/${file.name}`, {
-      method: 'PUT',
-      body: file,
-      headers: {
-        'Content-Type': file.type || 'application/octet-stream'
-      }
-    })
-    
-    if (response.ok || response.status === 200) {
-      uploadProgress.value = 100
-      await loadObjects(selectedBucket.value)
-    } else {
-      error.value = 'Upload failed with status: ' + response.status
-    }
+    refreshS3Client()
+    const arrayBuffer = await file.arrayBuffer()
+    await s3Service.putObject(
+      selectedBucket.value,
+      file.name,
+      new Uint8Array(arrayBuffer),
+      file.type || 'application/octet-stream'
+    )
+    uploadProgress.value = 100
+    await loadObjects(selectedBucket.value)
   } catch (e: any) {
     error.value = 'Failed to upload: ' + e.message
   } finally {
     uploading.value = false
-    input.value = '' // Reset input
+    input.value = ''
   }
 }
 
@@ -331,8 +301,9 @@ async function deleteObject(key: string) {
   error.value = null
   
   try {
-    await fetch(`/s3/${selectedBucket.value}/${encodeURIComponent(key)}`, { method: 'DELETE' })
-    await loadObjects(selectedBucket.value)
+    refreshS3Client()
+    await s3Service.deleteObject(selectedBucket.value!, key)
+    await loadObjects(selectedBucket.value!)
   } catch (e: any) {
     error.value = 'Failed to delete: ' + e.message
   } finally {
@@ -350,15 +321,14 @@ async function viewObject(key: string) {
   viewLoading.value = true
 
   try {
-    const response = await fetch(`/s3/${selectedBucket.value}/${encodeURIComponent(key)}`)
-    viewContentType.value = response.headers.get('Content-Type') || 'application/octet-stream'
+    refreshS3Client()
+    const response = await s3Service.getObject(selectedBucket.value!, key)
+    viewContentType.value = response.contentType
     
-    if (viewContentType.value.startsWith('text/') || viewContentType.value === 'application/json' || viewContentType.value.includes('json')) {
-      viewContent.value = await response.text()
+    if (response.contentType.startsWith('text/') || response.contentType === 'application/json' || response.contentType.includes('json')) {
+      viewContent.value = response.body
     } else {
-      // For binary files, show info and allow download
-      const blob = await response.blob()
-      viewContent.value = `Binary file: ${key}\nType: ${viewContentType.value}\nSize: ${formatSize(blob.size)}`
+      viewContent.value = `Binary file: ${key}\nType: ${response.contentType}\nSize: ${formatSize(response.body.length)}`
     }
   } catch (e: any) {
     viewError.value = 'Failed to view object: ' + e.message
@@ -370,25 +340,17 @@ async function viewObject(key: string) {
 // Download object
 async function downloadObject(key: string) {
   try {
-    const response = await fetch(`/s3/${selectedBucket.value}/${encodeURIComponent(key)}`)
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`)
-    }
+    refreshS3Client()
+    const response = await s3Service.getObject(selectedBucket.value!, key)
     
-    const blob = await response.blob()
-    const contentType = response.headers.get('Content-Type') || 'application/octet-stream'
-    
-    // Create download link
+    const blob = new Blob([response.body], { type: response.contentType })
     const url = window.URL.createObjectURL(blob)
     const a = document.createElement('a')
     a.href = url
-    // Extract filename from key (last part of path)
     const fileName = key.split('/').pop() || key
     a.download = fileName
     document.body.appendChild(a)
     a.click()
-    
-    // Cleanup
     window.URL.revokeObjectURL(url)
     document.body.removeChild(a)
   } catch (e: any) {
@@ -434,15 +396,17 @@ function goBack() {
 // New bucket modal state
 const showCreateModal = ref(false)
 const newBucketName = ref('')
+const enableCors = ref(false)
 
 function openCreateModal() {
   newBucketName.value = ''
+  enableCors.value = false
   showCreateModal.value = true
 }
 
 function handleCreateBucket() {
   if (newBucketName.value.trim()) {
-    createBucket(newBucketName.value)
+    createBucket(newBucketName.value, { enableCors: enableCors.value })
     showCreateModal.value = false
   }
 }
@@ -711,6 +675,19 @@ onMounted(() => {
           :class="settingsStore.darkMode ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300'"
           @keyup.enter="handleCreateBucket"
         >
+        <label class="flex items-center gap-2 mb-4 cursor-pointer">
+          <input
+            v-model="enableCors"
+            type="checkbox"
+            class="w-4 h-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
+          >
+          <span
+            class="text-sm"
+            :class="settingsStore.darkMode ? 'text-gray-300' : 'text-gray-700'"
+          >
+            Enable CORS (allows browser access from any origin)
+          </span>
+        </label>
         <p
           class="text-sm mb-4"
           :class="settingsStore.darkMode ? 'text-gray-400' : 'text-gray-500'"

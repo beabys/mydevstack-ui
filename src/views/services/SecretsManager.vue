@@ -3,6 +3,7 @@ import { ref, onMounted, computed } from 'vue'
 import { useSettingsStore } from '@/stores/settings'
 import Modal from '@/components/common/Modal.vue'
 import FormInput from '@/components/common/FormInput.vue'
+import * as secretsManager from '@/api/services/secrets-manager'
 
 const settingsStore = useSettingsStore()
 
@@ -139,17 +140,8 @@ async function loadSecrets() {
   error.value = null
   
   try {
-    const response = await fetch('/secrets/', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/x-amz-json-1.0',
-        'X-Amz-Target': 'secretsmanager.ListSecrets'
-      },
-      body: JSON.stringify({})
-    })
-    
-    const data = await response.json()
-    secrets.value = data.SecretList || []
+    const response = await secretsManager.listSecrets()
+    secrets.value = response.SecretList || []
   } catch (e: any) {
     error.value = e.message
     secrets.value = []
@@ -171,20 +163,17 @@ async function createSecret() {
   if (!newSecretName.value.trim() || !newSecretValue.value.trim()) return
   
   creating.value = true
+  error.value = null
   try {
-    await fetch('/secrets/', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/x-amz-json-1.0',
-        'X-Amz-Target': 'secretsmanager.CreateSecret'
-      },
-      body: JSON.stringify({
-        Name: newSecretName.value.trim(),
-        SecretString: newSecretValue.value.trim(),
-        Description: newSecretDescription.value.trim()
-      })
+    await secretsManager.createSecret({
+      Name: newSecretName.value.trim(),
+      SecretString: newSecretValue.value.trim(),
+      Description: newSecretDescription.value.trim() || undefined,
     })
     showCreateModal.value = false
+    newSecretName.value = ''
+    newSecretValue.value = ''
+    newSecretDescription.value = ''
     await loadSecrets()
   } catch (e: any) {
     error.value = 'Failed to create secret: ' + e.message
@@ -203,18 +192,9 @@ async function viewSecret(secret: any) {
   secretLoading.value = true
 
   try {
-    const response = await fetch('/secrets/', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/x-amz-json-1.0',
-        'X-Amz-Target': 'secretsmanager.GetSecretValue'
-      },
-      body: JSON.stringify({ SecretId: secret.Name })
-    })
-    
-    const data = await response.json()
-    secretValue.value = data.SecretString || ''
-    editSecretValue.value = data.SecretString || ''
+    const response = await secretsManager.getSecretValue(secret.Name)
+    secretValue.value = response.SecretString || ''
+    editSecretValue.value = response.SecretString || ''
   } catch (e: any) {
     secretError.value = 'Failed to get secret value: ' + e.message
   } finally {
@@ -239,16 +219,9 @@ async function saveSecretValue() {
   secretError.value = null
   
   try {
-    await fetch('/secrets/', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/x-amz-json-1.0',
-        'X-Amz-Target': 'secretsmanager.PutSecretValue'
-      },
-      body: JSON.stringify({
-        SecretId: selectedSecret.value.Name,
-        SecretString: editSecretValue.value.trim()
-      })
+    await secretsManager.putSecretValue({
+      SecretId: selectedSecret.value.Name,
+      SecretString: editSecretValue.value.trim()
     })
     secretValue.value = editSecretValue.value.trim()
     isEditing.value = false
@@ -265,14 +238,7 @@ async function deleteSecret(name: string) {
   
   loading.value = true
   try {
-    await fetch('/secrets/', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/x-amz-json-1.0',
-        'X-Amz-Target': 'secretsmanager.DeleteSecret'
-      },
-      body: JSON.stringify({ SecretId: name })
-    })
+    await secretsManager.deleteSecret(name)
     await loadSecrets()
   } catch (e: any) {
     error.value = 'Failed to delete secret: ' + e.message

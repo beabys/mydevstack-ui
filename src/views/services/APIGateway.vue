@@ -600,9 +600,8 @@ async function createRestApi() {
   creating.value = true
   try {
     console.log('Creating REST API with:', { name: newRestApiName.value, description: newRestApiDescription.value })
-    const response = await apigateway.createRestApi({
-      name: newRestApiName.value,
-      description: newRestApiDescription.value,
+    const response = await apigateway.createRestApi(newRestApiName.value, {
+      Description: newRestApiDescription.value,
     })
     console.log('REST API created:', response)
     toast.success('REST API created successfully')
