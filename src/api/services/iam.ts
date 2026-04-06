@@ -136,7 +136,7 @@ export async function listPolicies(param1?: string | { Scope?: string; OnlyAttac
   IsTruncated: boolean
   Marker?: string
 }> {
-  let body: any = {}
+  const body: any = {}
   
   // Handle both calling conventions: listPolicies('All') or listPolicies({ Scope: 'All' })
   if (typeof param1 === 'string') {

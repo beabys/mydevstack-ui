@@ -1180,7 +1180,7 @@ onMounted(() => {
             <code class="text-xs bg-light-border dark:bg-dark-border px-2 py-1 rounded">{{ value }}</code>
             <button
               class="text-light-muted dark:text-dark-muted hover:text-primary-500"
-              @click="copyToClipboard(value)"
+              @click="copyToClipboard(value as string)"
             >
               <svg
                 class="w-4 h-4"
@@ -1204,7 +1204,7 @@ onMounted(() => {
         </template>
 
         <template #cell-createdDate="{ value }">
-          {{ new Date(value).toLocaleDateString() }}
+          {{ new Date(value as string).toLocaleDateString() }}
         </template>
 
         <template #row-actions="{ row }">
@@ -1212,7 +1212,7 @@ onMounted(() => {
             <button
               class="px-2 py-1 text-sm rounded hover:bg-light-border dark:hover:bg-dark-border"
               title="View Details"
-              @click="viewRestApi(row)"
+              @click="viewRestApi((row as unknown) as APIGatewayRestAPI)"
             >
               <svg
                 class="w-4 h-4"
@@ -1237,7 +1237,7 @@ onMounted(() => {
             <button
               class="px-2 py-1 text-sm rounded hover:bg-light-border dark:hover:bg-dark-border"
               title="Edit"
-              @click="openEditModal(row)"
+              @click="openEditModal((row as unknown) as APIGatewayRestAPI)"
             >
               <svg
                 class="w-4 h-4"
@@ -1255,14 +1255,14 @@ onMounted(() => {
             </button>
             <button
               class="px-2 py-1 text-sm rounded hover:bg-light-border dark:hover:bg-dark-border"
-              @click="loadResources(row)"
+              @click="loadResources((row as unknown) as APIGatewayRestAPI)"
             >
               Resources
             </button>
             <button
               class="p-1 rounded hover:bg-light-border dark:hover:bg-dark-border text-red-500"
               title="Delete"
-              @click="openDeleteModal(row)"
+              @click="openDeleteModal((row as unknown) as APIGatewayRestAPI)"
             >
               <svg
                 class="w-4 h-4"
@@ -1355,7 +1355,7 @@ onMounted(() => {
             <code class="text-xs bg-light-border dark:bg-dark-border px-2 py-1 rounded">{{ value }}</code>
             <button
               class="text-light-muted dark:text-dark-muted hover:text-primary-500"
-              @click="copyToClipboard(value)"
+              @click="copyToClipboard(value as string)"
             >
               <svg
                 class="w-4 h-4"
@@ -1379,27 +1379,27 @@ onMounted(() => {
         </template>
 
         <template #cell-createdDate="{ value }">
-          {{ new Date(value).toLocaleDateString() }}
+          {{ new Date(value as string).toLocaleDateString() }}
         </template>
 
         <template #row-actions="{ row }">
           <div class="flex items-center gap-2">
             <button
               class="px-2 py-1 text-sm rounded hover:bg-light-border dark:hover:bg-dark-border"
-              @click="loadRoutes(row)"
+              @click="loadRoutes(row as any)"
             >
               Routes
             </button>
             <button
               class="px-2 py-1 text-sm rounded hover:bg-light-border dark:hover:bg-dark-border"
-              @click="loadIntegrations(row)"
+              @click="loadIntegrations(row as any)"
             >
               Integrations
             </button>
             <button
               class="p-1 rounded hover:bg-light-border dark:hover:bg-dark-border text-red-500"
               title="Delete"
-              @click="deleteHttpApi(row)"
+              @click="deleteHttpApi(row as any)"
             >
               <svg
                 class="w-4 h-4"
@@ -1554,14 +1554,14 @@ onMounted(() => {
           <div class="flex items-center gap-2">
             <button
               class="px-2 py-1 text-sm rounded hover:bg-light-border dark:hover:bg-dark-border"
-              @click="loadMethods(row)"
+              @click="loadMethods((row as unknown) as APIGatewayResource)"
             >
               Methods
             </button>
             <button
               class="p-1 rounded hover:bg-light-border dark:hover:bg-dark-border text-red-500"
               title="Delete"
-              @click="openDeleteResourceModal(row)"
+              @click="openDeleteResourceModal((row as unknown) as APIGatewayResource)"
             >
               <svg
                 class="w-4 h-4"
@@ -1581,7 +1581,7 @@ onMounted(() => {
         </template>
       </DataTable>
 
-        <template #footer>
+      <template #footer>
         <div class="flex justify-end gap-2">
           <Button
             variant="secondary"
@@ -1605,7 +1605,9 @@ onMounted(() => {
             v-model="newMethodResourceId"
             class="w-full px-3 py-2 rounded-lg border bg-light-input dark:bg-dark-input border-light-border dark:border-dark-border"
           >
-            <option value="">Select a resource...</option>
+            <option value="">
+              Select a resource...
+            </option>
             <option
               v-for="resource in restResources"
               :key="resource.id"
@@ -1621,13 +1623,27 @@ onMounted(() => {
             v-model="newMethodType"
             class="w-full px-3 py-2 rounded-lg border bg-light-input dark:bg-dark-input border-light-border dark:border-dark-border"
           >
-            <option value="GET">GET</option>
-            <option value="POST">POST</option>
-            <option value="PUT">PUT</option>
-            <option value="PATCH">PATCH</option>
-            <option value="DELETE">DELETE</option>
-            <option value="OPTIONS">OPTIONS</option>
-            <option value="HEAD">HEAD</option>
+            <option value="GET">
+              GET
+            </option>
+            <option value="POST">
+              POST
+            </option>
+            <option value="PUT">
+              PUT
+            </option>
+            <option value="PATCH">
+              PATCH
+            </option>
+            <option value="DELETE">
+              DELETE
+            </option>
+            <option value="OPTIONS">
+              OPTIONS
+            </option>
+            <option value="HEAD">
+              HEAD
+            </option>
           </select>
         </div>
         <FormInput
@@ -1674,7 +1690,9 @@ onMounted(() => {
             v-model="newResourceParentId"
             class="w-full px-3 py-2 rounded-lg border bg-light-input dark:bg-dark-input border-light-border dark:border-dark-border"
           >
-            <option value="">Root (/)</option>
+            <option value="">
+              Root (/)
+            </option>
             <option
               v-for="resource in restResources.filter(r => r.path !== '/')"
               :key="resource.id"
@@ -2203,7 +2221,7 @@ onMounted(() => {
               class="text-sm mt-1"
               :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'"
             >
-              {{ new Date(viewRestApiDetails.createdDate * 1000).toLocaleString() }}
+              {{ new Date(Number(viewRestApiDetails.createdDate) * 1000).toLocaleString() }}
             </p>
           </div>
         </div>
@@ -2381,7 +2399,10 @@ onMounted(() => {
         description="No methods found for this resource."
       />
 
-      <div v-else class="space-y-3">
+      <div
+        v-else
+        class="space-y-3"
+      >
         <div
           v-for="(methodDetails, method) in restMethods"
           :key="method"
@@ -2494,20 +2515,34 @@ onMounted(() => {
       title="Setup Integration"
       size="md"
     >
-      <div v-if="loadingIntegration" class="flex justify-center py-8">
+      <div
+        v-if="loadingIntegration"
+        class="flex justify-center py-8"
+      >
         <LoadingSpinner />
       </div>
-      <div v-else class="space-y-4">
+      <div
+        v-else
+        class="space-y-4"
+      >
         <div>
           <label class="block text-sm font-medium mb-1">Integration Type</label>
           <select
             v-model="newIntegrationType"
             class="w-full px-3 py-2 rounded-lg border bg-light-input dark:bg-dark-input border-light-border dark:border-dark-border"
           >
-            <option value="MOCK">Mock</option>
-            <option value="AWS">AWS (Lambda)</option>
-            <option value="HTTP">HTTP</option>
-            <option value="HTTP_PROXY">HTTP Proxy</option>
+            <option value="MOCK">
+              Mock
+            </option>
+            <option value="AWS">
+              AWS (Lambda)
+            </option>
+            <option value="HTTP">
+              HTTP
+            </option>
+            <option value="HTTP_PROXY">
+              HTTP Proxy
+            </option>
           </select>
         </div>
         
@@ -2524,17 +2559,34 @@ onMounted(() => {
             v-model="newIntegrationHttpMethod"
             class="w-full px-3 py-2 rounded-lg border bg-light-input dark:bg-dark-input border-light-border dark:border-dark-border"
           >
-            <option value="GET">GET</option>
-            <option value="POST">POST</option>
-            <option value="PUT">PUT</option>
-            <option value="PATCH">PATCH</option>
-            <option value="DELETE">DELETE</option>
-            <option value="HEAD">HEAD</option>
-            <option value="OPTIONS">OPTIONS</option>
+            <option value="GET">
+              GET
+            </option>
+            <option value="POST">
+              POST
+            </option>
+            <option value="PUT">
+              PUT
+            </option>
+            <option value="PATCH">
+              PATCH
+            </option>
+            <option value="DELETE">
+              DELETE
+            </option>
+            <option value="HEAD">
+              HEAD
+            </option>
+            <option value="OPTIONS">
+              OPTIONS
+            </option>
           </select>
         </div>
         
-        <div v-if="currentIntegration" class="text-sm text-light-muted dark:text-dark-muted">
+        <div
+          v-if="currentIntegration"
+          class="text-sm text-light-muted dark:text-dark-muted"
+        >
           Current integration: {{ currentIntegration.type || 'None' }}
         </div>
       </div>
