@@ -10,7 +10,7 @@ describe('Settings Store', () => {
 
   it('should have default endpoint', () => {
     const store = useSettingsStore()
-    expect(store.endpoint).toBe('http://localhost:4566')
+    expect(store.endpoint).toBe('http://localhost:8081')
   })
 
   it('should have default region', () => {

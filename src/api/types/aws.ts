@@ -648,6 +648,7 @@ export interface APIGatewayRestAPI {
     vpcEndpointIds?: string[]
   }
   tags?: Record<string, string>
+  binaryMediaTypes?: string[]
 }
 
 export interface APIGatewayResource {
