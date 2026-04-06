@@ -27,7 +27,7 @@ export interface SettingsState {
 export const useSettingsStore = defineStore('settings', () => {
   // State - Connection
   const endpoint = ref<string>(
-    localStorage.getItem('endpoint') || 'http://localhost:4566'
+    localStorage.getItem('endpoint') || 'http://localhost:8081'
   )
   const region = ref<string>(localStorage.getItem('region') || 'us-east-1')
   const accessKey = ref<string>(localStorage.getItem('accessKey') || 'test')

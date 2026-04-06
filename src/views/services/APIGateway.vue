@@ -57,6 +57,9 @@ const showImportSwaggerModal = ref(false)
 const showEditRestModal = ref(false)
 const showViewRestModal = ref(false)
 const showDeleteRestModal = ref(false)
+const showDeleteResourceModal = ref(false)
+const showIntegrationModal = ref(false)
+const showMethodsModal = ref(false)
 
 // Swagger import state
 const swaggerFile = ref<File | null>(null)
@@ -86,6 +89,20 @@ const viewLoading = ref(false)
 // Delete REST API state
 const apiToDelete = ref<APIGatewayRestAPI | null>(null)
 const deleting = ref(false)
+
+// Delete Resource state
+const resourceToDelete = ref<APIGatewayResource | null>(null)
+const deletingResource = ref(false)
+
+// Integration modal state
+const selectedMethodForIntegration = ref<APIGatewayMethod | null>(null)
+const selectedMethodName = ref('')
+const loadingIntegration = ref(false)
+const currentIntegration = ref<any>(null)
+const newIntegrationType = ref('MOCK')
+const newIntegrationUri = ref('')
+const newIntegrationHttpMethod = ref('POST')
+const savingIntegration = ref(false)
 
 // Usage Examples
 const selectedExample = ref(0)
@@ -397,11 +414,12 @@ const httpExampleIndex = ref(0)
 const newRestApiName = ref('')
 const newRestApiDescription = ref('')
 const newResourcePath = ref('')
+const newResourceParentId = ref('')
 const newMethodType = ref('GET')
+const newMethodResourceId = ref('')
 const newHttpApiName = ref('')
 const newHttpApiDescription = ref('')
 const newRouteKey = ref('GET /')
-const newIntegrationUri = ref('')
 
 const creating = ref(false)
 
@@ -555,7 +573,9 @@ async function loadResources(api: APIGatewayRestAPI) {
   showResourcesModal.value = true
   try {
     const response = await apigateway.getResources(api.id)
+    console.log('GetResources response:', response)
     restResources.value = response.items || []
+    console.log('Resources loaded:', restResources.value.map(r => ({ id: r.id, path: r.path, methods: Object.keys(r.resourceMethods || {}).join(',') })))
   } catch (error) {
     console.error('Error loading resources:', error)
     toast.error('Failed to load resources')
@@ -571,17 +591,35 @@ async function loadMethods(resource: APIGatewayResource) {
   loadingMethods.value = true
 
   restMethods.value = {}
-  const methodKeys = Object.keys(resource.resourceMethods || {})
-
-  for (const method of methodKeys) {
+  console.log('Loading methods for resource:', resource.id, 'path:', resource.path)
+  
+  // Try to load all common HTTP methods since LocalStack's GetResources 
+  // doesn't reliably return resourceMethods
+  const httpMethods = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS', 'HEAD']
+  
+  for (const method of httpMethods) {
     try {
       const methodDetails = await apigateway.getMethod(selectedRestApi.value.id, resource.id, method)
+      console.log(`Method ${method} details:`, methodDetails)
       restMethods.value[method] = methodDetails
-    } catch (error) {
-      console.error(`Error loading ${method} method:`, error)
+    } catch (error: any) {
+      // Method doesn't exist - that's expected for most methods
+      // LocalStack returns 500 for non-existent methods, so treat 500 as "doesn't exist"
+      if (error && typeof error === 'object' && 'statusCode' in error) {
+        const status = error.statusCode
+        // 404 or 500 typically means method doesn't exist
+        if (status === 404 || status === 500) {
+          // Method doesn't exist - silently skip
+          continue
+        }
+      }
+      // Unexpected error - log it but don't fail
+      console.log(`Method ${method} error:`, error?.message)
     }
   }
   loadingMethods.value = false
+  console.log('Loaded methods:', Object.keys(restMethods.value))
+  showMethodsModal.value = true
 }
 
 // Create REST API
@@ -611,12 +649,14 @@ async function createRestApi() {
 
 // View REST API details
 async function viewRestApi(api: APIGatewayRestAPI) {
+  console.log('viewRestApi called with:', api)
   viewRestApiDetails.value = null
   viewLoading.value = true
   showViewRestModal.value = true
   
   try {
     const details = await apigateway.getRestApi(api.id)
+    console.log('API details response:', details)
     viewRestApiDetails.value = details
   } catch (error) {
     console.error('Error getting REST API details:', error)
@@ -685,8 +725,123 @@ async function confirmDeleteRestApi() {
   }
 }
 
+// Open delete resource modal
+function openDeleteResourceModal(resource: APIGatewayResource) {
+  resourceToDelete.value = resource
+  showDeleteResourceModal.value = true
+}
+
+// Delete resource
+async function confirmDeleteResource() {
+  if (!selectedRestApi.value || !resourceToDelete.value) return
+
+  deletingResource.value = true
+  try {
+    await apigateway.deleteResource(selectedRestApi.value.id, resourceToDelete.value.id)
+    toast.success('Resource deleted successfully')
+    showDeleteResourceModal.value = false
+    resourceToDelete.value = null
+    loadResources(selectedRestApi.value)
+  } catch (error) {
+    console.error('Error deleting resource:', error)
+    toast.error('Failed to delete resource')
+  } finally {
+    deletingResource.value = false
+  }
+}
+
+// Open integration modal for a method
+async function openIntegrationModalForMethod(method: string) {
+  if (!selectedRestApi.value || !selectedResource.value) return
+  
+  selectedMethodName.value = method
+  selectedMethodForIntegration.value = restMethods.value[method]
+  loadingIntegration.value = true
+  newIntegrationType.value = 'MOCK'
+  newIntegrationUri.value = ''
+  newIntegrationHttpMethod.value = 'POST'
+  
+  showIntegrationModal.value = true
+  
+  try {
+    const integration = await apigateway.getIntegration(
+      selectedRestApi.value.id,
+      selectedResource.value.id,
+      method
+    )
+    currentIntegration.value = integration
+    newIntegrationType.value = integration.type || 'MOCK'
+    newIntegrationUri.value = integration.uri || ''
+    newIntegrationHttpMethod.value = integration.integrationHttpMethod || 'POST'
+  } catch (error: any) {
+    // Integration might not exist - that's ok, we'll create one
+    console.log('No integration exists yet:', error?.message)
+    currentIntegration.value = null
+  } finally {
+    loadingIntegration.value = false
+  }
+}
+
+// Save integration for method
+async function saveIntegration() {
+  if (!selectedRestApi.value || !selectedResource.value || !selectedMethodName.value) {
+    toast.error('No method selected')
+    return
+  }
+
+  savingIntegration.value = true
+  try {
+    await apigateway.putIntegration(
+      selectedRestApi.value.id,
+      selectedResource.value.id,
+      selectedMethodName.value,
+      {
+        type: newIntegrationType.value,
+        uri: newIntegrationUri.value,
+        integrationHttpMethod: newIntegrationHttpMethod.value,
+      }
+    )
+    toast.success('Integration saved successfully')
+    showIntegrationModal.value = false
+    // Reload method to get updated integration
+    loadMethods(selectedResource.value)
+  } catch (error) {
+    console.error('Error saving integration:', error)
+    toast.error('Failed to save integration')
+  } finally {
+    savingIntegration.value = false
+  }
+}
+
+// Delete method
+async function deleteMethod(method: string) {
+  if (!selectedRestApi.value || !selectedResource.value) return
+  
+  if (!confirm(`Delete method ${method}?`)) return
+  
+  try {
+    await apigateway.deleteMethod(
+      selectedRestApi.value.id,
+      selectedResource.value.id,
+      method
+    )
+    toast.success(`Method ${method} deleted successfully`)
+    loadMethods(selectedResource.value)
+  } catch (error) {
+    console.error('Error deleting method:', error)
+    toast.error('Failed to delete method')
+  }
+}
+
 // Create resource
 async function createResource() {
+  console.log('Creating resource with:', {
+    selectedApi: selectedRestApi.value,
+    restResources: restResources.value,
+    selectedResource: selectedResource.value,
+    newPath: newResourcePath.value
+  })
+  
   if (!selectedRestApi.value || !newResourcePath.value) {
     toast.error('Resource path is required')
     return
@@ -694,8 +849,8 @@ async function createResource() {
 
   creating.value = true
   try {
-    // Find parent ID (root or selected)
-    const parentId = selectedResource.value?.id || restResources.value.find(r => r.path === '/')?.id
+    // Use selected parent or fall back to root
+    const parentId = newResourceParentId.value || restResources.value.find(r => r.path === '/')?.id
 
     if (!parentId) {
       toast.error('No parent resource found')
@@ -706,6 +861,7 @@ async function createResource() {
     toast.success('Resource created successfully')
     showCreateResourceModal.value = false
     newResourcePath.value = ''
+    newResourceParentId.value = ''
     loadResources(selectedRestApi.value)
   } catch (error) {
     console.error('Error creating resource:', error)
@@ -717,26 +873,47 @@ async function createResource() {
 
 // Create method
 async function createMethod() {
-  if (!selectedRestApi.value || !selectedResource.value || !newMethodType.value) {
-    toast.error('Method type is required')
+  if (!selectedRestApi.value || !newMethodResourceId.value || !newMethodType.value) {
+    toast.error('Resource and method type are required')
     return
   }
 
+  const resourceId = newMethodResourceId.value
+  const methodType = newMethodType.value
+  
+  console.log('Creating method:', {
+    apiId: selectedRestApi.value.id,
+    resourceId: resourceId,
+    method: methodType
+  })
+  
   creating.value = true
   try {
-    await apigateway.createMethod(
+    const result = await apigateway.createMethod(
       selectedRestApi.value.id,
-      selectedResource.value.id,
-      newMethodType.value,
-      'NONE' // No authorization
+      resourceId,
+      methodType,
+      { authorizationType: 'NONE' }
     )
+    console.log('Create method result:', result)
     toast.success('Method created successfully')
+    
+    // Close the Create Method modal
     showCreateMethodModal.value = false
     newMethodType.value = 'GET'
-    loadMethods(selectedResource.value)
+    newMethodResourceId.value = ''
+    
+    // Add the newly created method directly to restMethods since LocalStack's 
+    // GetResources doesn't return resourceMethods after creation
+    restMethods.value[methodType] = result
+    console.log('Updated restMethods:', restMethods.value)
+    console.log('Methods modal should show:', Object.keys(restMethods.value))
+    
+    // Show the methods modal with the new method
+    showMethodsModal.value = true
   } catch (error) {
     console.error('Error creating method:', error)
-    toast.error('Failed to create method')
+    toast.error('Failed to create method: ' + String(error))
   } finally {
     creating.value = false
   }
@@ -1381,17 +1558,98 @@ onMounted(() => {
             >
               Methods
             </button>
+            <button
+              class="p-1 rounded hover:bg-light-border dark:hover:bg-dark-border text-red-500"
+              title="Delete"
+              @click="openDeleteResourceModal(row)"
+            >
+              <svg
+                class="w-4 h-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                />
+              </svg>
+            </button>
           </div>
         </template>
       </DataTable>
 
-      <template #footer>
+        <template #footer>
         <div class="flex justify-end gap-2">
           <Button
             variant="secondary"
             @click="showResourcesModal = false"
           >
             Close
+          </Button>
+        </div>
+      </template>
+    </Modal>
+    <Modal
+      v-model:open="showCreateMethodModal"
+      title="Create Method"
+      size="md"
+      :z-index="60"
+    >
+      <div class="space-y-4">
+        <div>
+          <label class="block text-sm font-medium mb-1">Resource</label>
+          <select
+            v-model="newMethodResourceId"
+            class="w-full px-3 py-2 rounded-lg border bg-light-input dark:bg-dark-input border-light-border dark:border-dark-border"
+          >
+            <option value="">Select a resource...</option>
+            <option
+              v-for="resource in restResources"
+              :key="resource.id"
+              :value="resource.id"
+            >
+              {{ resource.path }} ({{ resource.pathPart }})
+            </option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm font-medium mb-1">HTTP Method</label>
+          <select
+            v-model="newMethodType"
+            class="w-full px-3 py-2 rounded-lg border bg-light-input dark:bg-dark-input border-light-border dark:border-dark-border"
+          >
+            <option value="GET">GET</option>
+            <option value="POST">POST</option>
+            <option value="PUT">PUT</option>
+            <option value="PATCH">PATCH</option>
+            <option value="DELETE">DELETE</option>
+            <option value="OPTIONS">OPTIONS</option>
+            <option value="HEAD">HEAD</option>
+          </select>
+        </div>
+        <FormInput
+          v-model="newIntegrationUri"
+          label="Integration URI (optional)"
+          placeholder="arn:aws:apigateway:region:lambda:path/..."
+          hint="Leave empty for mock integration"
+        />
+      </div>
+      <template #footer>
+        <div class="flex justify-end gap-2">
+          <Button
+            variant="secondary"
+            @click="showCreateMethodModal = false"
+          >
+            Cancel
+          </Button>
+          <Button
+            :loading="creating"
+            @click="createMethod"
+          >
+            Create
           </Button>
         </div>
       </template>
@@ -1410,6 +1668,22 @@ onMounted(() => {
           placeholder="items"
           required
         />
+        <div>
+          <label class="block text-sm font-medium mb-1">Parent Resource</label>
+          <select
+            v-model="newResourceParentId"
+            class="w-full px-3 py-2 rounded-lg border bg-light-input dark:bg-dark-input border-light-border dark:border-dark-border"
+          >
+            <option value="">Root (/)</option>
+            <option
+              v-for="resource in restResources.filter(r => r.path !== '/')"
+              :key="resource.id"
+              :value="resource.id"
+            >
+              {{ resource.path }} ({{ resource.pathPart }})
+            </option>
+          </select>
+        </div>
       </div>
       <template #footer>
         <div class="flex justify-end gap-2">
@@ -2051,6 +2325,232 @@ onMounted(() => {
             @click="confirmDeleteRestApi"
           >
             Delete
+          </Button>
+        </div>
+      </template>
+    </Modal>
+
+    <!-- Methods Modal -->
+    <Modal
+      v-model:open="showMethodsModal"
+      :title="`Methods: ${selectedResource?.path}`"
+      size="lg"
+    >
+      <div class="flex justify-end mb-4 gap-2">
+        <Button
+          size="sm"
+          variant="secondary"
+          @click="showMethodsModal = false; showResourcesModal = false"
+        >
+          Close All
+        </Button>
+        <Button
+          size="sm"
+          @click="newMethodResourceId = selectedResource?.id || ''; showCreateMethodModal = true"
+        >
+          <template #icon>
+            <svg
+              class="w-4 h-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M12 4v16m8-8H4"
+              />
+            </svg>
+          </template>
+          Add Method
+        </Button>
+      </div>
+
+      <div
+        v-if="loadingMethods"
+        class="flex justify-center py-8"
+      >
+        <LoadingSpinner />
+      </div>
+
+      <EmptyState
+        v-else-if="Object.keys(restMethods).length === 0"
+        icon="server"
+        title="No Methods"
+        description="No methods found for this resource."
+      />
+
+      <div v-else class="space-y-3">
+        <div
+          v-for="(methodDetails, method) in restMethods"
+          :key="method"
+          class="flex items-center justify-between p-3 rounded-lg border border-light-border dark:border-dark-border"
+        >
+          <div class="flex items-center gap-3">
+            <span
+              class="px-2 py-1 text-xs font-bold rounded"
+              :class="{
+                'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200': method === 'GET',
+                'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200': method === 'POST',
+                'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200': method === 'PUT',
+                'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200': method === 'PATCH',
+                'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200': method === 'DELETE',
+                'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200': !['GET', 'POST', 'PUT', 'PATCH', 'DELETE'].includes(method),
+              }"
+            >
+              {{ method }}
+            </span>
+            <span class="text-sm text-light-muted dark:text-dark-muted">
+              Auth: {{ methodDetails.authorizationType || 'NONE' }}
+            </span>
+            <span
+              v-if="methodDetails.apiKeyRequired"
+              class="text-xs px-2 py-0.5 rounded bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200"
+            >
+              API Key Required
+            </span>
+          </div>
+          <div class="flex items-center gap-2">
+            <button
+              class="px-2 py-1 text-sm rounded hover:bg-light-border dark:hover:bg-dark-border"
+              title="Setup Integration"
+              @click="openIntegrationModalForMethod(method)"
+            >
+              Integration
+            </button>
+            <button
+              class="p-1 rounded hover:bg-light-border dark:hover:bg-dark-border text-red-500"
+              title="Delete Method"
+              @click="deleteMethod(method)"
+            >
+              <svg
+                class="w-4 h-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                />
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <template #footer>
+        <div class="flex justify-end gap-2">
+          <Button
+            variant="secondary"
+            @click="showMethodsModal = false"
+          >
+            Close
+          </Button>
+        </div>
+      </template>
+    </Modal>
+
+    <!-- Delete Resource Confirmation -->
+    <Modal
+      v-model:open="showDeleteResourceModal"
+      title="Delete Resource"
+      size="sm"
+    >
+      <div class="space-y-4">
+        <p :class="settingsStore.darkMode ? 'text-dark-text' : 'text-light-text'">
+          Are you sure you want to delete the resource <strong>"{{ resourceToDelete?.path }}"</strong>?
+        </p>
+        <p class="text-sm text-red-500">
+          This action cannot be undone. All methods associated with this resource will be deleted.
+        </p>
+      </div>
+
+      <template #footer>
+        <div class="flex justify-end gap-2">
+          <Button
+            variant="secondary"
+            @click="showDeleteResourceModal = false"
+          >
+            Cancel
+          </Button>
+          <Button
+            variant="danger"
+            :loading="deletingResource"
+            @click="confirmDeleteResource"
+          >
+            Delete
+          </Button>
+        </div>
+      </template>
+    </Modal>
+
+    <!-- Integration Setup Modal -->
+    <Modal
+      v-model:open="showIntegrationModal"
+      title="Setup Integration"
+      size="md"
+    >
+      <div v-if="loadingIntegration" class="flex justify-center py-8">
+        <LoadingSpinner />
+      </div>
+      <div v-else class="space-y-4">
+        <div>
+          <label class="block text-sm font-medium mb-1">Integration Type</label>
+          <select
+            v-model="newIntegrationType"
+            class="w-full px-3 py-2 rounded-lg border bg-light-input dark:bg-dark-input border-light-border dark:border-dark-border"
+          >
+            <option value="MOCK">Mock</option>
+            <option value="AWS">AWS (Lambda)</option>
+            <option value="HTTP">HTTP</option>
+            <option value="HTTP_PROXY">HTTP Proxy</option>
+          </select>
+        </div>
+        
+        <FormInput
+          v-model="newIntegrationUri"
+          label="Integration URI"
+          placeholder="arn:aws:apigateway:region:lambda:path/..."
+          hint="Required for AWS, HTTP, and HTTP_PROXY types"
+        />
+        
+        <div>
+          <label class="block text-sm font-medium mb-1">Integration HTTP Method</label>
+          <select
+            v-model="newIntegrationHttpMethod"
+            class="w-full px-3 py-2 rounded-lg border bg-light-input dark:bg-dark-input border-light-border dark:border-dark-border"
+          >
+            <option value="GET">GET</option>
+            <option value="POST">POST</option>
+            <option value="PUT">PUT</option>
+            <option value="PATCH">PATCH</option>
+            <option value="DELETE">DELETE</option>
+            <option value="HEAD">HEAD</option>
+            <option value="OPTIONS">OPTIONS</option>
+          </select>
+        </div>
+        
+        <div v-if="currentIntegration" class="text-sm text-light-muted dark:text-dark-muted">
+          Current integration: {{ currentIntegration.type || 'None' }}
+        </div>
+      </div>
+      <template #footer>
+        <div class="flex justify-end gap-2">
+          <Button
+            variant="secondary"
+            @click="showIntegrationModal = false"
+          >
+            Cancel
+          </Button>
+          <Button
+            :loading="savingIntegration"
+            @click="saveIntegration"
+          >
+            Save
           </Button>
         </div>
       </template>

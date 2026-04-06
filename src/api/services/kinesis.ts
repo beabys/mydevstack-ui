@@ -1,295 +1,158 @@
 /**
  * Kinesis Service API Client
- * AWS SDK v3 implementation for Amazon Kinesis
+ * Simple HTTP client for Kinesis via Go proxy
  * @module api/services/kinesis
  */
 
-import {
-  KinesisClient,
-  CreateStreamCommand,
-  DescribeStreamCommand,
-  DescribeStreamSummaryCommand,
-  DeleteStreamCommand,
-  ListStreamsCommand,
-  ListShardsCommand,
-  GetRecordsCommand,
-  GetShardIteratorCommand,
-  PutRecordCommand,
-  PutRecordsCommand,
-  MergeShardsCommand,
-  SplitShardCommand,
-  UpdateShardCountCommand,
-  EnableEnhancedMonitoringCommand,
-  DisableEnhancedMonitoringCommand,
-  type CreateStreamCommandOutput,
-  type DescribeStreamCommandOutput,
-  type DescribeStreamSummaryCommandOutput,
-  type ListStreamsCommandOutput,
-  type ListShardsCommandOutput,
-  type GetRecordsCommandOutput,
-  type GetShardIteratorCommandOutput,
-  type PutRecordCommandOutput,
-  type PutRecordsCommandOutput,
-} from '@aws-sdk/client-kinesis'
 import { useSettingsStore } from '@/stores/settings'
 import { APIError } from '../client'
 
-let kinesisClient: KinesisClient | null = null
-
-function getKinesisClient(): KinesisClient {
+async function kinesisRequest(action: string, body: object = {}): Promise<any> {
   const settingsStore = useSettingsStore()
-  
-  if (!kinesisClient) {
-    kinesisClient = new KinesisClient({
-      endpoint: settingsStore.endpoint,
-      region: settingsStore.region,
-      credentials: {
-        accessKeyId: settingsStore.accessKey,
-        secretAccessKey: settingsStore.secretKey,
-      },
-      tls: false,
-    })
-  }
-  
-  return kinesisClient
-}
+  const endpoint = settingsStore.endpoint.replace(/\/$/, '')
 
-export function refreshKinesisClient(): void {
-  kinesisClient = null
-  getKinesisClient()
+  const url = `${endpoint}/kinesis/`
+
+  try {
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Amz-Target': action,
+      },
+      body: JSON.stringify(body),
+    })
+
+    if (!response.ok) {
+      const errorText = await response.text()
+      throw new APIError(`Kinesis ${action} failed: ${errorText}`, response.status, 'kinesis')
+    }
+
+    return response.json()
+  } catch (error) {
+    if (error instanceof APIError) throw error
+    console.error(`Kinesis ${action} error:`, error)
+    throw new APIError(`Failed to ${action}`, 500, 'kinesis')
+  }
 }
 
 export class KinesisService {
-  private getClient(): KinesisClient {
-    return getKinesisClient()
-  }
-
   async createStream(streamName: string, options?: {
     ShardCount?: number
     StreamModeDetails?: { StreamMode: 'PROVISIONED' | 'ON_DEMAND' }
   }): Promise<any> {
-    try {
-      const client = this.getClient()
-      const command = new CreateStreamCommand({
-        StreamName: streamName,
-        ShardCount: options?.ShardCount,
-        StreamModeDetails: options?.StreamModeDetails as any,
-      })
-      const response: CreateStreamCommandOutput = await client.send(command)
-      return response
-    } catch (error) {
-      if (error instanceof APIError) throw error
-      throw new APIError(`Failed to create stream: ${streamName}`, 500, 'kinesis')
-    }
+    return kinesisRequest('CreateStream', {
+      StreamName: streamName,
+      ShardCount: options?.ShardCount,
+      StreamModeDetails: options?.StreamModeDetails,
+    })
   }
 
   async describeStream(streamName: string): Promise<any> {
-    try {
-      const client = this.getClient()
-      const command = new DescribeStreamCommand({ StreamName: streamName })
-      const response: DescribeStreamCommandOutput = await client.send(command)
-      return response
-    } catch (error) {
-      if (error instanceof APIError) throw error
-      throw new APIError(`Failed to describe stream: ${streamName}`, 500, 'kinesis')
-    }
+    return kinesisRequest('DescribeStream', { StreamName: streamName })
   }
 
   async describeStreamSummary(streamName: string): Promise<any> {
-    try {
-      const client = this.getClient()
-      const command = new DescribeStreamSummaryCommand({ StreamName: streamName })
-      const response: DescribeStreamSummaryCommandOutput = await client.send(command)
-      return response
-    } catch (error) {
-      if (error instanceof APIError) throw error
-      throw new APIError(`Failed to describe stream summary: ${streamName}`, 500, 'kinesis')
-    }
+    return kinesisRequest('DescribeStreamSummary', { StreamName: streamName })
   }
 
   async deleteStream(streamName: string): Promise<any> {
-    try {
-      const client = this.getClient()
-      const command = new DeleteStreamCommand({ StreamName: streamName })
-      return await client.send(command)
-    } catch (error) {
-      if (error instanceof APIError) throw error
-      throw new APIError(`Failed to delete stream: ${streamName}`, 500, 'kinesis')
-    }
+    return kinesisRequest('DeleteStream', { StreamName: streamName })
   }
 
   async listStreams(options?: { ExclusiveStartStreamName?: string; Limit?: number }): Promise<any> {
-    try {
-      const client = this.getClient()
-      const command = new ListStreamsCommand(options as any)
-      const response: ListStreamsCommandOutput = await client.send(command)
-      return response
-    } catch (error) {
-      if (error instanceof APIError) throw error
-      throw new APIError('Failed to list streams', 500, 'kinesis')
-    }
+    return kinesisRequest('ListStreams', options || {})
   }
 
   async listShards(streamName: string, options?: { ExclusiveStartShardId?: string; MaxResults?: number }): Promise<any> {
-    try {
-      const client = this.getClient()
-      const command = new ListShardsCommand({
-        StreamName: streamName,
-        ...options,
-      } as any)
-      const response: ListShardsCommandOutput = await client.send(command)
-      return response
-    } catch (error) {
-      if (error instanceof APIError) throw error
-      throw new APIError(`Failed to list shards: ${streamName}`, 500, 'kinesis')
-    }
+    return kinesisRequest('ListShards', {
+      StreamName: streamName,
+      ...options,
+    })
   }
 
-  async getShardIterator(streamName: string, shardId: string, iteratorType: 'AT_SEQUENCE_NUMBER' | 'AFTER_SEQUENCE_NUMBER' | 'LATEST' | 'TRIM_HORIZON'): Promise<any> {
-    try {
-      const client = this.getClient()
-      const command = new GetShardIteratorCommand({
-        StreamName: streamName,
-        ShardId: shardId,
-        ShardIteratorType: iteratorType,
-      })
-      const response: GetShardIteratorCommandOutput = await client.send(command)
-      return response
-    } catch (error) {
-      if (error instanceof APIError) throw error
-      throw new APIError(`Failed to get shard iterator: ${shardId}`, 500, 'kinesis')
-    }
+  async getShardIterator(streamName: string, shardId: string, iteratorType: string = 'LATEST'): Promise<any> {
+    return kinesisRequest('GetShardIterator', {
+      StreamName: streamName,
+      ShardId: shardId,
+      ShardIteratorType: iteratorType,
+    })
   }
 
   async getRecords(shardIterator: string, options?: { Limit?: number }): Promise<any> {
-    try {
-      const client = this.getClient()
-      const command = new GetRecordsCommand({
-        ShardIterator: shardIterator,
-        Limit: options?.Limit,
-      })
-      const response: GetRecordsCommandOutput = await client.send(command)
-      return response
-    } catch (error) {
-      if (error instanceof APIError) throw error
-      throw new APIError('Failed to get records', 500, 'kinesis')
-    }
+    return kinesisRequest('GetRecords', {
+      ShardIterator: shardIterator,
+      ...options,
+    })
   }
 
   async putRecord(streamName: string, data: string, partitionKey: string, options?: {
     ExplicitHashKey?: string
     SequenceNumberForOrdering?: string
   }): Promise<any> {
-    try {
-      const client = this.getClient()
-      const command = new PutRecordCommand({
-        StreamName: streamName,
-        Data: Buffer.from(data),
-        PartitionKey: partitionKey,
-        ...options,
-      })
-      const response: PutRecordCommandOutput = await client.send(command)
-      return response
-    } catch (error) {
-      if (error instanceof APIError) throw error
-      throw new APIError(`Failed to put record: ${streamName}`, 500, 'kinesis')
-    }
+    // Convert string to base64
+    const dataBase64 = btoa(data)
+    return kinesisRequest('PutRecord', {
+      StreamName: streamName,
+      Data: dataBase64,
+      PartitionKey: partitionKey,
+      ...options,
+    })
   }
 
   async putRecords(streamName: string, records: Array<{ Data: string; PartitionKey: string }>): Promise<any> {
-    try {
-      const client = this.getClient()
-      const command = new PutRecordsCommand({
-        StreamName: streamName,
-        Records: records.map(r => ({
-          Data: Buffer.from(r.Data),
-          PartitionKey: r.PartitionKey,
-        })),
-      })
-      const response: PutRecordsCommandOutput = await client.send(command)
-      return response
-    } catch (error) {
-      if (error instanceof APIError) throw error
-      throw new APIError(`Failed to put records: ${streamName}`, 500, 'kinesis')
-    }
+    const recordsData = records.map(r => ({
+      Data: btoa(r.Data),
+      PartitionKey: r.PartitionKey,
+    }))
+    return kinesisRequest('PutRecords', {
+      StreamName: streamName,
+      Records: recordsData,
+    })
   }
 
   async mergeShards(streamName: string, shardToMerge: string, adjacentShardToMerge: string): Promise<any> {
-    try {
-      const client = this.getClient()
-      const command = new MergeShardsCommand({
-        StreamName: streamName,
-        ShardToMerge: shardToMerge,
-        AdjacentShardToMerge: adjacentShardToMerge,
-      })
-      return await client.send(command)
-    } catch (error) {
-      if (error instanceof APIError) throw error
-      throw new APIError('Failed to merge shards', 500, 'kinesis')
-    }
+    return kinesisRequest('MergeShards', {
+      StreamName: streamName,
+      ShardToMerge: shardToMerge,
+      AdjacentShardToMerge: adjacentShardToMerge,
+    })
   }
 
   async splitShard(streamName: string, shardToSplit: string, newStartingHashKey: string): Promise<any> {
-    try {
-      const client = this.getClient()
-      const command = new SplitShardCommand({
-        StreamName: streamName,
-        ShardToSplit: shardToSplit,
-        NewStartingHashKey: newStartingHashKey,
-      })
-      return await client.send(command)
-    } catch (error) {
-      if (error instanceof APIError) throw error
-      throw new APIError(`Failed to split shard: ${shardToSplit}`, 500, 'kinesis')
-    }
+    return kinesisRequest('SplitShard', {
+      StreamName: streamName,
+      ShardToSplit: shardToSplit,
+      NewStartingHashKey: newStartingHashKey,
+    })
   }
 
   async updateShardCount(streamName: string, targetShardCount: number): Promise<any> {
-    try {
-      const client = this.getClient()
-      const command = new UpdateShardCountCommand({
-        StreamName: streamName,
-        TargetShardCount: targetShardCount,
-        ScalingType: 'UNIFORM_SCALING',
-      })
-      return await client.send(command)
-    } catch (error) {
-      if (error instanceof APIError) throw error
-      throw new APIError(`Failed to update shard count: ${streamName}`, 500, 'kinesis')
-    }
+    return kinesisRequest('UpdateShardCount', {
+      StreamName: streamName,
+      TargetShardCount: targetShardCount,
+      ScalingType: 'UNIFORM_SCALING',
+    })
   }
 
   async enableEnhancedMonitoring(streamName: string, shardLevelMetrics: string[]): Promise<any> {
-    try {
-      const client = this.getClient()
-      const command = new EnableEnhancedMonitoringCommand({
-        StreamName: streamName,
-        ShardLevelMetrics: shardLevelMetrics as any,
-      })
-      return await client.send(command)
-    } catch (error) {
-      if (error instanceof APIError) throw error
-      throw new APIError(`Failed to enable enhanced monitoring: ${streamName}`, 500, 'kinesis')
-    }
+    return kinesisRequest('EnableEnhancedMonitoring', {
+      StreamName: streamName,
+      ShardLevelMetrics: shardLevelMetrics,
+    })
   }
 
   async disableEnhancedMonitoring(streamName: string, shardLevelMetrics: string[]): Promise<any> {
-    try {
-      const client = this.getClient()
-      const command = new DisableEnhancedMonitoringCommand({
-        StreamName: streamName,
-        ShardLevelMetrics: shardLevelMetrics as any,
-      })
-      return await client.send(command)
-    } catch (error) {
-      if (error instanceof APIError) throw error
-      throw new APIError(`Failed to disable enhanced monitoring: ${streamName}`, 500, 'kinesis')
-    }
+    return kinesisRequest('DisableEnhancedMonitoring', {
+      StreamName: streamName,
+      ShardLevelMetrics: shardLevelMetrics,
+    })
   }
 }
 
 export const kinesisService = new KinesisService()
 
+// Export functions
 export const createStream = (streamName: string, options?: any) => kinesisService.createStream(streamName, options)
 export const describeStream = (streamName: string) => kinesisService.describeStream(streamName)
 export const describeStreamSummary = (streamName: string) => kinesisService.describeStreamSummary(streamName)
@@ -297,7 +160,7 @@ export const deleteStream = (streamName: string) => kinesisService.deleteStream(
 export const listStreams = (options?: any) => kinesisService.listStreams(options)
 export const listShards = (streamName: string, options?: any) => kinesisService.listShards(streamName, options)
 export const getShardIterator = (streamName: string, shardId: string, iteratorType?: string) => 
-  kinesisService.getShardIterator(streamName, shardId, (iteratorType || 'LATEST') as any)
+  kinesisService.getShardIterator(streamName, shardId, iteratorType || 'LATEST')
 export const getRecords = (shardIterator: string, options?: any) => kinesisService.getRecords(shardIterator, options)
 export const putRecord = (streamName: string, data: string, partitionKey: string, options?: any) => 
   kinesisService.putRecord(streamName, data, partitionKey, options)

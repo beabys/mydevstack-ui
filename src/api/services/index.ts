@@ -31,10 +31,10 @@ export {
   deleteFunction,
   updateFunctionCode,
   invoke,
-  getEventSourceMapping,
-  listEventSourceMappings,
-  createEventSourceMapping,
+  invokeFunction,
+  updateFunctionConfiguration,
   LambdaService,
+  lambda,
 } from './lambda'
 
 // DynamoDB Service (class-based)
@@ -139,69 +139,6 @@ export {
   restoreSecret,
 } from './secrets-manager'
 
-// EventBridge Service
-export {
-  createEventBus,
-  listEventBuses,
-  describeEventBus,
-  deleteEventBus,
-  putRule,
-  listRules,
-  describeRule,
-  deleteRule,
-  disableRule,
-  enableRule,
-  putTargets,
-  removeTargets,
-  putEvents,
-} from './eventbridge'
-
-// CloudWatch Service
-export {
-  createLogGroup,
-  describeLogGroups,
-  deleteLogGroup,
-  describeLogStreams,
-  getLogEvents,
-  putMetricData,
-  getMetricStatistics,
-  listMetrics,
-} from './cloudwatch'
-
-// Step Functions Service
-export {
-  createStateMachine,
-  listStateMachines,
-  describeStateMachine,
-  describeExecution,
-  listExecutions,
-  startExecution,
-  stopExecution,
-  getExecutionHistory,
-  updateStateMachine,
-  deleteStateMachine,
-  describeActivity,
-  listActivities,
-} from './step-functions'
-
-// Cognito Service
-export {
-  createUserPool,
-  listUserPools,
-  describeUserPool,
-  deleteUserPool,
-  updateUserPool,
-  adminCreateUser,
-  adminListUsers,
-  adminGetUser,
-  adminDeleteUser,
-  adminDisableUser,
-  adminEnableUser,
-  createUserPoolClient,
-  listUserPoolClients,
-  describeUserPoolClient,
-} from './cognito'
-
 // API Gateway Service
 export {
   createRestApi,
@@ -221,12 +158,12 @@ export {
   getHttpApis,
   getHttpApi,
   deleteHttpApi,
-  createRoute,
-  getRoutes,
-  deleteRoute,
-  createIntegration,
-  getIntegrations,
-  deleteIntegration,
+  createHttpRoute,
+  getHttpRoutes,
+  deleteHttpRoute,
+  createHttpIntegration,
+  getHttpIntegrations,
+  deleteHttpApiIntegration,
   refreshAPIGatewayClient,
 } from './api-gateway'
 

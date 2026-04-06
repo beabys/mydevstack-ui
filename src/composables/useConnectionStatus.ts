@@ -26,7 +26,7 @@ async function checkConnection(): Promise<boolean> {
         const controller = new AbortController()
         const timeoutId = setTimeout(() => controller.abort(), 5000)
         
-        const response = await fetch(`${targetEndpoint}/`, {
+        const response = await fetch(`${targetEndpoint}/health`, {
           method: 'GET',
           signal: controller.signal,
         })
@@ -43,7 +43,7 @@ async function checkConnection(): Promise<boolean> {
         const controller = new AbortController()
         const timeoutId = setTimeout(() => controller.abort(), 5000)
         
-        const response = await fetch(`${targetEndpoint}/s3/`, {
+        const response = await fetch(`${targetEndpoint}/s3`, {
           method: 'GET',
           signal: controller.signal,
         })
@@ -60,7 +60,7 @@ async function checkConnection(): Promise<boolean> {
         const controller = new AbortController()
         const timeoutId = setTimeout(() => controller.abort(), 5000)
         
-        const response = await fetch(`${targetEndpoint}/2015-03-31/functions/`, {
+        const response = await fetch(`${targetEndpoint}/lambda/2015-03-31/functions`, {
           method: 'GET',
           signal: controller.signal,
         })

@@ -1,74 +1,42 @@
 /**
  * KMS Service API Client
- * AWS SDK v3 implementation for AWS Key Management Service
+ * Simple HTTP client for KMS via Go proxy
  * @module api/services/kms
  */
 
-import {
-  KMSClient,
-  CreateKeyCommand,
-  DescribeKeyCommand,
-  ListKeysCommand,
-  EncryptCommand,
-  DecryptCommand,
-  GenerateDataKeyCommand,
-  GenerateDataKeyWithoutPlaintextCommand,
-  SignCommand,
-  VerifyCommand,
-  ScheduleKeyDeletionCommand,
-  CancelKeyDeletionCommand,
-  GetKeyRotationStatusCommand,
-  EnableKeyRotationCommand,
-  DisableKeyRotationCommand,
-  PutKeyPolicyCommand,
-  GetKeyPolicyCommand,
-  ListAliasesCommand,
-  type CreateKeyCommandOutput,
-  type DescribeKeyCommandOutput,
-  type ListKeysCommandOutput,
-  type EncryptCommandOutput,
-  type DecryptCommandOutput,
-  type GenerateDataKeyCommandOutput,
-  type SignCommandOutput,
-  type VerifyCommandOutput,
-} from '@aws-sdk/client-kms'
 import { useSettingsStore } from '@/stores/settings'
 import { APIError } from '../client'
 
-let kmsClient: KMSClient | null = null
-
-function getKMSClient(): KMSClient {
+async function kmsRequest(action: string, body: object = {}): Promise<any> {
   const settingsStore = useSettingsStore()
-  let endpoint = settingsStore.endpoint
-  if (endpoint.endsWith('/')) {
-    endpoint = endpoint.slice(0, -1)
-  }
-  
-  if (!kmsClient) {
-    kmsClient = new KMSClient({
-      endpoint,
-      region: settingsStore.region,
-      credentials: {
-        accessKeyId: settingsStore.accessKey,
-        secretAccessKey: settingsStore.secretKey,
-      },
-      tls: false,
-    })
-  }
-  
-  return kmsClient
-}
+  const endpoint = settingsStore.endpoint.replace(/\/$/, '')
 
-export function refreshKMSClient(): void {
-  kmsClient = null
-  getKMSClient()
+  const url = `${endpoint}/kms/`
+
+  try {
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Amz-Target': `kms.${action}`,
+      },
+      body: JSON.stringify(body),
+    })
+
+    if (!response.ok) {
+      const errorText = await response.text()
+      throw new APIError(`KMS ${action} failed: ${errorText}`, response.status, 'kms')
+    }
+
+    return response.json()
+  } catch (error) {
+    if (error instanceof APIError) throw error
+    console.error(`KMS ${action} error:`, error)
+    throw new APIError(`Failed to ${action}`, 500, 'kms')
+  }
 }
 
 export class KMSService {
-  private getClient(): KMSClient {
-    return getKMSClient()
-  }
-
   async createKey(params?: {
     Description?: string
     KeyUsage?: 'SIGN_VERIFY' | 'ENCRYPT_DECRYPT'
@@ -79,92 +47,79 @@ export class KMSService {
     Tags?: Array<{ TagKey: string; TagValue: string }>
   }): Promise<any> {
     try {
-      const client = this.getClient()
-      const command = new CreateKeyCommand(params as any)
-      const response: CreateKeyCommandOutput = await client.send(command)
-      return response
-    } catch (error) {
-      if (error instanceof APIError) throw error
-      throw new APIError('Failed to create KMS key', 500, 'kms')
+      return await kmsRequest('CreateKey', params || {})
+    } catch (error: any) {
+      if (error.message?.includes('Unknown action') || error.message?.includes('NotImplemented')) {
+        throw new APIError('KMS CreateKey not supported by this LocalStack version', 501, 'kms')
+      }
+      throw error
     }
   }
 
   async describeKey(keyId: string): Promise<any> {
-    try {
-      const client = this.getClient()
-      const command = new DescribeKeyCommand({ KeyId: keyId })
-      const response: DescribeKeyCommandOutput = await client.send(command)
-      return response
-    } catch (error) {
-      if (error instanceof APIError) throw error
-      throw new APIError(`Failed to describe KMS key: ${keyId}`, 500, 'kms')
-    }
+    return await kmsRequest('DescribeKey', { KeyId: keyId })
   }
 
   async listKeys(options?: { Limit?: number; Marker?: string }): Promise<{ Keys: any[]; NextMarker?: string; Truncated?: boolean }> {
-    try {
-      const client = this.getClient()
-      const command = new ListKeysCommand(options as any)
-      const response: ListKeysCommandOutput = await client.send(command)
-      return {
-        Keys: response.Keys || [],
-        NextMarker: response.NextMarker,
-        Truncated: response.Truncated,
-      }
-    } catch (error) {
-      if (error instanceof APIError) throw error
-      throw new APIError('Failed to list KMS keys', 500, 'kms')
+    const response = await kmsRequest('ListKeys', options || {})
+    return {
+      Keys: response.Keys || [],
+      NextMarker: response.NextMarker,
+      Truncated: response.Truncated,
     }
   }
 
   async encrypt(keyId: string, plaintext: string, options?: {
     EncryptionAlgorithm?: 'SYMMETRIC_DEFAULT' | 'RSAES_OAEP_SHA_1' | 'RSAES_OAEP_SHA_256'
     GrantTokens?: string[]
-  }): Promise<{ CiphertextBlob: Uint8Array; KeyId: string }> {
+  }): Promise<{ CiphertextBlob: string; KeyId: string }> {
     try {
-      const client = this.getClient()
-      const command = new EncryptCommand({
+      // Convert plaintext to base64 for the request
+      const plaintextBase64 = btoa(plaintext)
+      const response = await kmsRequest('Encrypt', {
         KeyId: keyId,
-        Plaintext: Buffer.from(plaintext),
+        Plaintext: plaintextBase64,
         ...options,
       })
-      const response: EncryptCommandOutput = await client.send(command)
       return {
-        CiphertextBlob: response.CiphertextBlob || new Uint8Array(),
+        CiphertextBlob: response.CiphertextBlob || '',
         KeyId: response.KeyId || '',
       }
     } catch (error: any) {
-      console.error('KMS encrypt error:', error)
       if (error.message?.includes('Unknown action') || error.message?.includes('NotImplemented')) {
         throw new APIError('KMS encrypt not supported by this LocalStack version', 501, 'kms')
       }
-      if (error instanceof APIError) throw error
-      throw new APIError(`Failed to encrypt with KMS key: ${keyId}`, 500, 'kms')
+      throw error
     }
   }
 
-  async decrypt(ciphertextBlob: Uint8Array, options?: {
+  async decrypt(ciphertextBlob: string, options?: {
     EncryptionAlgorithm?: 'SYMMETRIC_DEFAULT' | 'RSAES_OAEP_SHA_1' | 'RSAES_OAEP_SHA_256'
     GrantTokens?: string[]
-  }): Promise<{ Plaintext: Uint8Array; KeyId: string }> {
+  }): Promise<{ Plaintext: string; KeyId: string }> {
     try {
-      const client = this.getClient()
-      const command = new DecryptCommand({
+      const response = await kmsRequest('Decrypt', {
         CiphertextBlob: ciphertextBlob,
         ...options,
       })
-      const response: DecryptCommandOutput = await client.send(command)
+      // Convert base64 plaintext back to string
+      let plaintext = ''
+      if (response.Plaintext) {
+        try {
+          plaintext = atob(response.Plaintext)
+        } catch {
+          plaintext = response.Plaintext
+        }
+      }
       return {
-        Plaintext: response.Plaintext || new Uint8Array(),
+        Plaintext: plaintext,
         KeyId: response.KeyId || '',
       }
     } catch (error: any) {
-      console.error('KMS decrypt error:', error)
       if (error.message?.includes('Unknown action') || error.message?.includes('NotImplemented')) {
         throw new APIError('KMS decrypt not supported by this LocalStack version', 501, 'kms')
       }
-      if (error instanceof APIError) throw error
-      throw new APIError('Failed to decrypt with KMS key', 500, 'kms')
+      throw error
     }
   }
 
@@ -173,90 +128,57 @@ export class KMSService {
     NumberOfBytes?: number
     GrantTokens?: string[]
   }): Promise<any> {
-    try {
-      const client = this.getClient()
-      const command = new GenerateDataKeyCommand({
-        KeyId: keyId,
-        ...options,
-      })
-      const response: GenerateDataKeyCommandOutput = await client.send(command)
-      return response
-    } catch (error) {
-      if (error instanceof APIError) throw error
-      throw new APIError(`Failed to generate data key: ${keyId}`, 500, 'kms')
-    }
+    return await kmsRequest('GenerateDataKey', {
+      KeyId: keyId,
+      ...options,
+    })
   }
 
   async generateDataKeyWithoutPlaintext(keyId: string, options?: {
     KeySpec?: 'AES_256' | 'AES_128'
     NumberOfBytes?: number
   }): Promise<any> {
-    try {
-      const client = this.getClient()
-      const command = new GenerateDataKeyWithoutPlaintextCommand({
-        KeyId: keyId,
-        ...options,
-      })
-      return await client.send(command)
-    } catch (error) {
-      if (error instanceof APIError) throw error
-      throw new APIError(`Failed to generate data key without plaintext: ${keyId}`, 500, 'kms')
-    }
+    return await kmsRequest('GenerateDataKeyWithoutPlaintext', {
+      KeyId: keyId,
+      ...options,
+    })
   }
 
   async sign(keyId: string, message: string, signingAlgorithm: string, options?: {
     GrantTokens?: string[]
   }): Promise<any> {
-    try {
-      const client = this.getClient()
-      const command = new SignCommand({
-        KeyId: keyId,
-        Message: Buffer.from(message),
-        MessageType: 'RAW',
-        SigningAlgorithm: signingAlgorithm as any,
-        ...options,
-      })
-      const response: SignCommandOutput = await client.send(command)
-      return response
-    } catch (error) {
-      if (error instanceof APIError) throw error
-      throw new APIError(`Failed to sign with KMS key: ${keyId}`, 500, 'kms')
-    }
+    const messageBase64 = btoa(message)
+    return await kmsRequest('Sign', {
+      KeyId: keyId,
+      Message: messageBase64,
+      MessageType: 'RAW',
+      SigningAlgorithm: signingAlgorithm,
+      ...options,
+    })
   }
 
-  async verify(keyId: string, message: string, signature: Uint8Array, signingAlgorithm: string): Promise<{ KeyId: string; SignatureValid: boolean }> {
-    try {
-      const client = this.getClient()
-      const command = new VerifyCommand({
-        KeyId: keyId,
-        Message: Buffer.from(message),
-        MessageType: 'RAW',
-        Signature: signature,
-        SigningAlgorithm: signingAlgorithm as any,
-      })
-      const response: VerifyCommandOutput = await client.send(command)
-      return {
-        KeyId: response.KeyId || '',
-        SignatureValid: response.SignatureValid || false,
-      }
-    } catch (error) {
-      if (error instanceof APIError) throw error
-      throw new APIError(`Failed to verify with KMS key: ${keyId}`, 500, 'kms')
+  async verify(keyId: string, message: string, signature: string, signingAlgorithm: string): Promise<{ KeyId: string; SignatureValid: boolean }> {
+    const messageBase64 = btoa(message)
+    const response = await kmsRequest('Verify', {
+      KeyId: keyId,
+      Message: messageBase64,
+      MessageType: 'RAW',
+      Signature: signature,
+      SigningAlgorithm: signingAlgorithm,
+    })
+    return {
+      KeyId: response.KeyId || '',
+      SignatureValid: response.SignatureValid || false,
     }
   }
 
   async scheduleKeyDeletion(keyId: string, pendingWindowInDays?: number): Promise<any> {
     try {
-      const client = this.getClient()
-      console.log('KMS endpoint:', client.config.endpoint)
-      const command = new ScheduleKeyDeletionCommand({
+      return await kmsRequest('ScheduleKeyDeletion', {
         KeyId: keyId,
         PendingWindowInDays: pendingWindowInDays,
       })
-      return await client.send(command)
     } catch (error: any) {
-      console.error('KMS scheduleKeyDeletion error:', error)
-      console.error('KMS response:', error.$response?.body)
       if (error.$metadata?.statusCode === 400) {
         const msg = error.message || 'Unknown error'
         if (msg.includes('Unknown action')) {
@@ -264,126 +186,66 @@ export class KMSService {
         }
         throw new APIError(`Failed to schedule key deletion: ${msg}`, 400, 'kms')
       }
-      if (error instanceof APIError) throw error
-      throw new APIError(`Failed to schedule key deletion: ${keyId}`, 500, 'kms')
+      throw error
     }
   }
 
   async cancelKeyDeletion(keyId: string): Promise<any> {
-    try {
-      const client = this.getClient()
-      const command = new CancelKeyDeletionCommand({ KeyId: keyId })
-      return await client.send(command)
-    } catch (error) {
-      if (error instanceof APIError) throw error
-      throw new APIError(`Failed to cancel key deletion: ${keyId}`, 500, 'kms')
-    }
+    return await kmsRequest('CancelKeyDeletion', { KeyId: keyId })
   }
 
   async getKeyRotationStatus(keyId: string): Promise<any> {
-    try {
-      const client = this.getClient()
-      const command = new GetKeyRotationStatusCommand({ KeyId: keyId })
-      return await client.send(command)
-    } catch (error) {
-      if (error instanceof APIError) throw error
-      throw new APIError(`Failed to get key rotation status: ${keyId}`, 500, 'kms')
-    }
+    return await kmsRequest('GetKeyRotationStatus', { KeyId: keyId })
   }
 
   async enableKeyRotation(keyId: string): Promise<any> {
-    try {
-      const client = this.getClient()
-      const command = new EnableKeyRotationCommand({ KeyId: keyId })
-      return await client.send(command)
-    } catch (error) {
-      if (error instanceof APIError) throw error
-      throw new APIError(`Failed to enable key rotation: ${keyId}`, 500, 'kms')
-    }
+    return await kmsRequest('EnableKeyRotation', { KeyId: keyId })
   }
 
   async disableKeyRotation(keyId: string): Promise<any> {
-    try {
-      const client = this.getClient()
-      const command = new DisableKeyRotationCommand({ KeyId: keyId })
-      return await client.send(command)
-    } catch (error) {
-      if (error instanceof APIError) throw error
-      throw new APIError(`Failed to disable key rotation: ${keyId}`, 500, 'kms')
-    }
+    return await kmsRequest('DisableKeyRotation', { KeyId: keyId })
   }
 
   async enableKey(keyId: string): Promise<any> {
-    const { EnableKeyCommand } = await import('@aws-sdk/client-kms')
-    try {
-      const client = this.getClient()
-      const command = new EnableKeyCommand({ KeyId: keyId })
-      return await client.send(command)
-    } catch (error) {
-      if (error instanceof APIError) throw error
-      throw new APIError(`Failed to enable key: ${keyId}`, 500, 'kms')
-    }
+    return await kmsRequest('EnableKey', { KeyId: keyId })
   }
 
   async disableKey(keyId: string): Promise<any> {
-    const { DisableKeyCommand } = await import('@aws-sdk/client-kms')
-    try {
-      const client = this.getClient()
-      const command = new DisableKeyCommand({ KeyId: keyId })
-      return await client.send(command)
-    } catch (error) {
-      if (error instanceof APIError) throw error
-      throw new APIError(`Failed to disable key: ${keyId}`, 500, 'kms')
-    }
+    return await kmsRequest('DisableKey', { KeyId: keyId })
   }
 
   async getKeyPolicy(keyId: string, policyName: string = 'default'): Promise<any> {
-    const { GetKeyPolicyCommand } = await import('@aws-sdk/client-kms')
-    try {
-      const client = this.getClient()
-      const command = new GetKeyPolicyCommand({ KeyId: keyId, PolicyName: policyName })
-      return await client.send(command)
-    } catch (error) {
-      if (error instanceof APIError) throw error
-      throw new APIError(`Failed to get key policy: ${keyId}`, 500, 'kms')
-    }
+    return await kmsRequest('GetKeyPolicy', { KeyId: keyId, PolicyName: policyName })
   }
 
   async listKeyPolicies(keyId: string): Promise<any> {
-    const { ListKeyPoliciesCommand } = await import('@aws-sdk/client-kms')
-    try {
-      const client = this.getClient()
-      const command = new ListKeyPoliciesCommand({ KeyId: keyId })
-      return await client.send(command)
-    } catch (error) {
-      if (error instanceof APIError) throw error
-      throw new APIError(`Failed to list key policies: ${keyId}`, 500, 'kms')
-    }
+    return await kmsRequest('ListKeyPolicies', { KeyId: keyId })
   }
 
   async putKeyPolicy(keyId: string, policy: string, policyName: string = 'default'): Promise<any> {
-    try {
-      const client = this.getClient()
-      const command = new PutKeyPolicyCommand({
-        KeyId: keyId,
-        Policy: policy,
-        PolicyName: policyName,
-      })
-      return await client.send(command)
-    } catch (error) {
-      if (error instanceof APIError) throw error
-      throw new APIError(`Failed to put key policy: ${keyId}`, 500, 'kms')
-    }
+    return await kmsRequest('PutKeyPolicy', {
+      KeyId: keyId,
+      Policy: policy,
+      PolicyName: policyName,
+    })
   }
 
   async listAliases(options?: { Limit?: number; Marker?: string }): Promise<any> {
-    try {
-      const client = this.getClient()
-      const command = new ListAliasesCommand(options as any)
-      return await client.send(command)
-    } catch (error) {
-      if (error instanceof APIError) throw error
-      throw new APIError('Failed to list KMS aliases', 500, 'kms')
+    return await kmsRequest('ListAliases', options || {})
+  }
+
+  async deleteAlias(aliasName: string): Promise<void> {
+    return await kmsRequest('DeleteAlias', { AliasName: aliasName })
+  }
+
+  async generateRandom(options?: {
+    NumberOfBytes?: number
+    CustomKeyStoreId?: string
+    EntropySource?: string
+  }): Promise<{ Plaintext: string }> {
+    const response = await kmsRequest('GenerateRandom', options || {})
+    return {
+      Plaintext: response.Plaintext || '',
     }
   }
 }
@@ -392,35 +254,20 @@ export const kmsService = new KMSService()
 
 export const createKey = (params?: Parameters<KMSService['createKey']>[0]) => kmsService.createKey(params)
 export const describeKey = (keyId: string) => kmsService.describeKey(keyId)
-export const listKeys = (options?: Parameters<KMSService['listKeys']>[0]) => kmsService.listKeys(options)
+export const listKeys = (options?: { Limit?: number; Marker?: string }) => kmsService.listKeys(options)
 export const encrypt = (keyId: string, plaintext: string, options?: Parameters<KMSService['encrypt']>[2]) => 
   kmsService.encrypt(keyId, plaintext, options)
-export const decrypt = (ciphertextBlob: Uint8Array, options?: Parameters<KMSService['decrypt']>[1]) => 
+export const decrypt = (ciphertextBlob: string, options?: Parameters<KMSService['decrypt']>[1]) => 
   kmsService.decrypt(ciphertextBlob, options)
-export const generateDataKey = (keyId: string, options?: Parameters<KMSService['generateDataKey']>[1]) => 
+export const generateDataKey = (keyId: string, options?: { KeySpec?: 'AES_256' | 'AES_128'; NumberOfBytes?: number; GrantTokens?: string[] }) => 
   kmsService.generateDataKey(keyId, options)
-export const sign = (keyId: string, message: string, options?: Parameters<KMSService['sign']>[2]) => 
-  kmsService.sign(keyId, message, options)
-export const verify = (keyId: string, message: string, signature: Uint8Array, options?: Parameters<KMSService['verify']>[3]) => 
-  kmsService.verify(keyId, message, signature, options)
+export const sign = (keyId: string, message: string, signingAlgorithm: string, options?: Parameters<KMSService['sign']>[3]) => 
+  kmsService.sign(keyId, message, signingAlgorithm, options)
+export const verify = (keyId: string, message: string, signature: string, signingAlgorithm: string) => 
+  kmsService.verify(keyId, message, signature, signingAlgorithm)
 export const scheduleKeyDeletion = (keyId: string, pendingWindowInDays?: number) => 
   kmsService.scheduleKeyDeletion(keyId, pendingWindowInDays)
-
-export const deleteKey = async (keyId: string): Promise<any> => {
-  const client = getKMSClient()
-  try {
-    const command = new ScheduleKeyDeletionCommand({
-      KeyId: keyId,
-      PendingWindowInDays: 1,
-    })
-    return await client.send(command)
-  } catch (error: any) {
-    if (error.message?.includes('Unknown action') || error.message?.includes('NotImplemented')) {
-      throw new APIError('Key deletion not supported by LocalStack', 501, 'kms')
-    }
-    throw error
-  }
-}
+export const deleteKey = (keyId: string) => kmsService.scheduleKeyDeletion(keyId, 1)
 export const cancelKeyDeletion = (keyId: string) => kmsService.cancelKeyDeletion(keyId)
 export const getKeyRotationStatus = (keyId: string) => kmsService.getKeyRotationStatus(keyId)
 export const enableKeyRotation = (keyId: string) => kmsService.enableKeyRotation(keyId)
@@ -432,5 +279,12 @@ export const listKeyPolicies = (keyId: string) => kmsService.listKeyPolicies(key
 export const putKeyPolicy = (keyId: string, policy: string, policyName?: string) => 
   kmsService.putKeyPolicy(keyId, policy, policyName)
 export const listAliases = (options?: any) => kmsService.listAliases(options)
+export const deleteAlias = (aliasName: string) => kmsService.deleteAlias(aliasName)
+export const generateRandom = (options?: { NumberOfBytes?: number; CustomKeyStoreId?: string; EntropySource?: string }) => 
+  kmsService.generateRandom(options)
+
+export function refreshKMSClient(): void {
+  // No-op: HTTP-based implementation reads endpoint directly from settings
+}
 
 export default kmsService

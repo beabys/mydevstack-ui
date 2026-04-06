@@ -730,7 +730,7 @@ watch(() => settingsStore.secretKey, (newVal) => {
               :class="settingsStore.darkMode ? 'text-dark-muted' : 'text-light-muted'"
               class="text-sm"
             >
-              S3, Lambda, DynamoDB, SQS, SNS, IAM, KMS, Secrets Manager, EventBridge, CloudWatch, Step Functions, Cognito, API Gateway, and more.
+              S3, Lambda, DynamoDB, SQS, SNS, IAM, KMS, Secrets Manager, API Gateway, Kinesis, and more.
             </p>
           </div>
 

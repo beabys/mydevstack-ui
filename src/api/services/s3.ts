@@ -1,173 +1,80 @@
 /**
  * S3 Service API Client
- * AWS SDK v3 implementation for S3-compatible storage
+ * Simple HTTP client for S3 via Go proxy
  * @module api/services/s3
  */
 
-import {
-  S3Client,
-  ListBucketsCommand,
-  CreateBucketCommand,
-  DeleteBucketCommand,
-  HeadBucketCommand,
-  ListObjectsCommand,
-  ListObjectsV2Command,
-  GetObjectCommand,
-  PutObjectCommand,
-  DeleteObjectCommand,
-  DeleteObjectsCommand,
-  HeadObjectCommand,
-  type ListBucketsCommandOutput,
-  type CreateBucketCommandOutput,
-  type ListObjectsCommandOutput,
-  type GetObjectCommandOutput,
-  type PutObjectCommandOutput,
-  type DeleteObjectCommandOutput,
-} from '@aws-sdk/client-s3'
 import { useSettingsStore } from '@/stores/settings'
 import { APIError } from '../client'
 import type { S3Bucket, S3Object } from '../types/aws'
 
-let s3Client: S3Client | null = null
-
-function getS3Client(): S3Client {
+async function s3Request(action: string, body: object = {}): Promise<any> {
   const settingsStore = useSettingsStore()
-  const endpoint = settingsStore.endpoint
+  const endpoint = settingsStore.endpoint.replace(/\/$/, '')
 
-  s3Client = new S3Client({
-    endpoint,
-    region: settingsStore.region,
-    credentials: {
-      accessKeyId: settingsStore.accessKey,
-      secretAccessKey: settingsStore.secretKey,
-    },
-    forcePathStyle: true,
-    tls: false,
-  })
+  const url = `${endpoint}/s3/`
 
-  return s3Client
-}
+  try {
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Amz-Target': `s3.${action}`,
+      },
+      body: JSON.stringify(body),
+    })
 
-export function refreshS3Client(): void {
-  s3Client = null
-  getS3Client()
+    if (!response.ok) {
+      const errorText = await response.text()
+      throw new APIError(`S3 ${action} failed: ${errorText}`, response.status, 's3')
+    }
+
+    return response.json()
+  } catch (error) {
+    if (error instanceof APIError) throw error
+    console.error(`S3 ${action} error:`, error)
+    throw new APIError(`Failed to ${action}`, 500, 's3')
+  }
 }
 
 export class S3Service {
-  private getClient(): S3Client {
-    return getS3Client()
-  }
-
   async listBuckets(): Promise<S3Bucket[]> {
-    try {
-      const client = this.getClient()
-      const command = new ListBucketsCommand({})
-      const response: ListBucketsCommandOutput = await client.send(command)
-      
-      return (response.Buckets || []).map(bucket => ({
-        Name: bucket.Name || '',
-        CreationDate: bucket.CreationDate?.toISOString() || '',
-      }))
-    } catch (error) {
-      if (error instanceof APIError) throw error
-      console.error('List buckets error:', error)
-      throw new APIError('Failed to list buckets', 500, 's3')
-    }
+    const response = await s3Request('ListBuckets', {})
+    return (response.Buckets || []).map(bucket => ({
+      Name: bucket.Name || '',
+      CreationDate: bucket.CreationDate || '',
+    }))
   }
 
-  async createBucket(bucket: string, options?: {
-    enableCors?: boolean
-  }): Promise<CreateBucketCommandOutput> {
-    try {
-      const client = this.getClient()
-      const command = new CreateBucketCommand({
-        Bucket: bucket,
-        ...(options?.enableCors && {
-          CORSConfiguration: {
-            CORSRules: [
-              {
-                AllowedHeaders: ['*'],
-                AllowedMethods: ['GET', 'PUT', 'POST', 'DELETE', 'HEAD'],
-                AllowedOrigins: ['*'],
-                ExposeHeaders: ['x-amz-server-side-encryption', 'x-amz-request-id', 'x-amz-id-2'],
-                MaxAge: 3000,
-              },
-            ],
-          },
-        }),
-      })
-      return await client.send(command)
-    } catch (error) {
-      if (error instanceof APIError) throw error
-      throw new APIError(`Failed to create bucket: ${bucket}`, 500, 's3')
-    }
+  async createBucket(bucket: string): Promise<any> {
+    return s3Request('CreateBucket', { Bucket: bucket })
   }
 
   async deleteBucket(bucket: string): Promise<void> {
-    try {
-      const client = this.getClient()
-      const command = new DeleteBucketCommand({
-        Bucket: bucket,
-      })
-      await client.send(command)
-    } catch (error: any) {
-      console.error('S3 deleteBucket error:', error)
-      const errMsg = error.message || ''
-      if (error.$metadata?.statusCode === 409 || errMsg.includes('not empty') || errMsg.includes('BucketNotEmpty')) {
-        const msg = 'Bucket is not empty. Delete all objects first.'
-        throw new APIError(msg, 409, 's3')
-      }
-      if (error instanceof APIError) throw error
-      throw new APIError(`Failed to delete bucket: ${bucket}`, 500, 's3')
-    }
+    return s3Request('DeleteBucket', { Bucket: bucket })
   }
 
   async emptyBucket(bucket: string): Promise<void> {
-    try {
-      const client = this.getClient()
-      
-      // Delete all objects
-      let continuationToken: string | undefined
-      do {
-        const listCommand = new ListObjectsV2Command({
-          Bucket: bucket,
-          ContinuationToken: continuationToken,
-        })
-        const listResponse = await client.send(listCommand)
-        
-        if (listResponse.Contents && listResponse.Contents.length > 0) {
-          const deleteParams = {
-            Bucket: bucket,
-            Delete: {
-              Objects: listResponse.Contents.map((obj) => ({ Key: obj.Key! })),
-            },
-          }
-          await client.send(new DeleteObjectsCommand(deleteParams))
-        }
-        
-        continuationToken = listResponse.NextContinuationToken
-      } while (continuationToken)
-      
-    } catch (error: any) {
-      console.error('S3 emptyBucket error:', error)
-      throw new APIError(`Failed to empty bucket: ${bucket}`, 500, 's3')
-    }
+    // List and delete all objects
+    let continuationToken: string | undefined
+    do {
+      const params: any = { Bucket: bucket }
+      if (continuationToken) {
+        params.ContinuationToken = continuationToken
+      }
+      const listResponse = await s3Request('ListObjectsV2', params)
+
+      if (listResponse.Contents && listResponse.Contents.length > 0) {
+        const objects = listResponse.Contents.map((obj: any) => ({ Key: obj.Key }))
+        await s3Request('DeleteObjects', { Bucket: bucket, Delete: { Objects: objects } })
+      }
+
+      continuationToken = listResponse.NextContinuationToken
+    } while (continuationToken)
   }
 
-  async headBucket(bucket: string): Promise<Record<string, string>> {
-    try {
-      const client = this.getClient()
-      const command = new HeadBucketCommand({
-        Bucket: bucket,
-      })
-      const response = await client.send(command)
-      
-      const headers: Record<string, string> = {}
-      return headers
-    } catch (error) {
-      if (error instanceof APIError) throw error
-      throw new APIError(`Failed to head bucket: ${bucket}`, 500, 's3')
-    }
+  async headBucket(bucket: string): Promise<void> {
+    return s3Request('HeadBucket', { Bucket: bucket })
   }
 
   async listObjects(
@@ -179,37 +86,24 @@ export class S3Service {
       maxKeys?: number
     }
   ): Promise<{ objects: S3Object[]; prefixes: string[]; isTruncated: boolean; nextMarker?: string }> {
-    try {
-      const client = this.getClient()
-      const command = new ListObjectsCommand({
-        Bucket: bucket,
-        Prefix: options?.prefix,
-        Delimiter: options?.delimiter,
-        Marker: options?.marker,
-        MaxKeys: options?.maxKeys,
-      })
-      
-      const response: ListObjectsCommandOutput = await client.send(command)
-      
-      const objects = (response.Contents || []).map(obj => ({
-        Key: obj.Key || '',
-        LastModified: obj.LastModified?.toISOString() || '',
-        Size: obj.Size || 0,
-        ETag: obj.ETag?.replace(/"/g, '') || '',
-        StorageClass: obj.StorageClass || 'STANDARD',
-      }))
-      
-      const prefixes = (response.CommonPrefixes || []).map(p => p.Prefix || '')
-      
-      return {
-        objects,
-        prefixes,
-        isTruncated: response.IsTruncated || false,
-        nextMarker: response.NextMarker,
-      }
-    } catch (error) {
-      if (error instanceof APIError) throw error
-      throw new APIError(`Failed to list objects in bucket: ${bucket}`, 500, 's3')
+    const params: any = { Bucket: bucket, ...options }
+    const response = await s3Request('ListObjectsV2', params)
+
+    const objects = (response.Contents || []).map(obj => ({
+      Key: obj.Key || '',
+      LastModified: obj.LastModified || '',
+      Size: obj.Size || 0,
+      ETag: obj.ETag?.replace(/"/g, '') || '',
+      StorageClass: obj.StorageClass || 'STANDARD',
+    }))
+
+    const prefixes = (response.CommonPrefixes || []).map((p: any) => p.Prefix || '')
+
+    return {
+      objects,
+      prefixes,
+      isTruncated: response.IsTruncated || false,
+      nextMarker: response.NextContinuationToken,
     }
   }
 
@@ -218,91 +112,40 @@ export class S3Service {
     contentType: string
     metadata: Record<string, string>
   }> {
-    try {
-      const client = this.getClient()
-      const command = new GetObjectCommand({
-        Bucket: bucket,
-        Key: key,
-      })
-      
-      const response: GetObjectCommandOutput = await client.send(command)
-      
-      const contentType = response.ContentType || 'application/octet-stream'
-      let body = ''
-      
-      if (response.Body) {
-        body = await response.Body.transformToString()
-      }
-      
-      return {
-        body,
-        contentType,
-        metadata: response.Metadata || {},
-      }
-    } catch (error) {
-      if (error instanceof APIError) throw error
-      throw new APIError(`Failed to get object: ${key}`, 500, 's3')
+    const response = await s3Request('GetObject', { Bucket: bucket, Key: key })
+
+    return {
+      body: response.Body || '',
+      contentType: response.ContentType || 'application/octet-stream',
+      metadata: response.Metadata || {},
     }
   }
 
   async putObject(
     bucket: string,
     key: string,
-    body: string | Uint8Array | Blob,
+    body: string | Uint8Array,
     contentType?: string
-  ): Promise<PutObjectCommandOutput> {
-    try {
-      const client = this.getClient()
-      const command = new PutObjectCommand({
-        Bucket: bucket,
-        Key: key,
-        Body: body,
-        ContentType: contentType,
-      })
-      
-      return await client.send(command)
-    } catch (error) {
-      if (error instanceof APIError) throw error
-      throw new APIError(`Failed to upload object: ${key}`, 500, 's3')
-    }
+  ): Promise<any> {
+    return s3Request('PutObject', {
+      Bucket: bucket,
+      Key: key,
+      Body: body,
+      ContentType: contentType,
+    })
   }
 
-  async deleteObject(bucket: string, key: string): Promise<DeleteObjectCommandOutput> {
-    try {
-      const client = this.getClient()
-      const command = new DeleteObjectCommand({
-        Bucket: bucket,
-        Key: key,
-      })
-      
-      return await client.send(command)
-    } catch (error) {
-      if (error instanceof APIError) throw error
-      throw new APIError(`Failed to delete object: ${key}`, 500, 's3')
-    }
+  async deleteObject(bucket: string, key: string): Promise<any> {
+    return s3Request('DeleteObject', { Bucket: bucket, Key: key })
   }
 
   async headObject(bucket: string, key: string): Promise<Record<string, string>> {
-    try {
-      const client = this.getClient()
-      const command = new HeadObjectCommand({
-        Bucket: bucket,
-        Key: key,
-      })
-      
-      const response = await client.send(command)
-      
-      const metadata: Record<string, string> = {
-        contentLength: String(response.ContentLength || 0),
-        contentType: response.ContentType || '',
-        etag: response.ETag?.replace(/"/g, '') || '',
-        lastModified: response.LastModified?.toISOString() || '',
-      }
-      
-      return metadata
-    } catch (error) {
-      if (error instanceof APIError) throw error
-      throw new APIError(`Failed to head object: ${key}`, 500, 's3')
+    const response = await s3Request('HeadObject', { Bucket: bucket, Key: key })
+    return {
+      contentLength: String(response.ContentLength || 0),
+      contentType: response.ContentType || '',
+      etag: response.ETag?.replace(/"/g, '') || '',
+      lastModified: response.LastModified || '',
     }
   }
 }
@@ -310,28 +153,31 @@ export class S3Service {
 export const s3Service = new S3Service()
 
 export const listBuckets = () => s3Service.listBuckets()
-export const createBucket = (bucket: string, options?: { enableCors?: boolean }) => 
-  s3Service.createBucket(bucket, options)
+export const createBucket = (bucket: string) => s3Service.createBucket(bucket)
 export const deleteBucket = (bucket: string) => s3Service.deleteBucket(bucket)
 export const emptyBucket = (bucket: string) => s3Service.emptyBucket(bucket)
 export const headBucket = (bucket: string) => s3Service.headBucket(bucket)
 export const headObject = (bucket: string, key: string) => s3Service.headObject(bucket, key)
-export const listObjects = (bucket: string, options?: Parameters<S3Service['listObjects']>[1]) => 
+export const listObjects = (bucket: string, options?: Parameters<S3Service['listObjects']>[1]) =>
   s3Service.listObjects(bucket, options)
-export const listObjectsV2 = (bucket: string, options?: Parameters<S3Service['listObjects']>[1]) => 
+export const listObjectsV2 = (bucket: string, options?: Parameters<S3Service['listObjects']>[1]) =>
   s3Service.listObjects(bucket, options)
 export const getObject = (bucket: string, key: string) => s3Service.getObject(bucket, key)
-export const putObject = (bucket: string, key: string, body: string | Uint8Array | Blob, contentType?: string) => 
+export const putObject = (bucket: string, key: string, body: string | Uint8Array, contentType?: string) =>
   s3Service.putObject(bucket, key, body, contentType)
 export const deleteObject = (bucket: string, key: string) => s3Service.deleteObject(bucket, key)
 
-export const createFolder = async (bucket: string, folderPath: string): Promise<PutObjectCommandOutput> => {
+export const createFolder = async (bucket: string, folderPath: string) => {
   const path = folderPath.endsWith('/') ? folderPath : `${folderPath}/`
-  return s3Service.putObject(bucket, path, new Blob([''], { type: 'application/directory' }), 'application/directory')
+  return s3Service.putObject(bucket, path, '', 'application/directory')
 }
 
-export const getPresignedUrl = (bucket: string, key: string): string => {
+export const getPresignedUrl = (bucket: string, key: string) => {
   return `/${bucket}/${key}`
+}
+
+export function refreshS3Client(): void {
+  // No-op: HTTP-based implementation reads endpoint directly from settings
 }
 
 export default s3Service

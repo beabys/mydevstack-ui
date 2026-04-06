@@ -29,14 +29,20 @@ const showDeleteModal = ref(false)
 const showDetailsModal = ref(false)
 const showExamples = ref(false)
 
+// Default role ARN for LocalStack/Floci
+const DEFAULT_ROLE_ARN = 'arn:aws:iam::123456789012:role/test'
+
 // Form state
 const createForm = ref({
   functionName: '',
-  runtime: 'nodejs18.x',
+  runtime: 'nodejs22.x',
   handler: 'index.handler',
   memory: 128,
   timeout: 30,
-  roleArn: '',
+  roleArn: DEFAULT_ROLE_ARN,
+  zipFile: null as File | null,
+  architecture: 'amd64',
+  environment: '',
 })
 
 const invokeForm = ref({
@@ -54,17 +60,34 @@ const invokeLoading = ref(false)
 const creating = ref(false)
 const updating = ref(false)
 
-// Runtime options
+// Runtime options (official AWS Lambda runtimes)
 const runtimeOptions = [
-  { value: 'nodejs18.x', label: 'Node.js 18.x' },
-  { value: 'nodejs20.x', label: 'Node.js 20.x' },
-  { value: 'python3.9', label: 'Python 3.9' },
-  { value: 'python3.10', label: 'Python 3.10' },
-  { value: 'python3.11', label: 'Python 3.11' },
+  // Node.js
+  { value: 'nodejs22.x', label: 'Node.js 22' },
+  { value: 'nodejs20.x', label: 'Node.js 20' },
+  // Python
+  { value: 'python3.14', label: 'Python 3.14' },
+  { value: 'python3.13', label: 'Python 3.13' },
   { value: 'python3.12', label: 'Python 3.12' },
-  { value: 'go1.x', label: 'Go 1.x' },
+  { value: 'python3.11', label: 'Python 3.11' },
+  // Java
+  { value: 'java21', label: 'Java 21' },
   { value: 'java17', label: 'Java 17' },
+  { value: 'java11', label: 'Java 11' },
+  // .NET
+  { value: 'dotnet8', label: '.NET 8' },
   { value: 'dotnet6', label: '.NET 6' },
+  // Ruby
+  { value: 'ruby3.3', label: 'Ruby 3.3' },
+  // Go / Custom Runtimes
+  { value: 'provided.al2023', label: 'provided.al2023' },
+  { value: 'provided.al2', label: 'provided.al2' },
+]
+
+// Architecture options
+const architectureOptions = [
+  { value: 'amd64', label: 'x86_64 (amd64)' },
+  { value: 'arm64', label: 'arm64' },
 ]
 
 const invocationTypes = [
@@ -92,12 +115,12 @@ const codeExamples = computed(() => [
 aws lambda list-functions --endpoint-url ${settingsStore.endpoint}
 
 # Create function
-aws lambda create-function \\
-  --function-name my-function \\
-  --runtime nodejs18.x \\
-  --handler index.handler \\
-  --role arn:aws:iam::123456789012:role/lambda-role \\
-  --zip-file fileb://function.zip \\
+aws lambda create-function \
+  --function-name my-function \
+  --runtime nodejs22.x \
+  --handler index.handler \
+  --role arn:aws:iam::123456789012:role/lambda-role \
+  --zip-file fileb://function.zip \
   --endpoint-url ${settingsStore.endpoint}
 
 # Invoke function
@@ -142,7 +165,7 @@ console.log(listResponse.Functions);
 // Create function
 await client.send(new CreateFunctionCommand({
   FunctionName: 'my-function',
-  Runtime: 'nodejs18.x',
+  Runtime: 'nodejs22.x',
   Handler: 'index.handler',
   Role: 'arn:aws:iam::123456789012:role/lambda-role',
   Code: { ZipFile: fs.readFileSync('function.zip') },
@@ -239,6 +262,13 @@ async function loadFunctions() {
   }
 }
 
+function handleZipFileChange(event: Event) {
+  const target = event.target as HTMLInputElement
+  if (target.files && target.files.length > 0) {
+    createForm.value.zipFile = target.files[0]
+  }
+}
+
 async function createFunction() {
   if (!createForm.value.functionName.trim()) {
     toast.error('Function name is required')
@@ -247,23 +277,47 @@ async function createFunction() {
 
   creating.value = true
   try {
+    // Handle ZIP file if selected
+    let zipFileData: Uint8Array | undefined
+    if (createForm.value.zipFile) {
+      zipFileData = await createForm.value.zipFile.arrayBuffer().then(buf => new Uint8Array(buf))
+    }
+
+    // Parse environment variables if provided
+    let environment: { Variables: Record<string, string> } | undefined
+    if (createForm.value.environment.trim()) {
+      try {
+        environment = { Variables: JSON.parse(createForm.value.environment) }
+      } catch {
+        toast.error('Invalid environment JSON format')
+        creating.value = false
+        return
+      }
+    }
+
     await lambda.createFunction({
       FunctionName: createForm.value.functionName,
       Runtime: createForm.value.runtime,
       Handler: createForm.value.handler,
       MemorySize: createForm.value.memory,
       Timeout: createForm.value.timeout,
-      Role: createForm.value.roleArn || undefined,
+      Role: createForm.value.roleArn,
+      Code: zipFileData ? { ZipFile: zipFileData } : undefined,
+      Architectures: [createForm.value.architecture],
+      Environment: environment,
     })
     toast.success('Function created successfully')
     showCreateModal.value = false
     createForm.value = {
       functionName: '',
-      runtime: 'nodejs18.x',
+      runtime: 'nodejs22.x',
       handler: 'index.handler',
       memory: 128,
       timeout: 30,
-      roleArn: '',
+      roleArn: DEFAULT_ROLE_ARN,
+      zipFile: null,
+      architecture: 'amd64',
+      environment: '',
     }
     loadFunctions()
   } catch (error) {
@@ -285,9 +339,6 @@ function openInvokeModal(func: LambdaFunction) {
 }
 
 async function invokeFunction() {
-  if (!selectedFunction.value) return
-
-  invokeLoading.value = true
   invokeResult.value = ''
   try {
     let payload: unknown
@@ -304,7 +355,7 @@ async function invokeFunction() {
         invocationType: invokeForm.value.invocationType as 'RequestResponse' | 'Event' | 'DryRun',
       }
     )
-    invokeResult.value = response.Payload || 'Success (no output)'
+    invokeResult.value = response?.payload || response?.Payload || 'Success (no output)'
   } catch (error) {
     console.error('Error invoking function:', error)
     invokeResult.value = `Error: ${error instanceof Error ? error.message : 'Unknown error'}`
@@ -425,45 +476,6 @@ onMounted(() => {
 
     <!-- Content -->
     <div class="flex-1 overflow-auto p-6">
-      <!-- Usage Examples -->
-      <div class="mb-6">
-        <h2
-          class="text-lg font-semibold mb-4"
-          :class="settingsStore.darkMode ? 'text-white' : 'text-gray-900'"
-        >
-          Usage Examples
-        </h2>
-        <div
-          class="rounded-lg border overflow-hidden"
-          :class="settingsStore.darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'"
-        >
-          <div
-            class="flex border-b"
-            :class="settingsStore.darkMode ? 'border-gray-700' : 'border-gray-200'"
-          >
-            <button
-              v-for="(example, index) in codeExamples"
-              :key="example.language"
-              class="px-4 py-2 text-sm font-medium transition-colors"
-              :class="[
-                selectedExample === index
-                  ? settingsStore.darkMode ? 'bg-gray-700 text-white' : 'bg-gray-100 text-gray-900'
-                  : settingsStore.darkMode ? 'text-gray-400 hover:text-white hover:bg-gray-700' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
-              ]"
-              @click="selectedExample = index"
-            >
-              {{ example.label }}
-            </button>
-          </div>
-          <div class="p-4 overflow-x-auto">
-            <pre
-              class="text-sm font-mono"
-              :class="settingsStore.darkMode ? 'text-gray-300' : 'text-gray-700'"
-            >{{ codeExamples[selectedExample].code }}</pre>
-          </div>
-        </div>
-      </div>
-
       <!-- Loading State -->
       <div
         v-if="loading"
@@ -558,6 +570,45 @@ onMounted(() => {
           </div>
         </template>
       </DataTable>
+
+      <!-- Usage Examples -->
+      <div class="mt-6">
+        <h2
+          class="text-lg font-semibold mb-4"
+          :class="settingsStore.darkMode ? 'text-white' : 'text-gray-900'"
+        >
+          Usage Examples
+        </h2>
+        <div
+          class="rounded-lg border overflow-hidden"
+          :class="settingsStore.darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'"
+        >
+          <div
+            class="flex border-b"
+            :class="settingsStore.darkMode ? 'border-gray-700' : 'border-gray-200'"
+          >
+            <button
+              v-for="(example, index) in codeExamples"
+              :key="example.language"
+              class="px-4 py-2 text-sm font-medium transition-colors"
+              :class="[
+                selectedExample === index
+                  ? settingsStore.darkMode ? 'bg-gray-700 text-white' : 'bg-gray-100 text-gray-900'
+                  : settingsStore.darkMode ? 'text-gray-400 hover:text-white hover:bg-gray-700' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+              ]"
+              @click="selectedExample = index"
+            >
+              {{ example.label }}
+            </button>
+          </div>
+          <div class="p-4 overflow-x-auto">
+            <pre
+              class="text-sm font-mono"
+              :class="settingsStore.darkMode ? 'text-gray-300' : 'text-gray-700'"
+            >{{ codeExamples[selectedExample].code }}</pre>
+          </div>
+        </div>
+      </div>
     </div>
 
     <!-- Create Function Modal -->
@@ -612,8 +663,41 @@ onMounted(() => {
         <FormInput
           v-model="createForm.roleArn"
           label="Role ARN"
-          placeholder="arn:aws:iam::123456789012:role/lambda-role (optional)"
+          placeholder="arn:aws:iam::123456789012:role/test"
         />
+        <FormSelect
+          v-model="createForm.architecture"
+          label="Architecture"
+          :options="architectureOptions"
+        />
+        <FormInput
+          v-model="createForm.environment"
+          label="Environment (optional)"
+          placeholder="{&quot;KEY&quot;: &quot;value&quot;}"
+        />
+        <div>
+          <label class="block text-sm font-medium text-light-text dark:text-dark-text mb-1.5">
+            ZIP File (optional)
+          </label>
+          <input
+            type="file"
+            accept=".zip"
+            class="w-full text-sm text-light-text dark:text-dark-text
+              file:mr-4 file:py-2 file:px-4
+              file:rounded file:border-0
+              file:text-sm file:font-semibold
+              file:bg-primary file:text-white
+              file:cursor-pointer
+              hover:file:bg-primary-dark"
+            @change="handleZipFileChange"
+          >
+          <p
+            v-if="createForm.zipFile"
+            class="mt-1 text-xs text-light-muted dark:text-dark-muted"
+          >
+            Selected: {{ createForm.zipFile.name }} ({{ (createForm.zipFile.size / 1024).toFixed(1) }} KB)
+          </p>
+        </div>
       </div>
       <template #footer>
         <div class="flex justify-end gap-2">

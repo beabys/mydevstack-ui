@@ -13,6 +13,7 @@ interface Props {
   closeOnBackdrop?: boolean
   closeOnEsc?: boolean
   showHeader?: boolean
+  zIndex?: number
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -21,6 +22,7 @@ const props = withDefaults(defineProps<Props>(), {
   closeOnBackdrop: true,
   closeOnEsc: true,
   showHeader: true,
+  zIndex: 50,
 })
 
 const emit = defineEmits<{
@@ -152,7 +154,8 @@ onUnmounted(() => {
       as="template"
     >
       <div
-        class="fixed inset-0 z-50 flex items-center justify-center p-4"
+        class="fixed inset-0 flex items-center justify-center p-4"
+        :style="{ zIndex: zIndex }"
         @click="handleBackdropClick"
       >
         <!-- Backdrop -->

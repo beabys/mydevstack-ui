@@ -50,12 +50,12 @@ const routes: RouteRecordRaw[] = [
     meta: { title: 'SNS', service: 'sns' },
   },
   // IAM
-  // {
-  //   path: '/services/iam',
-  //   name: 'IAM',
-  //   component: () => import('@/views/services/IAM.vue'),
-  //   meta: { title: 'IAM', service: 'iam' },
-  // },
+  {
+    path: '/services/iam',
+    name: 'IAM',
+    component: () => import('@/views/services/IAM.vue'),
+    meta: { title: 'IAM', service: 'iam' },
+  },
   // KMS
   {
     path: '/services/kms',
@@ -69,34 +69,6 @@ const routes: RouteRecordRaw[] = [
     name: 'SecretsManager',
     component: () => import('@/views/services/SecretsManager.vue'),
     meta: { title: 'Secrets Manager', service: 'secretsmanager' },
-  },
-  // EventBridge
-  {
-    path: '/services/eventbridge',
-    name: 'EventBridge',
-    component: () => import('@/views/services/EventBridge.vue'),
-    meta: { title: 'EventBridge', service: 'eventbridge' },
-  },
-  // CloudWatch
-  {
-    path: '/services/cloudwatch',
-    name: 'CloudWatch',
-    component: () => import('@/views/services/CloudWatch.vue'),
-    meta: { title: 'CloudWatch', service: 'cloudwatch' },
-  },
-  // Step Functions
-  {
-    path: '/services/step-functions',
-    name: 'StepFunctions',
-    component: () => import('@/views/services/StepFunctions.vue'),
-    meta: { title: 'Step Functions', service: 'stepfunctions' },
-  },
-  // Cognito
-  {
-    path: '/services/cognito',
-    name: 'Cognito',
-    component: () => import('@/views/services/Cognito.vue'),
-    meta: { title: 'Cognito', service: 'cognito' },
   },
   // API Gateway
   {

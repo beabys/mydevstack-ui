@@ -261,7 +261,6 @@ async function deleteBucket(name: string) {
     toast.success(`Bucket "${name}" deleted successfully`)
     await loadBuckets()
   } catch (e: any) {
-    console.error('Delete bucket error:', e)
     const errMsg = e.message || ''
     if (e.name === 'BucketNotEmpty' || e.statusCode === 409 || errMsg.includes('not empty') || errMsg.includes('BucketNotEmpty')) {
       toast.error('Conflict: Cannot delete bucket - Bucket is not empty. Delete all objects first.')
