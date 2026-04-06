@@ -1,527 +1,44 @@
 /**
  * DynamoDB Service API Client
- * AWS SDK v3 implementation for DynamoDB
+ * Simple HTTP client for DynamoDB via Go proxy
  * @module api/services/dynamodb
  */
 
-import {
-  DynamoDBClient,
-  CreateTableCommand,
-  DeleteTableCommand,
-  DescribeTableCommand,
-  ListTablesCommand,
-  UpdateTableCommand,
-  PutItemCommand,
-  GetItemCommand,
-  DeleteItemCommand,
-  UpdateItemCommand,
-  QueryCommand,
-  ScanCommand,
-  BatchWriteItemCommand,
-  BatchGetItemCommand,
-  DescribeTimeToLiveCommand,
-  UpdateTimeToLiveCommand,
-  type CreateTableCommandOutput,
-  type DeleteTableCommandOutput,
-  type DescribeTableCommandOutput,
-  type ListTablesCommandOutput,
-  type UpdateTableCommandOutput,
-  type PutItemCommandOutput,
-  type GetItemCommandOutput,
-  type DeleteItemCommandOutput,
-  type UpdateItemCommandOutput,
-  type QueryCommandOutput,
-  type ScanCommandOutput,
-  type BatchWriteItemCommandOutput,
-  type BatchGetItemCommandOutput,
-  type DescribeTimeToLiveCommandOutput,
-  type UpdateTimeToLiveCommandOutput,
-} from '@aws-sdk/client-dynamodb'
-import { DynamoDBDocumentClient, QueryCommand as QueryCommandDoc, ScanCommand as ScanCommandDoc, PutCommand, GetCommand, DeleteCommand, UpdateCommand } from '@aws-sdk/lib-dynamodb'
 import { useSettingsStore } from '@/stores/settings'
 import { APIError } from '../client'
 
-let dynamodbClient: DynamoDBClient | null = null
-let cachedEndpoint: string | null = null
-
-function getDynamoDBClient(): DynamoDBClient {
+async function dynamoDBRequest(action: string, body: object = {}): Promise<any> {
   const settingsStore = useSettingsStore()
-  let endpoint = settingsStore.endpoint
-  if (endpoint.endsWith('/')) {
-    endpoint = endpoint.slice(0, -1)
-  }
-  
-  // Recreate client if endpoint changed
-  if (!dynamodbClient || cachedEndpoint !== endpoint) {
-    dynamodbClient = new DynamoDBClient({
-      endpoint,
-      region: settingsStore.region,
-      credentials: {
-        accessKeyId: settingsStore.accessKey,
-        secretAccessKey: settingsStore.secretKey,
+  const endpoint = settingsStore.endpoint.replace(/\/$/, '')
+
+  const url = `${endpoint}/dynamodb/`
+
+  try {
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Amz-Target': `dynamodb.${action}`,
       },
-      tls: false,
+      body: JSON.stringify(body),
     })
-    cachedEndpoint = endpoint
-  }
-  
-  return dynamodbClient
-}
 
-let docClient: DynamoDBDocumentClient | null = null
+    if (!response.ok) {
+      const errorText = await response.text()
+      throw new APIError(`DynamoDB ${action} failed: ${errorText}`, response.status, 'dynamodb')
+    }
 
-function getDocClient(): DynamoDBDocumentClient {
-  if (!docClient) {
-    docClient = DynamoDBDocumentClient.from(getDynamoDBClient(), {
-      marshallOptions: {
-        removeUndefinedValues: true,
-      },
-    })
-  }
-  return docClient
-}
-
-export function refreshDynamoDBClient(): void {
-  dynamodbClient = null
-  docClient = null
-  getDynamoDBClient()
-}
-
-export class DynamoDBService {
-  private getClient(): DynamoDBClient {
-    return getDynamoDBClient()
-  }
-
-  private getDocClient(): DynamoDBDocumentClient {
-    return getDocClient()
-  }
-
-  async createTable(request: {
-    TableName: string
-    KeySchema: { AttributeName: string; KeyType: 'HASH' | 'RANGE' }[]
-    AttributeDefinitions: { AttributeName: string; AttributeType: 'S' | 'N' | 'B' }[]
-    ProvisionedThroughput?: { ReadCapacityUnits: number; WriteCapacityUnits: number }
-    BillingMode?: 'PROVISIONED' | 'PAY_PER_REQUEST'
-    GlobalSecondaryIndexes?: any[]
-    StreamSpecification?: { StreamEnabled: boolean; StreamViewType?: any }
-  }): Promise<any> {
-    try {
-      const client = this.getClient()
-      const command = new CreateTableCommand(request)
-      const response: CreateTableCommandOutput = await client.send(command)
-      return response
-    } catch (error) {
-      if (error instanceof APIError) throw error
-      throw new APIError(`Failed to create table: ${request.TableName}`, 500, 'dynamodb')
-    }
-  }
-
-  async deleteTable(tableName: string): Promise<void> {
-    try {
-      const client = this.getClient()
-      const command = new DeleteTableCommand({ TableName: tableName })
-      await client.send(command)
-    } catch (error) {
-      if (error instanceof APIError) throw error
-      throw new APIError(`Failed to delete table: ${tableName}`, 500, 'dynamodb')
-    }
-  }
-
-  async describeTable(tableName: string): Promise<any> {
-    try {
-      const client = this.getClient()
-      const command = new DescribeTableCommand({ TableName: tableName })
-      const response: DescribeTableCommandOutput = await client.send(command)
-      return response
-    } catch (error) {
-      if (error instanceof APIError) throw error
-      throw new APIError(`Failed to describe table: ${tableName}`, 500, 'dynamodb')
-    }
-  }
-
-  async listTables(options?: {
-    ExclusiveStartTableName?: string
-    Limit?: number
-  }): Promise<{ TableNames: string[]; LastEvaluatedTableName?: string }> {
-    try {
-      const client = this.getClient()
-      const command = new ListTablesCommand(options)
-      const response: ListTablesCommandOutput = await client.send(command)
-      return {
-        TableNames: response.TableNames || [],
-        LastEvaluatedTableName: response.LastEvaluatedTableName,
-      }
-    } catch (error) {
-      if (error instanceof APIError) throw error
-      throw new APIError('Failed to list tables', 500, 'dynamodb')
-    }
-  }
-
-  async updateTable(
-    tableName: string,
-    updates: {
-      AttributeDefinitions?: any[]
-      BillingMode?: 'PROVISIONED' | 'PAY_PER_REQUEST'
-      ProvisionedThroughput?: { ReadCapacityUnits: number; WriteCapacityUnits: number }
-      GlobalSecondaryIndexUpdates?: any[]
-      StreamSpecification?: { StreamEnabled: boolean; StreamViewType?: any }
-    }
-  ): Promise<any> {
-    try {
-      const client = this.getClient()
-      const command = new UpdateTableCommand({ TableName: tableName, ...updates })
-      const response: UpdateTableCommandOutput = await client.send(command)
-      return response
-    } catch (error) {
-      if (error instanceof APIError) throw error
-      throw new APIError(`Failed to update table: ${tableName}`, 500, 'dynamodb')
-    }
-  }
-
-  async putItem(
-    tableName: string,
-    item: Record<string, any>,
-    options?: {
-      ConditionExpression?: string
-      ExpressionAttributeNames?: Record<string, string>
-      ExpressionAttributeValues?: Record<string, any>
-      ReturnValues?: 'NONE' | 'ALL_OLD' | 'ALL_NEW' | 'UPDATED_OLD' | 'UPDATED_NEW'
-    }
-  ): Promise<any> {
-    try {
-      const client = this.getDocClient()
-      const command = new PutCommand({
-        TableName: tableName,
-        Item: item,
-        ...options,
-      })
-      const response = await client.send(command)
-      return response
-    } catch (error) {
-      if (error instanceof APIError) throw error
-      throw new APIError(`Failed to put item in table: ${tableName}`, 500, 'dynamodb')
-    }
-  }
-
-  async getItem(
-    tableName: string,
-    key: Record<string, any>,
-    options?: {
-      ProjectionExpression?: string
-      ExpressionAttributeNames?: Record<string, string>
-      ConsistentRead?: boolean
-    }
-  ): Promise<{ Item?: Record<string, any> }> {
-    try {
-      const client = this.getDocClient()
-      const command = new GetCommand({
-        TableName: tableName,
-        Key: key,
-        ...options,
-      })
-      const response = await client.send(command)
-      return { Item: response.Item }
-    } catch (error) {
-      if (error instanceof APIError) throw error
-      throw new APIError(`Failed to get item from table: ${tableName}`, 500, 'dynamodb')
-    }
-  }
-
-  async deleteItem(
-    tableName: string,
-    key: Record<string, any>,
-    options?: {
-      ConditionExpression?: string
-      ExpressionAttributeNames?: Record<string, string>
-      ExpressionAttributeValues?: Record<string, any>
-      ReturnValues?: 'NONE' | 'ALL_OLD' | 'ALL_NEW' | 'UPDATED_OLD' | 'UPDATED_NEW'
-    }
-  ): Promise<any> {
-    try {
-      const client = this.getDocClient()
-      const command = new DeleteCommand({
-        TableName: tableName,
-        Key: key,
-        ...options,
-      })
-      const response = await client.send(command)
-      return response
-    } catch (error) {
-      if (error instanceof APIError) throw error
-      throw new APIError(`Failed to delete item from table: ${tableName}`, 500, 'dynamodb')
-    }
-  }
-
-  async updateItem(
-    tableName: string,
-    key: Record<string, any>,
-    updates: {
-      UpdateExpression: string
-      ExpressionAttributeNames?: Record<string, string>
-      ExpressionAttributeValues?: Record<string, any>
-    },
-    options?: {
-      ConditionExpression?: string
-      ReturnValues?: 'NONE' | 'ALL_OLD' | 'ALL_NEW' | 'UPDATED_OLD' | 'UPDATED_NEW'
-    }
-  ): Promise<any> {
-    try {
-      const client = this.getDocClient()
-      const command = new UpdateCommand({
-        TableName: tableName,
-        Key: key,
-        ...updates,
-        ...options,
-      })
-      const response = await client.send(command)
-      return response
-    } catch (error) {
-      if (error instanceof APIError) throw error
-      throw new APIError(`Failed to update item in table: ${tableName}`, 500, 'dynamodb')
-    }
-  }
-
-  async query(
-    tableName: string,
-    params: {
-      KeyConditionExpression: string
-      ExpressionAttributeValues?: Record<string, any>
-      ExpressionAttributeNames?: Record<string, string>
-      FilterExpression?: string
-      ProjectionExpression?: string
-      ScanIndexForward?: boolean
-      Limit?: number
-      ExclusiveStartKey?: Record<string, any>
-    }
-  ): Promise<{ Items: Record<string, any>[]; Count: number; ScannedCount: number; LastEvaluatedKey?: Record<string, any> }> {
-    try {
-      const client = this.getDocClient()
-      const command = new QueryCommandDoc({
-        TableName: tableName,
-        ...params,
-      })
-      const response = await client.send(command)
-      return {
-        Items: response.Items || [],
-        Count: response.Count || 0,
-        ScannedCount: response.ScannedCount || 0,
-        LastEvaluatedKey: response.LastEvaluatedKey,
-      }
-    } catch (error) {
-      if (error instanceof APIError) throw error
-      throw new APIError(`Failed to query table: ${tableName}`, 500, 'dynamodb')
-    }
-  }
-
-  async scan(
-    tableName: string,
-    params?: {
-      FilterExpression?: string
-      ExpressionAttributeValues?: Record<string, any>
-      ExpressionAttributeNames?: Record<string, string>
-      ProjectionExpression?: string
-      Limit?: number
-      ExclusiveStartKey?: Record<string, any>
-    }
-  ): Promise<{ Items: Record<string, any>[]; Count: number; ScannedCount: number; LastEvaluatedKey?: Record<string, any> }> {
-    try {
-      const client = this.getDocClient()
-      const command = new ScanCommandDoc({
-        TableName: tableName,
-        ...params,
-      })
-      const response = await client.send(command)
-      return {
-        Items: response.Items || [],
-        Count: response.Count || 0,
-        ScannedCount: response.ScannedCount || 0,
-        LastEvaluatedKey: response.LastEvaluatedKey,
-      }
-    } catch (error: any) {
-      console.error('DynamoDB scan error:', error)
-      console.error('DynamoDB scan status:', error.$metadata?.statusCode)
-      console.error('DynamoDB scan response:', error.$response?.body)
-      if (error instanceof APIError) throw error
-      throw new APIError(`Failed to scan table: ${error.message || error}`, 500, 'dynamodb')
-    }
-  }
-
-  async getItems(
-    tableName: string,
-    options?: {
-      limit?: number
-      startKey?: Record<string, any>
-    }
-  ): Promise<{ items: Record<string, any>[]; lastKey: Record<string, any> | null }> {
-    try {
-      const client = this.getDocClient()
-      const command = new ScanCommandDoc({
-        TableName: tableName,
-        Limit: options?.limit,
-        ExclusiveStartKey: options?.startKey,
-      })
-      const response = await client.send(command)
-      return {
-        items: response.Items || [],
-        lastKey: response.LastEvaluatedKey || null,
-      }
-    } catch (error) {
-      if (error instanceof APIError) throw error
-      throw new APIError(`Failed to get items from table: ${tableName}`, 500, 'dynamodb')
-    }
-  }
-
-  async batchWriteItem(
-    tableName: string,
-    items: Array<{
-      DeleteRequest?: { Key: Record<string, any> }
-      PutRequest?: { Item: Record<string, any> }
-    }>
-  ): Promise<any> {
-    try {
-      const client = this.getClient()
-      const command = new BatchWriteItemCommand({
-        RequestItems: {
-          [tableName]: items,
-        },
-      })
-      const response: BatchWriteItemCommandOutput = await client.send(command)
-      return response
-    } catch (error) {
-      if (error instanceof APIError) throw error
-      throw new APIError(`Failed to batch write to table: ${tableName}`, 500, 'dynamodb')
-    }
-  }
-
-  async batchGetItem(
-    tableName: string,
-    keys: Record<string, any>[],
-    options?: {
-      ProjectionExpression?: string
-      ExpressionAttributeNames?: Record<string, string>
-    }
-  ): Promise<{ Responses?: Record<string, any>[] }> {
-    try {
-      const client = this.getDocClient()
-      const command = new BatchGetItemCommand({
-        RequestItems: {
-          [tableName]: {
-            Keys: keys,
-            ...options,
-          },
-        },
-      })
-      const response = await client.send(command)
-      return { Responses: response.Responses?.[tableName] }
-    } catch (error) {
-      if (error instanceof APIError) throw error
-      throw new APIError(`Failed to batch get from table: ${tableName}`, 500, 'dynamodb')
-    }
-  }
-
-  async getTimeToLive(tableName: string): Promise<any> {
-    try {
-      const client = this.getClient()
-      const command = new DescribeTimeToLiveCommand({ TableName: tableName })
-      const response = await client.send(command)
-      return response
-    } catch (error) {
-      if (error instanceof APIError) throw error
-      throw new APIError('Failed to get time to live', 500, 'dynamodb')
-    }
-  }
-
-  async updateTimeToLive(tableName: string, enabled: boolean, attributeName: string): Promise<any> {
-    try {
-      const client = this.getClient()
-      const command = new UpdateTimeToLiveCommand({
-        TableName: tableName,
-        TimeToLiveSpecification: {
-          Enabled: enabled,
-          AttributeName: attributeName,
-        },
-      })
-      const response: UpdateTimeToLiveCommandOutput = await client.send(command)
-      return response
-    } catch (error) {
-      if (error instanceof APIError) throw error
-      throw new APIError('Failed to update time to live', 500, 'dynamodb')
-    }
-  }
-
-  async getStreamSpecification(tableName: string): Promise<{ StreamEnabled: boolean; StreamViewType?: string }> {
-    try {
-      const tableDesc = await this.describeTable(tableName)
-      return tableDesc.Table?.StreamSpecification || { StreamEnabled: false }
-    } catch (error) {
-      if (error instanceof APIError) throw error
-      throw new APIError(`Failed to get stream specification for table: ${tableName}`, 500, 'dynamodb')
-    }
+    return response.json()
+  } catch (error) {
+    if (error instanceof APIError) throw error
+    console.error(`DynamoDB ${action} error:`, error)
+    throw new APIError(`Failed to ${action}`, 500, 'dynamodb')
   }
 }
 
-export const dynamodbService = new DynamoDBService()
-
-export const createTable = (request: Parameters<DynamoDBService['createTable']>[0]) =>
-  dynamodbService.createTable(request)
-export const deleteTable = (tableName: string) => dynamodbService.deleteTable(tableName)
-export const describeTable = (tableName: string) => dynamodbService.describeTable(tableName)
-export const listTables = (options?: Parameters<DynamoDBService['listTables']>[0]) =>
-  dynamodbService.listTables(options)
-export const updateTable = (
-  tableName: string,
-  updates: Parameters<DynamoDBService['updateTable']>[1]
-) => dynamodbService.updateTable(tableName, updates)
-export const putItem = (
-  tableName: string,
-  item: Record<string, any>,
-  options?: Parameters<DynamoDBService['putItem']>[2]
-) => dynamodbService.putItem(tableName, item, options)
-export const getItem = (
-  tableName: string,
-  key: Record<string, any>,
-  options?: Parameters<DynamoDBService['getItem']>[2]
-) => dynamodbService.getItem(tableName, key, options)
-export const deleteItem = (
-  tableName: string,
-  key: Record<string, any>,
-  options?: Parameters<DynamoDBService['deleteItem']>[2]
-) => dynamodbService.deleteItem(tableName, key, options)
-export const updateItem = (
-  tableName: string,
-  key: Record<string, any>,
-  updates: Parameters<DynamoDBService['updateItem']>[2],
-  options?: Parameters<DynamoDBService['updateItem']>[3]
-) => dynamodbService.updateItem(tableName, key, updates, options)
-export const query = (
-  tableName: string,
-  params: Parameters<DynamoDBService['query']>[1]
-) => dynamodbService.query(tableName, params)
-export const scan = (
-  tableName: string,
-  params?: Parameters<DynamoDBService['scan']>[1]
-) => dynamodbService.scan(tableName, params)
-export const getItems = (
-  tableName: string,
-  options?: Parameters<DynamoDBService['getItems']>[1]
-) => dynamodbService.getItems(tableName, options)
-export const batchWriteItem = (
-  tableName: string,
-  items: Parameters<DynamoDBService['batchWriteItem']>[1]
-) => dynamodbService.batchWriteItem(tableName, items)
-export const batchGetItem = (
-  tableName: string,
-  keys: Record<string, any>[],
-  options?: Parameters<DynamoDBService['batchGetItem']>[2]
-) => dynamodbService.batchGetItem(tableName, keys, options)
-export const getTimeToLive = (tableName: string) => dynamodbService.getTimeToLive(tableName)
-export const updateTimeToLive = (tableName: string, enabled: boolean, attributeName: string) => 
-  dynamodbService.updateTimeToLive(tableName, enabled, attributeName)
-export const getStreamSpecification = (tableName: string) => 
-  dynamodbService.getStreamSpecification(tableName)
-
-// Helper function for DynamoDB - converts SDK response to plain JS objects
-export const unmarshall = (item: Record<string, any>): Record<string, any> => {
+// Helper to convert DynamoDB attribute format to plain JS object
+export function unmarshall(item: Record<string, any>): Record<string, any> {
+  if (!item) return {}
   const result: Record<string, any> = {}
   for (const [key, value] of Object.entries(item)) {
     if (value && typeof value === 'object') {
@@ -554,22 +71,485 @@ export const unmarshall = (item: Record<string, any>): Record<string, any> => {
   return result
 }
 
+// Helper to convert plain JS object to DynamoDB attribute format
+export function marshall(item: Record<string, any>): Record<string, any> {
+  if (!item) return {}
+  const result: Record<string, any> = {}
+  for (const [key, value] of Object.entries(item)) {
+    if (value === null) {
+      result[key] = { NULL: true }
+    } else if (typeof value === 'string') {
+      result[key] = { S: value }
+    } else if (typeof value === 'number') {
+      result[key] = { N: String(value) }
+    } else if (typeof value === 'boolean') {
+      result[key] = { BOOL: value }
+    } else if (Array.isArray(value)) {
+      result[key] = { L: value.map((v) => marshall({ _: v })._) }
+    } else if (typeof value === 'object') {
+      result[key] = { M: marshall(value) }
+    } else {
+      result[key] = { S: String(value) }
+    }
+  }
+  return result
+}
+
+export class DynamoDBService {
+  async createTable(request: {
+    TableName: string
+    KeySchema: { AttributeName: string; KeyType: 'HASH' | 'RANGE' }[]
+    AttributeDefinitions: { AttributeName: string; AttributeType: 'S' | 'N' | 'B' }[]
+    ProvisionedThroughput?: { ReadCapacityUnits: number; WriteCapacityUnits: number }
+    BillingMode?: 'PROVISIONED' | 'PAY_PER_REQUEST'
+    GlobalSecondaryIndexes?: any[]
+    StreamSpecification?: { StreamEnabled: boolean; StreamViewType?: any }
+  }): Promise<any> {
+    return await dynamoDBRequest('CreateTable', request)
+  }
+
+  async deleteTable(tableName: string): Promise<void> {
+    return await dynamoDBRequest('DeleteTable', { TableName: tableName })
+  }
+
+  async describeTable(tableName: string): Promise<any> {
+    return await dynamoDBRequest('DescribeTable', { TableName: tableName })
+  }
+
+  async listTables(options?: {
+    ExclusiveStartTableName?: string
+    Limit?: number
+  }): Promise<{ TableNames: string[]; LastEvaluatedTableName?: string }> {
+    const response = await dynamoDBRequest('ListTables', options || {})
+    return {
+      TableNames: response.TableNames || [],
+      LastEvaluatedTableName: response.LastEvaluatedTableName,
+    }
+  }
+
+  async updateTable(
+    tableName: string,
+    updates: {
+      AttributeDefinitions?: any[]
+      BillingMode?: 'PROVISIONED' | 'PAY_PER_REQUEST'
+      ProvisionedThroughput?: { ReadCapacityUnits: number; WriteCapacityUnits: number }
+      GlobalSecondaryIndexUpdates?: any[]
+      StreamSpecification?: { StreamEnabled: boolean; StreamViewType?: any }
+    }
+  ): Promise<any> {
+    return await dynamoDBRequest('UpdateTable', { TableName: tableName, ...updates })
+  }
+
+  async putItem(
+    tableNameOrBody: string | Record<string, any>,
+    item?: Record<string, any>,
+    options?: Record<string, any>
+  ): Promise<any> {
+    // Handle case where first argument is an object (from Vue component)
+    let tableName: string
+    let itemToStore: Record<string, any>
+    let putOptions: Record<string, any>
+    
+    if (typeof tableNameOrBody === 'object') {
+      const body = tableNameOrBody as Record<string, any>
+      tableName = body.TableName
+      itemToStore = body.Item
+      putOptions = { ...body }
+      delete putOptions.TableName
+      delete putOptions.Item
+    } else {
+      tableName = tableNameOrBody
+      itemToStore = item || {}
+      putOptions = options || {}
+    }
+    
+    // Check if item is already in DynamoDB attribute format (e.g., {"id": {"S": "value"}})
+    // If it is, don't marshall it again
+    const isDynamoDBFormat = (obj: Record<string, any>): boolean => {
+      if (!obj) return false
+      const firstValue = Object.values(obj)[0]
+      return firstValue && typeof firstValue === 'object' && 
+        ('S' in firstValue || 'N' in firstValue || 'B' in firstValue || 
+         'BOOL' in firstValue || 'NULL' in firstValue || 'L' in firstValue || 
+         'M' in firstValue || 'SS' in firstValue || 'NS' in firstValue)
+    }
+    
+    const itemToSend = isDynamoDBFormat(itemToStore) ? itemToStore : marshall(itemToStore)
+    
+    return await dynamoDBRequest('PutItem', {
+      TableName: tableName,
+      Item: itemToSend,
+      ...putOptions,
+    })
+  }
+
+  async getItem(
+    tableNameOrBody: string | Record<string, any>,
+    key?: Record<string, any>,
+    options?: Record<string, any>
+  ): Promise<{ Item?: Record<string, any> }> {
+    // Handle case where first argument is an object (from Vue component)
+    let tableName: string
+    let keyToFetch: Record<string, any>
+    let getOptions: Record<string, any>
+    
+    if (typeof tableNameOrBody === 'object') {
+      const body = tableNameOrBody as Record<string, any>
+      tableName = body.TableName
+      keyToFetch = body.Key
+      getOptions = { ...body }
+      delete getOptions.TableName
+      delete getOptions.Key
+    } else {
+      tableName = tableNameOrBody
+      keyToFetch = key || {}
+      getOptions = options || {}
+    }
+    
+    const response = await dynamoDBRequest('GetItem', {
+      TableName: tableName,
+      Key: marshall(keyToFetch),
+      ...getOptions,
+    })
+    return {
+      Item: response.Item ? unmarshall(response.Item) : undefined,
+    }
+  }
+
+  async deleteItem(
+    tableNameOrBody: string | Record<string, any>,
+    key?: Record<string, any>,
+    options?: Record<string, any>
+  ): Promise<any> {
+    // Handle case where first argument is an object (from Vue component)
+    let tableName: string
+    let keyToDelete: Record<string, any>
+    let deleteOptions: Record<string, any>
+    
+    if (typeof tableNameOrBody === 'object') {
+      const body = tableNameOrBody as Record<string, any>
+      tableName = body.TableName
+      keyToDelete = body.Key
+      deleteOptions = { ...body }
+      delete deleteOptions.TableName
+      delete deleteOptions.Key
+    } else {
+      tableName = tableNameOrBody
+      keyToDelete = key || {}
+      deleteOptions = options || {}
+    }
+    
+    // Check if key is already in DynamoDB attribute format (e.g., {"id": {"S": "value"}} or {"id": {"M": {"Value": ...}}})
+    // If it is, don't marshall it again
+    const isDynamoDBFormat = (obj: Record<string, any>): boolean => {
+      if (!obj) return false
+      const firstValue = Object.values(obj)[0]
+      // Check for direct DynamoDB types (S, N, B) OR nested wrapper types (M with Value)
+      if (firstValue && typeof firstValue === 'object') {
+        if ('S' in firstValue || 'N' in firstValue || 'B' in firstValue) {
+          return true
+        }
+        // Check for wrapper format like {"M": {"Value": {"S": "value"}}}
+        if ('M' in firstValue && firstValue.M && typeof firstValue.M === 'object' && 'Value' in firstValue.M) {
+          return true
+        }
+      }
+      return false
+    }
+    
+    const keyToSend = isDynamoDBFormat(keyToDelete) ? keyToDelete : marshall(keyToDelete)
+    
+    return await dynamoDBRequest('DeleteItem', {
+      TableName: tableName,
+      Key: keyToSend,
+      ...deleteOptions,
+    })
+  }
+
+  async updateItem(
+    tableName: string,
+    key: Record<string, any>,
+    updates: {
+      UpdateExpression: string
+      ExpressionAttributeNames?: Record<string, string>
+      ExpressionAttributeValues?: Record<string, any>
+    },
+    options?: {
+      ConditionExpression?: string
+      ReturnValues?: 'NONE' | 'ALL_OLD' | 'ALL_NEW' | 'UPDATED_OLD' | 'UPDATED_NEW'
+    }
+  ): Promise<any> {
+    return await dynamoDBRequest('UpdateItem', {
+      TableName: tableName,
+      Key: marshall(key),
+      ...updates,
+      ...options,
+    })
+  }
+
+  async query(
+    tableNameOrBody: string | Record<string, any>,
+    params?: Record<string, any>
+  ): Promise<{ Items: Record<string, any>[]; Count: number; ScannedCount: number; LastEvaluatedKey?: Record<string, any> }> {
+    // Handle case where first argument is an object (from Vue component)
+    let tableName: string
+    let queryParams: Record<string, any>
+    
+    if (typeof tableNameOrBody === 'object') {
+      const body = tableNameOrBody as Record<string, any>
+      tableName = body.TableName
+      queryParams = { ...body }
+      delete queryParams.TableName
+    } else {
+      tableName = tableNameOrBody
+      queryParams = params || {}
+    }
+    
+    const response = await dynamoDBRequest('Query', {
+      TableName: tableName,
+      ...queryParams,
+    })
+    return {
+      Items: (response.Items || []).map((item: any) => unmarshall(item)),
+      Count: response.Count || 0,
+      ScannedCount: response.ScannedCount || 0,
+      LastEvaluatedKey: response.LastEvaluatedKey ? unmarshall(response.LastEvaluatedKey) : undefined,
+    }
+  }
+
+  async scan(
+    tableNameOrBody: string | Record<string, any>,
+    params?: Record<string, any>
+  ): Promise<{ Items: Record<string, any>[]; Count: number; ScannedCount: number; LastEvaluatedKey?: Record<string, any> }> {
+    // Handle case where first argument is an object (from Vue component)
+    let tableName: string
+    let scanParams: Record<string, any>
+    
+    if (typeof tableNameOrBody === 'object') {
+      const body = tableNameOrBody as Record<string, any>
+      tableName = body.TableName
+      scanParams = { ...body }
+      delete scanParams.TableName
+    } else {
+      tableName = tableNameOrBody
+      scanParams = params || {}
+    }
+    
+    const response = await dynamoDBRequest('Scan', {
+      TableName: tableName,
+      ...scanParams,
+    })
+    return {
+      Items: (response.Items || []).map((item: any) => unmarshall(item)),
+      Count: response.Count || 0,
+      ScannedCount: response.ScannedCount || 0,
+      LastEvaluatedKey: response.LastEvaluatedKey ? unmarshall(response.LastEvaluatedKey) : undefined,
+    }
+  }
+
+  async getItems(
+    tableName: string,
+    options?: {
+      limit?: number
+      startKey?: Record<string, any>
+    }
+  ): Promise<{ items: Record<string, any>[]; lastKey: Record<string, any> | null }> {
+    const response = await dynamoDBRequest('Scan', {
+      TableName: tableName,
+      Limit: options?.limit,
+      ExclusiveStartKey: options?.startKey ? marshall(options.startKey) : undefined,
+    })
+    return {
+      items: (response.Items || []).map((item: any) => unmarshall(item)),
+      lastKey: response.LastEvaluatedKey ? unmarshall(response.LastEvaluatedKey) : null,
+    }
+  }
+
+  async batchWriteItem(
+    tableName: string,
+    items: Array<{
+      DeleteRequest?: { Key: Record<string, any> }
+      PutRequest?: { Item: Record<string, any> }
+    }>
+  ): Promise<any> {
+    return await dynamoDBRequest('BatchWriteItem', {
+      RequestItems: {
+        [tableName]: items.map((item) => ({
+          DeleteRequest: item.DeleteRequest ? { Key: marshall(item.DeleteRequest.Key) } : undefined,
+          PutRequest: item.PutRequest ? { Item: marshall(item.PutRequest.Item) } : undefined,
+        })),
+      },
+    })
+  }
+
+  async batchGetItem(
+    tableName: string,
+    keys: Record<string, any>[],
+    options?: {
+      ProjectionExpression?: string
+      ExpressionAttributeNames?: Record<string, string>
+    }
+  ): Promise<{ Responses?: Record<string, any>[] }> {
+    const response = await dynamoDBRequest('BatchGetItem', {
+      RequestItems: {
+        [tableName]: {
+          Keys: keys.map((key) => marshall(key)),
+          ...options,
+        },
+      },
+    })
+    return {
+      Responses: response.Responses?.[tableName]?.map((item: any) => unmarshall(item)),
+    }
+  }
+
+  async getTimeToLive(tableName: string): Promise<any> {
+    return await dynamoDBRequest('DescribeTimeToLive', { TableName: tableName })
+  }
+
+  async updateTimeToLive(tableName: string, enabled: boolean, attributeName: string): Promise<any> {
+    return await dynamoDBRequest('UpdateTimeToLive', {
+      TableName: tableName,
+      TimeToLiveSpecification: {
+        Enabled: enabled,
+        AttributeName: attributeName,
+      },
+    })
+  }
+
+  async getStreamSpecification(tableName: string): Promise<{ StreamEnabled: boolean; StreamViewType?: string }> {
+    const tableDesc = await this.describeTable(tableName)
+    return tableDesc.Table?.StreamSpecification || { StreamEnabled: false }
+  }
+}
+
+export const dynamodbService = new DynamoDBService()
+
+export const createTable = (request: Parameters<DynamoDBService['createTable']>[0]) =>
+  dynamodbService.createTable(request)
+export const deleteTable = (tableName: string) => dynamodbService.deleteTable(tableName)
+export const describeTable = (tableName: string) => dynamodbService.describeTable(tableName)
+export const listTables = (options?: { ExclusiveStartTableName?: string; Limit?: number }) =>
+  dynamodbService.listTables(options)
+export const updateTable = (
+  tableName: string,
+  updates: {
+    AttributeDefinitions?: any[]
+    BillingMode?: 'PROVISIONED' | 'PAY_PER_REQUEST'
+    ProvisionedThroughput?: { ReadCapacityUnits: number; WriteCapacityUnits: number }
+    GlobalSecondaryIndexUpdates?: any[]
+    StreamSpecification?: { StreamEnabled: boolean; StreamViewType?: any }
+  }
+) => dynamodbService.updateTable(tableName, updates)
+export const putItem = (
+  tableName: string,
+  item: Record<string, any>,
+  options?: {
+    ConditionExpression?: string
+    ExpressionAttributeNames?: Record<string, string>
+    ExpressionAttributeValues?: Record<string, any>
+    ReturnValues?: 'NONE' | 'ALL_OLD' | 'ALL_NEW' | 'UPDATED_OLD' | 'UPDATED_NEW'
+  }
+) => dynamodbService.putItem(tableName, item, options)
+export const getItem = (
+  tableName: string,
+  key: Record<string, any>,
+  options?: {
+    ProjectionExpression?: string
+    ExpressionAttributeNames?: Record<string, string>
+    ConsistentRead?: boolean
+  }
+) => dynamodbService.getItem(tableName, key, options)
+export const deleteItem = (
+  tableName: string,
+  key: Record<string, any>,
+  options?: {
+    ConditionExpression?: string
+    ExpressionAttributeNames?: Record<string, string>
+    ExpressionAttributeValues?: Record<string, any>
+    ReturnValues?: 'NONE' | 'ALL_OLD' | 'ALL_NEW' | 'UPDATED_OLD' | 'UPDATED_NEW'
+  }
+) => dynamodbService.deleteItem(tableName, key, options)
+export const updateItem = (
+  tableName: string,
+  key: Record<string, any>,
+  updates: {
+    UpdateExpression: string
+    ExpressionAttributeNames?: Record<string, string>
+    ExpressionAttributeValues?: Record<string, any>
+  },
+  options?: {
+    ConditionExpression?: string
+    ReturnValues?: 'NONE' | 'ALL_OLD' | 'ALL_NEW' | 'UPDATED_OLD' | 'UPDATED_NEW'
+  }
+) => dynamodbService.updateItem(tableName, key, updates, options)
+export const query = (
+  tableName: string,
+  params: {
+    KeyConditionExpression: string
+    ExpressionAttributeValues?: Record<string, any>
+    ExpressionAttributeNames?: Record<string, string>
+    FilterExpression?: string
+    ProjectionExpression?: string
+    ScanIndexForward?: boolean
+    Limit?: number
+    ExclusiveStartKey?: Record<string, any>
+  }
+) => dynamodbService.query(tableName, params)
+export const scan = (
+  tableName: string,
+  params?: {
+    FilterExpression?: string
+    ExpressionAttributeValues?: Record<string, any>
+    ExpressionAttributeNames?: Record<string, string>
+    ProjectionExpression?: string
+    Limit?: number
+    ExclusiveStartKey?: Record<string, any>
+  }
+) => dynamodbService.scan(tableName, params)
+export const getItems = (
+  tableName: string,
+  options?: {
+    limit?: number
+    startKey?: Record<string, any>
+  }
+) => dynamodbService.getItems(tableName, options)
+export const batchWriteItem = (
+  tableName: string,
+  items: Array<{
+    DeleteRequest?: { Key: Record<string, any> }
+    PutRequest?: { Item: Record<string, any> }
+  }>
+) => dynamodbService.batchWriteItem(tableName, items)
+export const batchGetItem = (
+  tableName: string,
+  keys: Record<string, any>[],
+  options?: {
+    ProjectionExpression?: string
+    ExpressionAttributeNames?: Record<string, string>
+  }
+) => dynamodbService.batchGetItem(tableName, keys, options)
+export const getTimeToLive = (tableName: string) => dynamodbService.getTimeToLive(tableName)
+export const updateTimeToLive = (tableName: string, enabled: boolean, attributeName: string) =>
+  dynamodbService.updateTimeToLive(tableName, enabled, attributeName)
+export const getStreamSpecification = (tableName: string) =>
+  dynamodbService.getStreamSpecification(tableName)
+
 // DynamoDB Streams exports - stubs for compatibility
-// Note: DynamoDB Streams requires @aws-sdk/client-dynamodb-streams package
 export const listStreams = async (tableName?: string): Promise<{ Streams: any[] }> => {
   return { Streams: [] }
 }
 
 export const describeStream = async (streamArn: string): Promise<any> => {
-  throw new APIError('DynamoDB Streams not implemented in SDK v3', 500, 'dynamodb')
+  throw new APIError('DynamoDB Streams not implemented', 500, 'dynamodb')
 }
 
 export const getShardIterator = async (streamArn: string, shardId: string, iteratorType?: string): Promise<any> => {
-  throw new APIError('DynamoDB Streams not implemented in SDK v3', 500, 'dynamodb')
+  throw new APIError('DynamoDB Streams not implemented', 500, 'dynamodb')
 }
 
 export const getRecords = async (shardIterator: string, limit?: number): Promise<any> => {
-  throw new APIError('DynamoDB Streams not implemented in SDK v3', 500, 'dynamodb')
+  throw new APIError('DynamoDB Streams not implemented', 500, 'dynamodb')
 }
 
 export default dynamodbService

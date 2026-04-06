@@ -1,119 +1,66 @@
 /**
  * SNS Service API Client
- * AWS SDK v3 implementation for SNS
+ * Simple HTTP client for SNS via Go proxy
  * @module api/services/sns
  */
 
-import {
-  SNSClient,
-  ListTopicsCommand,
-  ListSubscriptionsCommand,
-  ListSubscriptionsByTopicCommand,
-  GetTopicAttributesCommand,
-  CreateTopicCommand,
-  DeleteTopicCommand,
-  SubscribeCommand,
-  UnsubscribeCommand,
-  PublishCommand,
-  ConfirmSubscriptionCommand,
-  GetSubscriptionAttributesCommand,
-  SetSubscriptionAttributesCommand,
-  ListTagsForResourceCommand,
-  type ListTopicsCommandOutput,
-  type ListSubscriptionsCommandOutput,
-  type ListSubscriptionsByTopicCommandOutput,
-  type GetTopicAttributesCommandOutput,
-  type CreateTopicCommandOutput,
-  type SubscribeCommandOutput,
-  type PublishCommandOutput,
-  type ConfirmSubscriptionCommandOutput,
-} from '@aws-sdk/client-sns'
 import { useSettingsStore } from '@/stores/settings'
 import { APIError } from '../client'
 
-let snsClient: SNSClient | null = null
-
-function getSNSClient(): SNSClient {
+async function snsRequest(action: string, body: object = {}): Promise<any> {
   const settingsStore = useSettingsStore()
-  
-  if (!snsClient) {
-    snsClient = new SNSClient({
-      endpoint: settingsStore.endpoint,
-      region: settingsStore.region,
-      credentials: {
-        accessKeyId: settingsStore.accessKey,
-        secretAccessKey: settingsStore.secretKey,
-      },
-      tls: false,
-    })
-  }
-  
-  return snsClient
-}
+  const endpoint = settingsStore.endpoint.replace(/\/$/, '')
 
-export function refreshSNSClient(): void {
-  snsClient = null
-  getSNSClient()
+  const url = `${endpoint}/sns/`
+
+  try {
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Amz-Target': `sns.${action}`,
+      },
+      body: JSON.stringify(body),
+    })
+
+    if (!response.ok) {
+      const errorText = await response.text()
+      throw new APIError(`SNS ${action} failed: ${errorText}`, response.status, 'sns')
+    }
+
+    return response.json()
+  } catch (error) {
+    if (error instanceof APIError) throw error
+    console.error(`SNS ${action} error:`, error)
+    throw new APIError(`Failed to ${action}`, 500, 'sns')
+  }
 }
 
 export class SNSService {
-  private getClient(): SNSClient {
-    return getSNSClient()
-  }
-
   async listTopics(): Promise<any[]> {
-    try {
-      const client = this.getClient()
-      const command = new ListTopicsCommand({})
-      const response: ListTopicsCommandOutput = await client.send(command)
-      return response.Topics || []
-    } catch (error) {
-      if (error instanceof APIError) throw error
-      throw new APIError('Failed to list topics', 500, 'sns')
-    }
+    const response = await snsRequest('ListTopics', {})
+    return response.Topics || []
   }
 
   async listSubscriptions(): Promise<any[]> {
-    try {
-      const client = this.getClient()
-      const command = new ListSubscriptionsCommand({})
-      const response: ListSubscriptionsCommandOutput = await client.send(command)
-      return response.Subscriptions || []
-    } catch (error) {
-      if (error instanceof APIError) throw error
-      throw new APIError('Failed to list subscriptions', 500, 'sns')
-    }
+    const response = await snsRequest('ListSubscriptions', {})
+    return response.Subscriptions || []
   }
 
   async listSubscriptionsByTopic(topicArn: string): Promise<any[]> {
-    try {
-      const client = this.getClient()
-      const command = new ListSubscriptionsByTopicCommand({ TopicArn: topicArn })
-      const response: ListSubscriptionsByTopicCommandOutput = await client.send(command)
-      return response.Subscriptions || []
-    } catch (error) {
-      if (error instanceof APIError) throw error
-      throw new APIError(`Failed to list subscriptions for topic: ${topicArn}`, 500, 'sns')
-    }
+    const response = await snsRequest('ListSubscriptionsByTopic', { TopicArn: topicArn })
+    return response.Subscriptions || []
   }
 
   async getTopicAttributes(topicArn: string): Promise<Record<string, string>> {
-    try {
-      const client = this.getClient()
-      const command = new GetTopicAttributesCommand({ TopicArn: topicArn })
-      const response: GetTopicAttributesCommandOutput = await client.send(command)
-      
-      const attrs: Record<string, string> = {}
-      if (response.Attributes) {
-        Object.entries(response.Attributes).forEach(([key, value]) => {
-          attrs[key] = String(value)
-        })
-      }
-      return attrs
-    } catch (error) {
-      if (error instanceof APIError) throw error
-      throw new APIError(`Failed to get topic attributes: ${topicArn}`, 500, 'sns')
+    const response = await snsRequest('GetTopicAttributes', { TopicArn: topicArn })
+    const attrs: Record<string, string> = {}
+    if (response.Attributes) {
+      Object.entries(response.Attributes).forEach(([key, value]) => {
+        attrs[key] = String(value)
+      })
     }
+    return attrs
   }
 
   async createTopic(name: string, options?: {
@@ -121,58 +68,29 @@ export class SNSService {
     Attributes?: Record<string, string>
     tags?: Record<string, string>
   }): Promise<{ TopicArn: string }> {
-    try {
-      const client = this.getClient()
-      const command = new CreateTopicCommand({
-        Name: name,
-        DisplayName: options?.DisplayName,
-        ...options,
-      })
-      const response: CreateTopicCommandOutput = await client.send(command)
-      return { TopicArn: response.TopicArn || '' }
-    } catch (error) {
-      console.error('CreateTopic error:', error)
-      if (error instanceof APIError) throw error
-      throw new APIError(`Failed to create topic: ${name}`, 500, 'sns')
-    }
+    const response = await snsRequest('CreateTopic', {
+      Name: name,
+      DisplayName: options?.DisplayName,
+      ...options,
+    })
+    return { TopicArn: response.TopicArn || '' }
   }
 
   async deleteTopic(topicArn: string): Promise<void> {
-    try {
-      const client = this.getClient()
-      const command = new DeleteTopicCommand({ TopicArn: topicArn })
-      await client.send(command)
-    } catch (error) {
-      if (error instanceof APIError) throw error
-      throw new APIError(`Failed to delete topic: ${topicArn}`, 500, 'sns')
-    }
+    return snsRequest('DeleteTopic', { TopicArn: topicArn })
   }
 
   async subscribe(topicArn: string, protocol: string, endpoint: string): Promise<{ SubscriptionArn: string }> {
-    try {
-      const client = this.getClient()
-      const command = new SubscribeCommand({
-        TopicArn: topicArn,
-        Protocol: protocol,
-        Endpoint: endpoint,
-      })
-      const response: SubscribeCommandOutput = await client.send(command)
-      return { SubscriptionArn: response.SubscriptionArn || '' }
-    } catch (error) {
-      if (error instanceof APIError) throw error
-      throw new APIError(`Failed to subscribe to topic: ${topicArn}`, 500, 'sns')
-    }
+    const response = await snsRequest('Subscribe', {
+      TopicArn: topicArn,
+      Protocol: protocol,
+      Endpoint: endpoint,
+    })
+    return { SubscriptionArn: response.SubscriptionArn || '' }
   }
 
   async unsubscribe(subscriptionArn: string): Promise<void> {
-    try {
-      const client = this.getClient()
-      const command = new UnsubscribeCommand({ SubscriptionArn: subscriptionArn })
-      await client.send(command)
-    } catch (error) {
-      if (error instanceof APIError) throw error
-      throw new APIError(`Failed to unsubscribe: ${subscriptionArn}`, 500, 'sns')
-    }
+    return snsRequest('Unsubscribe', { SubscriptionArn: subscriptionArn })
   }
 
   async publish(topicArn: string, message: string, options?: {
@@ -182,80 +100,44 @@ export class SNSService {
     TargetArn?: string
     PhoneNumber?: string
   }): Promise<{ MessageId: string }> {
-    try {
-      const client = this.getClient()
-      const command = new PublishCommand({
-        TopicArn: topicArn,
-        Message: message,
-        ...options,
-      })
-      const response: PublishCommandOutput = await client.send(command)
-      return { MessageId: response.MessageId || '' }
-    } catch (error) {
-      if (error instanceof APIError) throw error
-      throw new APIError(`Failed to publish message to topic: ${topicArn}`, 500, 'sns')
-    }
+    const response = await snsRequest('Publish', {
+      TopicArn: topicArn,
+      Message: message,
+      ...options,
+    })
+    return { MessageId: response.MessageId || '' }
   }
 
   async confirmSubscription(topicArn: string, token: string): Promise<{ SubscriptionArn: string }> {
-    try {
-      const client = this.getClient()
-      const command = new ConfirmSubscriptionCommand({
-        TopicArn: topicArn,
-        Token: token,
-      })
-      const response: ConfirmSubscriptionCommandOutput = await client.send(command)
-      return { SubscriptionArn: response.SubscriptionArn || '' }
-    } catch (error) {
-      if (error instanceof APIError) throw error
-      throw new APIError(`Failed to confirm subscription: ${topicArn}`, 500, 'sns')
-    }
+    const response = await snsRequest('ConfirmSubscription', {
+      TopicArn: topicArn,
+      Token: token,
+    })
+    return { SubscriptionArn: response.SubscriptionArn || '' }
   }
 
   async getSubscriptionAttributes(subscriptionArn: string): Promise<Record<string, string>> {
-    try {
-      const client = this.getClient()
-      const command = new GetSubscriptionAttributesCommand({ SubscriptionArn: subscriptionArn })
-      const response = await client.send(command)
-      
-      const attrs: Record<string, string> = {}
-      if (response.Attributes) {
-        Object.entries(response.Attributes).forEach(([key, value]) => {
-          attrs[key] = String(value)
-        })
-      }
-      return attrs
-    } catch (error) {
-      if (error instanceof APIError) throw error
-      throw new APIError(`Failed to get subscription attributes: ${subscriptionArn}`, 500, 'sns')
+    const response = await snsRequest('GetSubscriptionAttributes', { SubscriptionArn: subscriptionArn })
+    const attrs: Record<string, string> = {}
+    if (response.Attributes) {
+      Object.entries(response.Attributes).forEach(([key, value]) => {
+        attrs[key] = String(value)
+      })
     }
+    return attrs
   }
 
   async setSubscriptionAttributes(subscriptionArn: string, attributeName: string, attributeValue: string): Promise<void> {
-    try {
-      const client = this.getClient()
-      const command = new SetSubscriptionAttributesCommand({
-        SubscriptionArn: subscriptionArn,
-        AttributeName: attributeName,
-        AttributeValue: attributeValue,
-      })
-      await client.send(command)
-    } catch (error) {
-      if (error instanceof APIError) throw error
-      throw new APIError(`Failed to set subscription attributes: ${subscriptionArn}`, 500, 'sns')
-    }
+    return snsRequest('SetSubscriptionAttributes', {
+      SubscriptionArn: subscriptionArn,
+      AttributeName: attributeName,
+      AttributeValue: attributeValue,
+    })
   }
 
   async listTagsForResource(resourceArn: string): Promise<{ Tags: any[] }> {
-    try {
-      const client = this.getClient()
-      const command = new ListTagsForResourceCommand({ ResourceArn: resourceArn })
-      const response = await client.send(command)
-      return { Tags: response.Tags || [] }
-    } catch (error) {
-      if (error instanceof APIError) throw error
-      throw new APIError(`Failed to list tags for resource: ${resourceArn}`, 500, 'sns')
-    }
+    const response = await snsRequest('ListTagsForResource', { ResourceArn: resourceArn })
+    return { Tags: response.Tags || [] }
   }
 }
 
@@ -280,5 +162,9 @@ export const getSubscriptionAttributes = (subscriptionArn: string) =>
 export const setSubscriptionAttributes = (subscriptionArn: string, attributeName: string, attributeValue: string) => 
   snsService.setSubscriptionAttributes(subscriptionArn, attributeName, attributeValue)
 export const listTagsForResource = (resourceArn: string) => snsService.listTagsForResource(resourceArn)
+
+export function refreshSNSClient(): void {
+  // No-op: HTTP-based implementation reads endpoint directly from settings
+}
 
 export default snsService

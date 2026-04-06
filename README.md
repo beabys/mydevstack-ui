@@ -89,15 +89,11 @@ npm run preview
 | KMS | ✅ | Keys, Encryption |
 | Secrets Manager | ✅ | Secrets management |
 | SSM | ✅ | Parameter Store |
-| CloudWatch | ✅ | Logs, Metrics, Dashboards |
-| EventBridge | ✅ | Event Buses, Rules, Targets |
 | API Gateway | ✅ | REST APIs, HTTP APIs |
 | Kinesis | ✅ | Streams, Shards |
 | CloudFormation | ✅ | Stacks, Templates |
-| Cognito | ✅ | User Pools, Clients |
 | ElastiCache | ✅ | Cache clusters |
 | RDS | ✅ | Database instances |
-| Step Functions | ✅ | State machines |
 
 ## Project Structure
 

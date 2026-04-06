@@ -1,89 +1,48 @@
 /**
  * SSM Parameter Store Service API Client
- * AWS SDK v3 implementation for AWS Systems Manager Parameter Store
+ * Simple HTTP client for SSM via Go proxy
  * @module api/services/ssm
  */
 
-import {
-  SSMClient,
-  GetParameterCommand,
-  GetParametersCommand,
-  GetParametersByPathCommand,
-  PutParameterCommand,
-  DeleteParameterCommand,
-  DescribeParametersCommand,
-  GetParameterHistoryCommand,
-  ListTagsForResourceCommand,
-  AddTagsToResourceCommand,
-  RemoveTagsFromResourceCommand,
-  type GetParameterCommandOutput,
-  type GetParametersCommandOutput,
-  type GetParametersByPathCommandOutput,
-  type PutParameterCommandOutput,
-  type DescribeParametersCommandOutput,
-  type GetParameterHistoryCommandOutput,
-} from '@aws-sdk/client-ssm'
 import { useSettingsStore } from '@/stores/settings'
 import { APIError } from '../client'
 
-let ssmClient: SSMClient | null = null
-
-function getSSMClient(): SSMClient {
+async function ssmRequest(action: string, body: object = {}): Promise<any> {
   const settingsStore = useSettingsStore()
-  
-  if (!ssmClient) {
-    ssmClient = new SSMClient({
-      endpoint: settingsStore.endpoint,
-      region: settingsStore.region,
-      credentials: {
-        accessKeyId: settingsStore.accessKey,
-        secretAccessKey: settingsStore.secretKey,
-      },
-      tls: false,
-    })
-  }
-  
-  return ssmClient
-}
+  const endpoint = settingsStore.endpoint.replace(/\/$/, '')
 
-export function refreshSSMClient(): void {
-  ssmClient = null
-  getSSMClient()
+  const url = `${endpoint}/ssm/`
+
+  try {
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Amz-Target': `ssm.${action}`,
+      },
+      body: JSON.stringify(body),
+    })
+
+    if (!response.ok) {
+      const errorText = await response.text()
+      throw new APIError(`SSM ${action} failed: ${errorText}`, response.status, 'ssm')
+    }
+
+    return response.json()
+  } catch (error) {
+    if (error instanceof APIError) throw error
+    console.error(`SSM ${action} error:`, error)
+    throw new APIError(`Failed to ${action}`, 500, 'ssm')
+  }
 }
 
 export class SSMService {
-  private getClient(): SSMClient {
-    return getSSMClient()
-  }
-
   async getParameter(name: string, options?: { WithDecryption?: boolean }): Promise<any> {
-    try {
-      const client = this.getClient()
-      const command = new GetParameterCommand({
-        Name: name,
-        WithDecryption: options?.WithDecryption,
-      })
-      const response: GetParameterCommandOutput = await client.send(command)
-      return response
-    } catch (error) {
-      if (error instanceof APIError) throw error
-      throw new APIError(`Failed to get parameter: ${name}`, 500, 'ssm')
-    }
+    return ssmRequest('GetParameter', { Name: name, ...options })
   }
 
   async getParameters(names: string[], options?: { WithDecryption?: boolean }): Promise<any> {
-    try {
-      const client = this.getClient()
-      const command = new GetParametersCommand({
-        Names: names,
-        WithDecryption: options?.WithDecryption,
-      })
-      const response: GetParametersCommandOutput = await client.send(command)
-      return response
-    } catch (error) {
-      if (error instanceof APIError) throw error
-      throw new APIError('Failed to get parameters', 500, 'ssm')
-    }
+    return ssmRequest('GetParameters', { Names: names, ...options })
   }
 
   async getParametersByPath(path: string, options?: {
@@ -91,18 +50,7 @@ export class SSMService {
     Recursive?: boolean
     NextToken?: string
   }): Promise<any> {
-    try {
-      const client = this.getClient()
-      const command = new GetParametersByPathCommand({
-        Path: path,
-        ...options,
-      } as any)
-      const response: GetParametersByPathCommandOutput = await client.send(command)
-      return response
-    } catch (error) {
-      if (error instanceof APIError) throw error
-      throw new APIError(`Failed to get parameters by path: ${path}`, 500, 'ssm')
-    }
+    return ssmRequest('GetParametersByPath', { Path: path, ...options })
   }
 
   async putParameter(params: {
@@ -116,26 +64,11 @@ export class SSMService {
     DataType?: string
     Policies?: string
   }): Promise<any> {
-    try {
-      const client = this.getClient()
-      const command = new PutParameterCommand(params as any)
-      const response: PutParameterCommandOutput = await client.send(command)
-      return response
-    } catch (error) {
-      if (error instanceof APIError) throw error
-      throw new APIError(`Failed to put parameter: ${params.Name}`, 500, 'ssm')
-    }
+    return ssmRequest('PutParameter', params)
   }
 
   async deleteParameter(name: string): Promise<any> {
-    try {
-      const client = this.getClient()
-      const command = new DeleteParameterCommand({ Name: name })
-      return await client.send(command)
-    } catch (error) {
-      if (error instanceof APIError) throw error
-      throw new APIError(`Failed to delete parameter: ${name}`, 500, 'ssm')
-    }
+    return ssmRequest('DeleteParameter', { Name: name })
   }
 
   async describeParameters(options?: {
@@ -143,75 +76,24 @@ export class SSMService {
     NextToken?: string
     MaxResults?: number
   }): Promise<any> {
-    try {
-      const client = this.getClient()
-      const command = new DescribeParametersCommand(options as any)
-      const response: DescribeParametersCommandOutput = await client.send(command)
-      return response
-    } catch (error) {
-      if (error instanceof APIError) throw error
-      throw new APIError('Failed to describe parameters', 500, 'ssm')
-    }
+    return ssmRequest('DescribeParameters', options || {})
   }
 
   async getParameterHistory(name: string, options?: { WithDecryption?: boolean; MaxResults?: number }): Promise<any> {
-    try {
-      const client = this.getClient()
-      const command = new GetParameterHistoryCommand({
-        Name: name,
-        ...options,
-      } as any)
-      const response: GetParameterHistoryCommandOutput = await client.send(command)
-      return response
-    } catch (error) {
-      if (error instanceof APIError) throw error
-      throw new APIError(`Failed to get parameter history: ${name}`, 500, 'ssm')
-    }
+    return ssmRequest('GetParameterHistory', { Name: name, ...options })
   }
 
   async listTagsForResource(resourceType: string, resourceId: string): Promise<any> {
-    try {
-      const client = this.getClient()
-      const command = new ListTagsForResourceCommand({
-        ResourceType: resourceType as any,
-        ResourceId: resourceId,
-      })
-      return await client.send(command)
-    } catch (error) {
-      if (error instanceof APIError) throw error
-      throw new APIError(`Failed to list tags for resource: ${resourceId}`, 500, 'ssm')
-    }
+    return ssmRequest('ListTagsForResource', { ResourceType: resourceType, ResourceId: resourceId })
   }
 
   async addTagsToResource(resourceType: string, resourceId: string, tags: Record<string, string>): Promise<any> {
-    try {
-      const client = this.getClient()
-      const tagArray = Object.entries(tags).map(([Key, Value]) => ({ Key, Value }))
-      const command = new AddTagsToResourceCommand({
-        ResourceType: resourceType as any,
-        ResourceId: resourceId,
-        Tags: tagArray,
-      })
-      return await client.send(command)
-    } catch (error) {
-      if (error instanceof APIError) throw error
-      throw new APIError(`Failed to add tags to resource: ${resourceId}`, 500, 'ssm')
-    }
+    const tagArray = Object.entries(tags).map(([Key, Value]) => ({ Key, Value }))
+    return ssmRequest('AddTagsToResource', { ResourceType: resourceType, ResourceId: resourceId, Tags: tagArray })
   }
 
   async removeTagsFromResource(resourceType: string, resourceId: string, keys: string[]): Promise<any> {
-    try {
-      const client = this.getClient()
-      const command = new RemoveTagsFromResourceCommand({
-        ResourceType: resourceType as any,
-        ResourceId: resourceId,
-        TagKeys: keys,
-      })
-      return await client.send(command)
-    } catch (error) {
-      if (error instanceof APIError) throw error
-      throw new APIError(`Failed to remove tags from resource: ${resourceId}`, 500, 'ssm')
-    }
+    return ssmRequest('RemoveTagsFromResource', { ResourceType: resourceType, ResourceId: resourceId, TagKeys: keys })
   }
 }
 
@@ -224,11 +106,15 @@ export const putParameter = (params: any) => ssmService.putParameter(params)
 export const deleteParameter = (name: string) => ssmService.deleteParameter(name)
 export const describeParameters = (options?: any) => ssmService.describeParameters(options)
 export const getParameterHistory = (name: string, options?: any) => ssmService.getParameterHistory(name, options)
-export const listTagsForResource = (resourceType: string, resourceId: string) => 
+export const listTagsForResource = (resourceType: string, resourceId: string) =>
   ssmService.listTagsForResource(resourceType, resourceId)
-export const addTagsToResource = (resourceType: string, resourceId: string, tags: Record<string, string>) => 
+export const addTagsToResource = (resourceType: string, resourceId: string, tags: Record<string, string>) =>
   ssmService.addTagsToResource(resourceType, resourceId, tags)
-export const removeTagsFromResource = (resourceType: string, resourceId: string, keys: string[]) => 
+export const removeTagsFromResource = (resourceType: string, resourceId: string, keys: string[]) =>
   ssmService.removeTagsFromResource(resourceType, resourceId, keys)
+
+export function refreshSSMClient(): void {
+  // No-op: HTTP-based implementation reads endpoint directly from settings
+}
 
 export default ssmService

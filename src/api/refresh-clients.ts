@@ -1,30 +1,51 @@
-import { refreshApiClient } from './client'
-import { refreshS3Client } from './services/s3'
-import { refreshLambdaClient } from './services/lambda'
-import { refreshDynamoDBClient } from './services/dynamodb'
-import { refreshSQSClient } from './services/sqs'
-import { refreshSNSClient } from './services/sns'
-import { refreshAPIGatewayClient } from './services/api-gateway'
-import { refreshKinesisClient } from './services/kinesis'
-import { refreshKMSClient } from './services/kms'
-import { refreshSecretsManagerClient } from './services/secrets-manager'
-import { refreshEventBridgeClient } from './services/eventbridge'
-import { refreshCloudWatchClient } from './services/cloudwatch'
-import { refreshSSMClient } from './services/ssm'
-
 // Centralized function to refresh all API clients when settings change
+// Note: The new implementation uses simple HTTP calls to Go proxy,
+// so no client refresh is needed - endpoint is read from settings on each request
 export function refreshAllClients(): void {
-  refreshApiClient()
-  refreshS3Client()
-  refreshLambdaClient()
-  refreshDynamoDBClient()
-  refreshSQSClient()
-  refreshSNSClient()
-  refreshAPIGatewayClient()
-  refreshKinesisClient()
-  refreshKMSClient()
-  refreshSecretsManagerClient()
-  refreshEventBridgeClient()
-  refreshCloudWatchClient()
-  refreshSSMClient()
+  // No-op: the HTTP-based implementation reads endpoint directly from settings
+  // No need to recreate clients when settings change
+}
+
+export function refreshApiClient(): void {
+  // No-op
+}
+
+export function refreshS3Client(): void {
+  // No-op
+}
+
+export function refreshLambdaClient(): void {
+  // No-op
+}
+
+export function refreshDynamoDBClient(): void {
+  // No-op
+}
+
+export function refreshSQSClient(): void {
+  // No-op
+}
+
+export function refreshSNSClient(): void {
+  // No-op
+}
+
+export function refreshAPIGatewayClient(): void {
+  // No-op
+}
+
+export function refreshKinesisClient(): void {
+  // No-op
+}
+
+export function refreshKMSClient(): void {
+  // No-op
+}
+
+export function refreshSecretsManagerClient(): void {
+  // No-op
+}
+
+export function refreshSSMClient(): void {
+  // No-op
 }

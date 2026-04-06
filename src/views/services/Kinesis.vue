@@ -145,7 +145,7 @@ async function selectStream(stream: KinesisStreamSummary) {
   records.value = []
   
   try {
-    const result = await kinesis.describeStream({ StreamName: stream.StreamName })
+    const result = await kinesis.describeStream(stream.StreamName)
     const streamDesc = result.StreamDescription
     selectedStream.value = {
       StreamName: streamDesc.StreamName,
@@ -173,8 +173,7 @@ async function createStream() {
 
   loading.value = true
   try {
-    await kinesis.createStream({
-      StreamName: newStreamName.value,
+    await kinesis.createStream(newStreamName.value, {
       ShardCount: newShardCount.value,
     })
     uiStore.notifySuccess('Success', `Stream ${newStreamName.value} is being created`)
@@ -222,20 +221,19 @@ async function getRecordsForShard(shard: KinesisShard) {
   
   try {
     // Get shard iterator
-    const iteratorResult = await kinesis.getShardIterator({
-      StreamName: selectedStream.value.StreamName,
-      ShardId: shard.ShardId,
-      ShardIteratorType: 'TRIM_HORIZON',
-    })
+    const iteratorResult = await kinesis.getShardIterator(
+      selectedStream.value.StreamName,
+      shard.ShardId,
+      'TRIM_HORIZON'
+    )
     
     shardIterators.value.set(shard.ShardId, iteratorResult.ShardIterator)
     
     // Get records
-    const recordsResult = await kinesis.getRecords({
-      StreamName: selectedStream.value.StreamName,
-      ShardIterator: iteratorResult.ShardIterator,
-      Limit: 100,
-    })
+    const recordsResult = await kinesis.getRecords(
+      iteratorResult.ShardIterator,
+      { Limit: 100 }
+    )
     
     records.value = recordsResult.Records.map(r => ({
       SequenceNumber: r.SequenceNumber,
@@ -260,14 +258,11 @@ async function putRecord() {
 
   loading.value = true
   try {
-    // Encode data as base64
-    const encodedData = btoa(putData.value)
-    
-    await kinesis.putRecord({
-      StreamName: selectedStream.value.StreamName,
-      PartitionKey: putPartitionKey.value,
-      Data: encodedData,
-    })
+    await kinesis.putRecord(
+      selectedStream.value.StreamName,
+      putData.value,
+      putPartitionKey.value
+    )
     
     uiStore.notifySuccess('Success', 'Record put successfully')
     showPutRecordModal.value = false

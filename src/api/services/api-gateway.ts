@@ -1,130 +1,56 @@
 /**
  * API Gateway Service API Client
- * AWS SDK v3 implementation for Amazon API Gateway
+ * Simple HTTP client for API Gateway via Go proxy
  * @module api/services/api-gateway
  */
 
-import {
-  APIGatewayClient,
-  GetRestApisCommand,
-  CreateRestApiCommand,
-  DeleteRestApiCommand,
-  GetRestApiCommand,
-  UpdateRestApiCommand,
-  GetResourcesCommand,
-  GetResourceCommand,
-  CreateResourceCommand,
-  DeleteResourceCommand,
-  PutMethodCommand,
-  GetMethodCommand,
-  DeleteMethodCommand,
-  PutIntegrationCommand,
-  GetIntegrationCommand,
-  DeleteIntegrationCommand,
-  CreateDeploymentCommand,
-  DeleteDeploymentCommand,
-  CreateStageCommand,
-  GetStagesCommand,
-  UpdateStageCommand,
-  DeleteStageCommand,
-  type GetRestApisCommandOutput,
-  type CreateRestApiCommandOutput,
-  type GetResourcesCommandOutput,
-  type CreateResourceCommandOutput,
-  type GetMethodCommandOutput,
-  type PutMethodCommandOutput,
-  type PutIntegrationCommandOutput,
-  type CreateDeploymentCommandOutput,
-  type CreateStageCommandOutput,
-  type GetStagesCommandOutput,
-} from '@aws-sdk/client-api-gateway'
-import {
-  ApiGatewayV2Client,
-  GetApisCommand,
-  CreateApiCommand,
-  DeleteApiCommand,
-  GetApiCommand,
-  GetRoutesCommand,
-  CreateRouteCommand,
-  DeleteRouteCommand,
-  GetIntegrationsCommand,
-  CreateIntegrationCommand,
-  DeleteIntegrationCommand as DeleteIntegrationV2Command,
-  type GetApisCommandOutput,
-  type CreateApiCommandOutput,
-  type GetRoutesCommandOutput,
-  type CreateRouteCommandOutput,
-  type GetIntegrationsCommandOutput,
-  type CreateIntegrationCommandOutput,
-} from '@aws-sdk/client-apigatewayv2'
-import {
-  ProtocolType,
-} from '@aws-sdk/client-apigatewayv2'
 import yaml from 'js-yaml'
 import { useSettingsStore } from '@/stores/settings'
 import { APIError } from '../client'
 
-let apiGatewayClient: APIGatewayClient | null = null
-let apiGatewayV2Client: ApiGatewayV2Client | null = null
-
-function getAPIGatewayClient(): APIGatewayClient {
+async function apiGatewayRequest(action: string, body: object = {}): Promise<any> {
   const settingsStore = useSettingsStore()
-  
-  if (!apiGatewayClient) {
-    apiGatewayClient = new APIGatewayClient({
-      endpoint: settingsStore.endpoint,
-      region: settingsStore.region,
-      credentials: {
-        accessKeyId: settingsStore.accessKey,
-        secretAccessKey: settingsStore.secretKey,
-      },
-      tls: false,
-    })
-  }
-  
-  return apiGatewayClient
-}
+  const endpoint = settingsStore.endpoint.replace(/\/$/, '')
 
-function getAPIGatewayV2Client(): ApiGatewayV2Client {
-  const settingsStore = useSettingsStore()
-  
-  if (!apiGatewayV2Client) {
-    apiGatewayV2Client = new ApiGatewayV2Client({
-      endpoint: settingsStore.endpoint,
-      region: settingsStore.region,
-      credentials: {
-        accessKeyId: settingsStore.accessKey,
-        secretAccessKey: settingsStore.secretKey,
-      },
-      tls: false,
-    })
-  }
-  
-  return apiGatewayV2Client
-}
+  const url = `${endpoint}/apigateway/`
 
-export function refreshAPIGatewayClient(): void {
-  apiGatewayClient = null
-  apiGatewayV2Client = null
-  getAPIGatewayClient()
-  getAPIGatewayV2Client()
+  try {
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Amz-Target': `apigateway.${action}`,
+      },
+      body: JSON.stringify(body),
+    })
+
+    if (!response.ok) {
+      const errorText = await response.text()
+      throw new APIError(`API Gateway ${action} failed: ${errorText}`, response.status, 'apigateway')
+    }
+
+    return response.json()
+  } catch (error) {
+    if (error instanceof APIError) throw error
+    console.error(`API Gateway ${action} error:`, error)
+    throw new APIError(`Failed to ${action}`, 500, 'apigateway')
+  }
 }
 
 export class APIGatewayService {
-  private getClient(): APIGatewayClient {
-    return getAPIGatewayClient()
-  }
-
+  // REST API operations
   async getRestApis(options?: { position?: string; limit?: number }): Promise<any> {
-    try {
-      const client = this.getClient()
-      const command = new GetRestApisCommand(options as any)
-      const response: GetRestApisCommandOutput = await client.send(command)
-      return response
-    } catch (error) {
-      if (error instanceof APIError) throw error
-      throw new APIError('Failed to get REST APIs', 500, 'apigateway')
+    const response = await apiGatewayRequest('GetRestApis', options || {})
+    // Normalize case: AWS SDK returns Items, Id (capitalized), but we want items, id (lowercase) for consistency
+    if (response.Items && !response.items) {
+      response.items = response.Items.map((item: any) => ({
+        ...item,
+        id: item.Id || item.id,
+        name: item.Name || item.name,
+        description: item.Description || item.description,
+      }))
     }
+    return response
   }
 
   async createRestApi(name: string, options?: {
@@ -132,331 +58,192 @@ export class APIGatewayService {
     Version?: string
     BinaryMediaTypes?: string[]
   }): Promise<any> {
-    try {
-      const client = this.getClient()
-      const command = new CreateRestApiCommand({
-        name,
-        ...options,
-      } as any)
-      const response: CreateRestApiCommandOutput = await client.send(command)
-      return response
-    } catch (error) {
-      if (error instanceof APIError) throw error
-      console.error('CreateRestApi error:', error)
-      throw new APIError(`Failed to create REST API: ${name}`, 500, 'apigateway')
-    }
+    return apiGatewayRequest('CreateRestApi', { name, ...options })
   }
 
-  async deleteRestApi(apiId: string): Promise<any> {
-    try {
-      const client = this.getClient()
-      const command = new DeleteRestApiCommand({ restApiId: apiId })
-      return await client.send(command)
-    } catch (error) {
-      if (error instanceof APIError) throw error
-      throw new APIError(`Failed to delete REST API: ${apiId}`, 500, 'apigateway')
-    }
+  async deleteRestApi(restApiId: string): Promise<any> {
+    return apiGatewayRequest('DeleteRestApi', { restApiId })
   }
 
-  async getRestApi(apiId: string): Promise<any> {
-    try {
-      const client = this.getClient()
-      const command = new GetRestApiCommand({ restApiId: apiId })
-      return await client.send(command)
-    } catch (error) {
-      if (error instanceof APIError) throw error
-      throw new APIError(`Failed to get REST API: ${apiId}`, 500, 'apigateway')
+  async getRestApi(restApiId: string): Promise<any> {
+    const result = await apiGatewayRequest('GetRestApi', { restApiId })
+    // Normalize case: AWS SDK returns Name, Id (capitalized), but we want name, id (lowercase)
+    if (result) {
+      result.id = result.id || result.Id
+      result.name = result.name || result.Name
+      result.description = result.description || result.Description
     }
+    return result
   }
 
-  async updateRestApi(apiId: string, options?: {
+  async updateRestApi(restApiId: string, options: {
     name?: string
     description?: string
-    version?: string
   }): Promise<any> {
-    try {
-      const client = this.getClient()
-      
-      const patchOperations = []
-      if (options?.name !== undefined) {
-        patchOperations.push({
-          op: 'replace',
-          path: '/name',
-          value: options.name,
-        })
-      }
-      if (options?.description !== undefined) {
-        patchOperations.push({
-          op: 'replace',
-          path: '/description',
-          value: options.description,
-        })
-      }
-      if (options?.version !== undefined) {
-        patchOperations.push({
-          op: 'replace',
-          path: '/version',
-          value: options.version,
-        })
-      }
-
-      const command = new UpdateRestApiCommand({
-        restApiId: apiId,
-        patchOperations,
-      } as any)
-      return await client.send(command)
-    } catch (error) {
-      if (error instanceof APIError) throw error
-      throw new APIError(`Failed to update REST API: ${apiId}`, 500, 'apigateway')
-    }
+    return apiGatewayRequest('UpdateRestApi', { restApiId, ...options })
   }
 
-  async getResources(apiId: string): Promise<any> {
-    try {
-      const client = this.getClient()
-      const command = new GetResourcesCommand({ restApiId: apiId })
-      const response: GetResourcesCommandOutput = await client.send(command)
-      return response
-    } catch (error) {
-      if (error instanceof APIError) throw error
-      throw new APIError(`Failed to get resources: ${apiId}`, 500, 'apigateway')
+  async getResources(restApiId: string): Promise<any> {
+    const response = await apiGatewayRequest('GetResources', { restApiId })
+    // Normalize case: AWS SDK returns Id, ParentId, Path, PathPart, ResourceMethods (capitalized)
+    if (response.Items) {
+      response.items = response.Items.map((item: any) => ({
+        ...item,
+        id: item.Id || item.id,
+        parentId: item.ParentId || item.parentId,
+        path: item.Path || item.path,
+        pathPart: item.PathPart || item.pathPart,
+        resourceMethods: item.ResourceMethods || item.resourceMethods,
+      }))
     }
+    // Also ensure items is at top level for easier access
+    if (!response.items && response.Items) {
+      response.items = response.Items
+    }
+    return response
   }
 
-  async getResource(apiId: string, resourceId: string): Promise<any> {
-    try {
-      const client = this.getClient()
-      const command = new GetResourceCommand({ restApiId: apiId, resourceId })
-      return await client.send(command)
-    } catch (error) {
-      if (error instanceof APIError) throw error
-      throw new APIError(`Failed to get resource: ${resourceId}`, 500, 'apigateway')
-    }
+  async getResource(restApiId: string, resourceId: string): Promise<any> {
+    return apiGatewayRequest('GetResource', { restApiId, resourceId })
   }
 
-  async createResource(apiId: string, parentId: string, pathPart: string): Promise<any> {
-    try {
-      const client = this.getClient()
-      const command = new CreateResourceCommand({
-        restApiId: apiId,
-        parentId,
-        pathPart,
-      })
-      const response: CreateResourceCommandOutput = await client.send(command)
-      return response
-    } catch (error) {
-      if (error instanceof APIError) throw error
-      throw new APIError(`Failed to create resource`, 500, 'apigateway')
-    }
+  async createResource(restApiId: string, parentId: string, pathPart: string): Promise<any> {
+    return apiGatewayRequest('CreateResource', { restApiId, parentId, pathPart })
   }
 
-  async deleteResource(apiId: string, resourceId: string): Promise<any> {
-    try {
-      const client = this.getClient()
-      const command = new DeleteResourceCommand({ restApiId: apiId, resourceId })
-      return await client.send(command)
-    } catch (error) {
-      if (error instanceof APIError) throw error
-      throw new APIError(`Failed to delete resource: ${resourceId}`, 500, 'apigateway')
-    }
+  async deleteResource(restApiId: string, resourceId: string): Promise<any> {
+    return apiGatewayRequest('DeleteResource', { restApiId, resourceId })
   }
 
-  async putMethod(apiId: string, resourceId: string, httpMethod: string, options?: {
+  async putMethod(restApiId: string, resourceId: string, httpMethod: string, options?: {
     authorizationType?: string
     apiKeyRequired?: boolean
   }): Promise<any> {
-    try {
-      const client = this.getClient()
-      const command = new PutMethodCommand({
-        restApiId: apiId,
-        resourceId,
-        httpMethod: httpMethod.toUpperCase(),
-        ...options,
-      } as any)
-      const response: PutMethodCommandOutput = await client.send(command)
-      return response
-    } catch (error) {
-      console.error('PutMethod error:', error)
-      if (error instanceof APIError) throw error
-      throw new APIError(`Failed to put method: ${error}`, 500, 'apigateway')
-    }
+    return apiGatewayRequest('PutMethod', {
+      restApiId,
+      resourceId,
+      httpMethod: httpMethod.toUpperCase(),
+      ...options,
+    })
   }
 
-  async getMethod(apiId: string, resourceId: string, httpMethod: string): Promise<any> {
-    try {
-      const client = this.getClient()
-      const command = new GetMethodCommand({
-        restApiId: apiId,
-        resourceId,
-        httpMethod: httpMethod.toUpperCase(),
-      })
-      const response: GetMethodCommandOutput = await client.send(command)
-      return response
-    } catch (error) {
-      if (error instanceof APIError) throw error
-      throw new APIError(`Failed to get method`, 500, 'apigateway')
-    }
+  async getMethod(restApiId: string, resourceId: string, httpMethod: string): Promise<any> {
+    return apiGatewayRequest('GetMethod', { restApiId, resourceId, httpMethod: httpMethod.toUpperCase() })
   }
 
-  async deleteMethod(apiId: string, resourceId: string, httpMethod: string): Promise<any> {
-    try {
-      const client = this.getClient()
-      const command = new DeleteMethodCommand({
-        restApiId: apiId,
-        resourceId,
-        httpMethod: httpMethod.toUpperCase(),
-      })
-      return await client.send(command)
-    } catch (error) {
-      if (error instanceof APIError) throw error
-      throw new APIError(`Failed to delete method`, 500, 'apigateway')
-    }
+  async deleteMethod(restApiId: string, resourceId: string, httpMethod: string): Promise<any> {
+    return apiGatewayRequest('DeleteMethod', { restApiId, resourceId, httpMethod: httpMethod.toUpperCase() })
   }
 
-  async putIntegration(apiId: string, resourceId: string, httpMethod: string, options?: {
+  // Create method (wrapper around PutMethod)
+  async createMethod(restApiId: string, resourceId: string, httpMethod: string, options?: {
+    authorizationType?: string
+    apiKeyRequired?: boolean
+  }): Promise<any> {
+    return this.putMethod(restApiId, resourceId, httpMethod, options)
+  }
+
+  async putIntegration(restApiId: string, resourceId: string, httpMethod: string, options?: {
     type?: string
     uri?: string
     integrationHttpMethod?: string
   }): Promise<any> {
-    try {
-      const client = this.getClient()
-      const command = new PutIntegrationCommand({
-        restApiId: apiId,
-        resourceId,
-        httpMethod: httpMethod.toUpperCase(),
-        ...options,
-      } as any)
-      const response: PutIntegrationCommandOutput = await client.send(command)
-      return response
-    } catch (error) {
-      if (error instanceof APIError) throw error
-      throw new APIError(`Failed to put integration`, 500, 'apigateway')
-    }
+    return apiGatewayRequest('PutIntegration', {
+      restApiId,
+      resourceId,
+      httpMethod: httpMethod.toUpperCase(),
+      ...options,
+    })
   }
 
-  async getIntegration(apiId: string, resourceId: string, httpMethod: string): Promise<any> {
-    try {
-      const client = this.getClient()
-      const command = new GetIntegrationCommand({
-        restApiId: apiId,
-        resourceId,
-        httpMethod: httpMethod.toUpperCase(),
-      })
-      return await client.send(command)
-    } catch (error) {
-      if (error instanceof APIError) throw error
-      throw new APIError(`Failed to get integration`, 500, 'apigateway')
-    }
+  async getIntegration(restApiId: string, resourceId: string, httpMethod: string): Promise<any> {
+    return apiGatewayRequest('GetIntegration', { restApiId, resourceId, httpMethod: httpMethod.toUpperCase() })
   }
 
-  async deleteIntegration(apiId: string, resourceId: string, httpMethod: string): Promise<any> {
-    try {
-      const client = this.getClient()
-      const command = new DeleteIntegrationCommand({
-        restApiId: apiId,
-        resourceId,
-        httpMethod: httpMethod.toUpperCase(),
-      })
-      return await client.send(command)
-    } catch (error) {
-      if (error instanceof APIError) throw error
-      throw new APIError(`Failed to delete integration`, 500, 'apigateway')
-    }
+  async deleteIntegration(restApiId: string, resourceId: string, httpMethod: string): Promise<any> {
+    return apiGatewayRequest('DeleteIntegration', { restApiId, resourceId, httpMethod: httpMethod.toUpperCase() })
   }
 
-  async createDeployment(apiId: string, options?: {
+  async createDeployment(restApiId: string, options?: {
     stageName?: string
     stageDescription?: string
     description?: string
   }): Promise<any> {
-    try {
-      const client = this.getClient()
-      const command = new CreateDeploymentCommand({
-        restApiId: apiId,
-        ...options,
-      } as any)
-      const response: CreateDeploymentCommandOutput = await client.send(command)
-      return response
-    } catch (error) {
-      if (error instanceof APIError) throw error
-      throw new APIError(`Failed to create deployment`, 500, 'apigateway')
-    }
+    return apiGatewayRequest('CreateDeployment', { restApiId, ...options })
   }
 
-  async deleteDeployment(apiId: string, deploymentId: string): Promise<any> {
-    try {
-      const client = this.getClient()
-      const command = new DeleteDeploymentCommand({
-        restApiId: apiId,
-        deploymentId,
-      })
-      return await client.send(command)
-    } catch (error) {
-      if (error instanceof APIError) throw error
-      throw new APIError(`Failed to delete deployment`, 500, 'apigateway')
-    }
+  async deleteDeployment(restApiId: string, deploymentId: string): Promise<any> {
+    return apiGatewayRequest('DeleteDeployment', { restApiId, deploymentId })
   }
 
-  async createStage(apiId: string, deploymentId: string, stageName: string): Promise<any> {
-    try {
-      const client = this.getClient()
-      const command = new CreateStageCommand({
-        restApiId: apiId,
-        deploymentId,
-        stageName,
-      })
-      const response: CreateStageCommandOutput = await client.send(command)
-      return response
-    } catch (error) {
-      if (error instanceof APIError) throw error
-      throw new APIError(`Failed to create stage`, 500, 'apigateway')
-    }
+  async createStage(restApiId: string, deploymentId: string, stageName: string): Promise<any> {
+    return apiGatewayRequest('CreateStage', { restApiId, deploymentId, stageName })
   }
 
-  async getStages(apiId: string): Promise<any> {
-    try {
-      const client = this.getClient()
-      const command = new GetStagesCommand({ restApiId: apiId })
-      const response: GetStagesCommandOutput = await client.send(command)
-      return response
-    } catch (error) {
-      if (error instanceof APIError) throw error
-      throw new APIError(`Failed to get stages`, 500, 'apigateway')
-    }
+  async getStages(restApiId: string): Promise<any> {
+    return apiGatewayRequest('GetStages', { restApiId })
   }
 
-  async updateStage(apiId: string, stageName: string, options?: any): Promise<any> {
-    try {
-      const client = this.getClient()
-      const command = new UpdateStageCommand({
-        restApiId: apiId,
-        stageName,
-        ...options,
-      })
-      return await client.send(command)
-    } catch (error) {
-      if (error instanceof APIError) throw error
-      throw new APIError(`Failed to update stage: ${stageName}`, 500, 'apigateway')
-    }
+  async updateStage(restApiId: string, stageName: string, patchOperations: Array<{
+    op: string
+    path: string
+    value?: string
+  }>): Promise<any> {
+    return apiGatewayRequest('UpdateStage', { restApiId, stageName, patchOperations })
   }
 
-  async deleteStage(apiId: string, stageName: string): Promise<any> {
-    try {
-      const client = this.getClient()
-      const command = new DeleteStageCommand({
-        restApiId: apiId,
-        stageName,
-      })
-      return await client.send(command)
-    } catch (error) {
-      if (error instanceof APIError) throw error
-      throw new APIError(`Failed to delete stage: ${stageName}`, 500, 'apigateway')
-    }
+  async deleteStage(restApiId: string, stageName: string): Promise<any> {
+    return apiGatewayRequest('DeleteStage', { restApiId, stageName })
+  }
+
+  // HTTP API v2 operations
+  async getApis(options?: any): Promise<any> {
+    return apiGatewayRequest('GetApis', options || {})
+  }
+
+  async createApi(name: string, options?: {
+    Description?: string
+    ProtocolType?: string
+  }): Promise<any> {
+    return apiGatewayRequest('CreateApi', { name, ...options })
+  }
+
+  async deleteApi(apiId: string): Promise<any> {
+    return apiGatewayRequest('DeleteApi', { apiId })
+  }
+
+  async getApi(apiId: string): Promise<any> {
+    return apiGatewayRequest('GetApi', { apiId })
+  }
+
+  async getRoutes(apiId: string): Promise<any> {
+    return apiGatewayRequest('GetRoutes', { apiId })
+  }
+
+  async createRoute(apiId: string, options?: any): Promise<any> {
+    return apiGatewayRequest('CreateRoute', { apiId, ...options })
+  }
+
+  async deleteRoute(apiId: string, routeId: string): Promise<any> {
+    return apiGatewayRequest('DeleteRoute', { apiId, routeId })
+  }
+
+  async getIntegrations(apiId: string): Promise<any> {
+    return apiGatewayRequest('GetIntegrations', { apiId })
+  }
+
+  async createIntegration(apiId: string, options?: any): Promise<any> {
+    return apiGatewayRequest('CreateIntegration', { apiId, ...options })
+  }
+
+  async deleteHttpApiIntegration(apiId: string, integrationId: string): Promise<any> {
+    return apiGatewayRequest('DeleteIntegration', { apiId, integrationId })
   }
 }
 
 export const apiGatewayService = new APIGatewayService()
 
+// Re-export for backward compatibility
 export const getRestApis = (options?: any) => apiGatewayService.getRestApis(options)
 export const createRestApi = (name: string, options?: any) => apiGatewayService.createRestApi(name, options)
 export const deleteRestApi = (apiId: string) => apiGatewayService.deleteRestApi(apiId)
@@ -464,212 +251,62 @@ export const getRestApi = (apiId: string) => apiGatewayService.getRestApi(apiId)
 export const updateRestApi = (apiId: string, options?: any) => apiGatewayService.updateRestApi(apiId, options)
 export const getResources = (apiId: string) => apiGatewayService.getResources(apiId)
 export const getResource = (apiId: string, resourceId: string) => apiGatewayService.getResource(apiId, resourceId)
-export const createResource = (apiId: string, parentId: string, pathPart: string) => 
+export const createResource = (apiId: string, parentId: string, pathPart: string) =>
   apiGatewayService.createResource(apiId, parentId, pathPart)
-export const deleteResource = (apiId: string, resourceId: string) => 
+export const deleteResource = (apiId: string, resourceId: string) =>
   apiGatewayService.deleteResource(apiId, resourceId)
-export const putMethod = (apiId: string, resourceId: string, httpMethod: string, options?: any) => 
+export const putMethod = (apiId: string, resourceId: string, httpMethod: string, options?: any) =>
   apiGatewayService.putMethod(apiId, resourceId, httpMethod, options)
-export const getMethod = (apiId: string, resourceId: string, httpMethod: string) => 
+export const getMethod = (apiId: string, resourceId: string, httpMethod: string) =>
   apiGatewayService.getMethod(apiId, resourceId, httpMethod)
-export const deleteMethod = (apiId: string, resourceId: string, httpMethod: string) => 
+export const deleteMethod = (apiId: string, resourceId: string, httpMethod: string) =>
   apiGatewayService.deleteMethod(apiId, resourceId, httpMethod)
-export const putIntegration = (apiId: string, resourceId: string, httpMethod: string, options?: any) => 
+export const putIntegration = (apiId: string, resourceId: string, httpMethod: string, options?: any) =>
   apiGatewayService.putIntegration(apiId, resourceId, httpMethod, options)
-export const getIntegration = (apiId: string, resourceId: string, httpMethod: string) => 
+export const getIntegration = (apiId: string, resourceId: string, httpMethod: string) =>
   apiGatewayService.getIntegration(apiId, resourceId, httpMethod)
-export const deleteIntegration = (apiId: string, resourceId: string, httpMethod: string) => 
+export const deleteIntegration = (apiId: string, resourceId: string, httpMethod: string) =>
   apiGatewayService.deleteIntegration(apiId, resourceId, httpMethod)
-export const createDeployment = (apiId: string, options?: any) => 
+export const createDeployment = (apiId: string, options?: any) =>
   apiGatewayService.createDeployment(apiId, options)
-export const deleteDeployment = (apiId: string, deploymentId: string) => 
+export const deleteDeployment = (apiId: string, deploymentId: string) =>
   apiGatewayService.deleteDeployment(apiId, deploymentId)
-export const createStage = (apiId: string, deploymentId: string, stageName: string) => 
+export const createStage = (apiId: string, deploymentId: string, stageName: string) =>
   apiGatewayService.createStage(apiId, deploymentId, stageName)
 export const getStages = (apiId: string) => apiGatewayService.getStages(apiId)
-export const updateStage = (apiId: string, stageName: string, options?: any) => 
+export const updateStage = (apiId: string, stageName: string, options?: any) =>
   apiGatewayService.updateStage(apiId, stageName, options)
-export const deleteStage = (apiId: string, stageName: string) => 
+export const deleteStage = (apiId: string, stageName: string) =>
   apiGatewayService.deleteStage(apiId, stageName)
 
-// HTTP API v2 methods (API Gateway HTTP APIs)
-// Note: LocalStack may not fully support HTTP APIs (v2), so we handle NotImplemented errors
-export const getHttpApis = async (options?: any): Promise<any> => {
-  try {
-    const client = getAPIGatewayV2Client()
-    const command = new GetApisCommand(options || {})
-    const response: GetApisCommandOutput = await client.send(command)
-    return response
-  } catch (error: any) {
-    const isLocalStackDateBug = error.message?.includes('RFC-3339') || error.message?.includes('date-time')
-    if (isLocalStackDateBug) {
-      throw new APIError('HTTP APIs are not supported by this provider - LocalStack date serialization bug', 500, 'apigateway')
-    }
-    console.error('Error getting HTTP APIs:', error)
-    const errorMessage = error.message || error.$metadata?.errorMessage || JSON.stringify(error) || String(error)
-    if (error.statusCode === 501 || error.name === 'NotImplemented') {
-      throw new APIError('HTTP APIs are not supported by this provider', 501, 'apigateway')
-    }
-    if (error instanceof APIError) throw error
-    throw new APIError(`Failed to get HTTP APIs: ${errorMessage}`, 500, 'apigateway')
-  }
-}
+// HTTP API v2 methods
+export const getHttpApis = (options?: any) => apiGatewayService.getApis(options)
+export const createHttpApi = (name: string, options?: any) => apiGatewayService.createApi(name, options)
+export const deleteHttpApi = (apiId: string) => apiGatewayService.deleteApi(apiId)
+export const getHttpApi = (apiId: string) => apiGatewayService.getApi(apiId)
+export const getHttpRoutes = (apiId: string) => apiGatewayService.getRoutes(apiId)
+export const createHttpRoute = (apiId: string, options: any) => apiGatewayService.createRoute(apiId, options)
+export const deleteHttpRoute = (apiId: string, routeId: string) => apiGatewayService.deleteRoute(apiId, routeId)
+export const getHttpIntegrations = (apiId: string) => apiGatewayService.getIntegrations(apiId)
+export const createHttpIntegration = (apiId: string, options: any) => apiGatewayService.createIntegration(apiId, options)
+export const deleteHttpApiIntegration = (apiId: string, integrationId: string) =>
+  apiGatewayService.deleteHttpApiIntegration(apiId, integrationId)
 
-export const createHttpApi = async (options?: any): Promise<any> => {
-  try {
-    const client = getAPIGatewayV2Client()
-    const command = new CreateApiCommand({
-      Name: options?.name,
-      ProtocolType: ProtocolType.HTTP,
-      Description: options?.description,
-    })
-    const response: CreateApiCommandOutput = await client.send(command)
-    return response
-  } catch (error: any) {
-    const isLocalStackDateBug = error.message?.includes('RFC-3339') || error.message?.includes('date-time')
-    if (isLocalStackDateBug) {
-      throw new APIError('HTTP APIs are not supported by this provider - LocalStack date serialization bug', 500, 'apigateway')
-    }
-    console.error('Error creating HTTP API:', error)
-    const errorMessage = error.message || error.$metadata?.errorMessage || JSON.stringify(error) || String(error)
-    if (error.statusCode === 501 || error.name === 'NotImplemented') {
-      throw new APIError('HTTP APIs are not supported by this provider', 501, 'apigateway')
-    }
-    if (error instanceof APIError) throw error
-    throw new APIError(`Failed to create HTTP API: ${errorMessage}`, 500, 'apigateway')
-  }
-}
+// Aliases for convenience (matching component expectations)
+export const getRoutes = (apiId: string) => apiGatewayService.getRoutes(apiId)
+export const createRoute = (apiId: string, options: any) => apiGatewayService.createRoute(apiId, options)
+export const deleteRoute = (apiId: string, routeId: string) => apiGatewayService.deleteRoute(apiId, routeId)
+export const getIntegrations = (apiId: string) => apiGatewayService.getIntegrations(apiId)
+export const createIntegration = (apiId: string, options: any) => apiGatewayService.createIntegration(apiId, options)
+export const deleteHttpApiIntegration2 = (apiId: string, integrationId: string) =>
+  apiGatewayService.deleteHttpApiIntegration(apiId, integrationId)
+export const createMethod = (restApiId: string, resourceId: string, httpMethod: string, options?: any) =>
+  apiGatewayService.createMethod(restApiId, resourceId, httpMethod, options)
 
-export const deleteHttpApi = async (apiId: string): Promise<any> => {
-  try {
-    const client = getAPIGatewayV2Client()
-    const command = new DeleteApiCommand({ ApiId: apiId })
-    return await client.send(command)
-  } catch (error: any) {
-    if (error.statusCode === 501 || error.name === 'NotImplemented') {
-      throw new APIError('HTTP APIs are not supported by LocalStack', 501, 'apigateway')
-    }
-    if (error instanceof APIError) throw error
-    throw new APIError(`Failed to delete HTTP API: ${apiId}`, 500, 'apigateway')
-  }
-}
-
-export const getHttpApi = async (apiId: string): Promise<any> => {
-  try {
-    const client = getAPIGatewayV2Client()
-    const command = new GetApiCommand({ ApiId: apiId })
-    return await client.send(command)
-  } catch (error: any) {
-    const isLocalStackDateBug = error.message?.includes('RFC-3339') || error.message?.includes('date-time')
-    if (isLocalStackDateBug) {
-      throw new APIError('HTTP APIs are not supported by this provider - LocalStack date serialization bug', 500, 'apigateway')
-    }
-    if (error.statusCode === 501 || error.name === 'NotImplemented') {
-      throw new APIError('HTTP APIs are not supported by this provider', 501, 'apigateway')
-    }
-    if (error instanceof APIError) throw error
-    throw new APIError(`Failed to get HTTP API: ${apiId}`, 500, 'apigateway')
-  }
-}
-
-export const getRoutes = async (apiId: string): Promise<any> => {
-  try {
-    const client = getAPIGatewayV2Client()
-    const command = new GetRoutesCommand({ ApiId: apiId })
-    const response: GetRoutesCommandOutput = await client.send(command)
-    return response
-  } catch (error: any) {
-    if (error.statusCode === 501 || error.name === 'NotImplemented') {
-      return { items: [] }
-    }
-    if (error instanceof APIError) throw error
-    throw new APIError(`Failed to get routes for API: ${apiId}`, 500, 'apigateway')
-  }
-}
-
-export const createRoute = async (apiId: string, options?: any): Promise<any> => {
-  try {
-    const client = getAPIGatewayV2Client()
-    const command = new CreateRouteCommand({
-      ApiId: apiId,
-      ...options,
-    })
-    const response: CreateRouteCommandOutput = await client.send(command)
-    return response
-  } catch (error: any) {
-    if (error.statusCode === 501 || error.name === 'NotImplemented') {
-      throw new APIError('HTTP APIs are not supported by LocalStack', 501, 'apigateway')
-    }
-    if (error instanceof APIError) throw error
-    throw new APIError(`Failed to create route for API: ${apiId}`, 500, 'apigateway')
-  }
-}
-
-export const deleteRoute = async (apiId: string, routeId: string): Promise<any> => {
-  try {
-    const client = getAPIGatewayV2Client()
-    const command = new DeleteRouteCommand({ ApiId: apiId, RouteId: routeId })
-    return await client.send(command)
-  } catch (error: any) {
-    if (error.statusCode === 501 || error.name === 'NotImplemented') {
-      throw new APIError('HTTP APIs are not supported by LocalStack', 501, 'apigateway')
-    }
-    if (error instanceof APIError) throw error
-    throw new APIError(`Failed to delete route: ${routeId}`, 500, 'apigateway')
-  }
-}
-
-export const getIntegrations = async (apiId: string): Promise<any> => {
-  try {
-    const client = getAPIGatewayV2Client()
-    const command = new GetIntegrationsCommand({ ApiId: apiId })
-    const response: GetIntegrationsCommandOutput = await client.send(command)
-    return response
-  } catch (error: any) {
-    if (error.statusCode === 501 || error.name === 'NotImplemented') {
-      return { items: [] }
-    }
-    if (error instanceof APIError) throw error
-    throw new APIError(`Failed to get integrations for API: ${apiId}`, 500, 'apigateway')
-  }
-}
-
-export const createIntegration = async (apiId: string, options?: any): Promise<any> => {
-  try {
-    const client = getAPIGatewayV2Client()
-    const command = new CreateIntegrationCommand({
-      ApiId: apiId,
-      ...options,
-    })
-    const response: CreateIntegrationCommandOutput = await client.send(command)
-    return response
-  } catch (error: any) {
-    if (error.statusCode === 501 || error.name === 'NotImplemented') {
-      throw new APIError('HTTP APIs are not supported by LocalStack', 501, 'apigateway')
-    }
-    if (error instanceof APIError) throw error
-    throw new APIError(`Failed to create integration for API: ${apiId}`, 500, 'apigateway')
-  }
-}
-
-export const deleteHttpApiIntegration = async (apiId: string, integrationId: string): Promise<any> => {
-  try {
-    const client = getAPIGatewayV2Client()
-    const command = new DeleteIntegrationV2Command({ ApiId: apiId, IntegrationId: integrationId })
-    return await client.send(command)
-  } catch (error: any) {
-    if (error.statusCode === 501 || error.name === 'NotImplemented') {
-      throw new APIError('HTTP APIs are not supported by LocalStack', 501, 'apigateway')
-    }
-    if (error instanceof APIError) throw error
-    throw new APIError(`Failed to delete integration: ${integrationId}`, 500, 'apigateway')
-  }
-}
-
-// Helper functions for Swagger/OpenAPI import
+// Swagger/OpenAPI import functions
 export function parseSwaggerSpec(content: string): any {
   try {
-    // Try parsing as JSON first
+    // Try JSON first
     try {
       return JSON.parse(content)
     } catch {
@@ -689,7 +326,6 @@ export function validateSwaggerSpec(spec: any): string[] {
     return errors
   }
   
-  // Check for required fields
   const swaggerVersion = spec.swagger || spec.openapi
   if (!swaggerVersion) {
     errors.push('Missing swagger or openapi version')
@@ -738,69 +374,32 @@ export async function importSwaggerFromFile(content: string): Promise<{
       return result
     }
     
-    // Create the REST API
+    // Use ImportRestApi to import the Swagger spec
     const apiName = spec.info?.title || 'Imported API'
-    const createResponse = await createRestApi(apiName, {
-      Description: spec.info?.description || `Imported from Swagger/OpenAPI spec version ${spec.info?.version}`,
+    
+    // Send the raw Swagger content directly (not base64 encoded)
+    // The Go proxy will handle it appropriately
+    const importResponse = await apiGatewayRequest('ImportRestApi', {
+      body: content,
     })
     
-    result.apiId = createResponse.id || createResponse.name
+    result.apiId = importResponse.id || importResponse.name
     result.apiName = apiName
     
-    // Import resources and methods
-    if (spec.paths) {
-      for (const [path, pathItem] of Object.entries(spec.paths)) {
-        // Create the resource path
-        const pathParts = path.split('/').filter(Boolean)
-        let parentId = (await getResources(result.apiId)).items[0]?.id
-        
-        if (!parentId) {
-          result.errors.push(`Could not find root resource for API ${result.apiId}`)
-          continue
-        }
-        
-        for (const part of pathParts) {
-          try {
-            // Try to find existing resource first
-            const resources = await getResources(result.apiId)
-            const existingResource = resources.items?.find((r: any) => r.path === `/${part}`)
-            
-            if (existingResource) {
-              parentId = existingResource.id
-            } else {
-              const newResource = await createResource(result.apiId, parentId, part)
-              parentId = newResource.id
-              result.resourcesCreated++
-            }
-          } catch (error) {
-            result.errors.push(`Failed to create resource ${part}: ${error}`)
-          }
-        }
-        
-        // Add methods to the resource
-        const methods = pathItem as Record<string, any>
-        for (const [method, _] of Object.entries(methods)) {
-          if (['get', 'post', 'put', 'delete', 'patch', 'options', 'head'].includes(method.toLowerCase())) {
-            try {
-              console.log(`Creating method: ${method.toUpperCase()} on path ${path}, resourceId: ${parentId}`)
-              await putMethod(result.apiId, parentId, method.toUpperCase(), {
-                authorizationType: 'NONE',
-                apiKeyRequired: false,
-              })
-              result.methodsCreated++
-            } catch (error) {
-              console.error('Error creating method:', error)
-              result.errors.push(`Failed to create ${method.toUpperCase()} method for ${path}: ${error}`)
-            }
-          }
-        }
-      }
-    }
-  } catch (error) {
-    result.errors.push(`Import failed: ${error}`)
+    // Note: ImportRestApi handles resources and methods automatically
+    // So we just report success
+    result.resourcesCreated = 0 // Import handles this
+    result.methodsCreated = 0 // Import handles this
+    
+  } catch (error: any) {
+    result.errors.push(`Import failed: ${error.message || error}`)
   }
   
   return result
+}
+
+export function refreshAPIGatewayClient(): void {
+  // No-op: HTTP-based implementation reads endpoint directly from settings
 }
 
 export default apiGatewayService
