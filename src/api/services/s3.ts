@@ -92,7 +92,7 @@ export class S3Service {
     const objects = (response.Contents || []).map(obj => ({
       Key: obj.Key || '',
       LastModified: obj.LastModified || '',
-      Size: obj.Size || 0,
+      Size: obj.Size,
       ETag: obj.ETag?.replace(/"/g, '') || '',
       StorageClass: obj.StorageClass || 'STANDARD',
     }))

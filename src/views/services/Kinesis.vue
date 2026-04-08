@@ -126,7 +126,18 @@ async function loadStreams() {
   loading.value = true
   try {
     const result = await kinesis.listStreams()
-    streams.value = result.StreamSummaries || []
+    let streamList = result.StreamSummaries || []
+    
+    // Handle case where StreamSummaries is null but StreamNames exists
+    if (streamList.length === 0 && result.StreamNames && result.StreamNames.length > 0) {
+      streamList = result.StreamNames.map((name: string) => ({
+        StreamName: name,
+        StreamARN: '',
+        StreamStatus: 'UNKNOWN'
+      }))
+    }
+    
+    streams.value = streamList
     
     if (streams.value.length > 0 && !selectedStream.value) {
       await selectStream(streams.value[0])

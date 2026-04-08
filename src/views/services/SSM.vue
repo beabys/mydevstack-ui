@@ -119,6 +119,15 @@ async function selectParameter(param: SSMParameterItem) {
 async function getParameterValue(param: SSMParameterItem) {
   selectedParameter.value = param
   showValueModal.value = true
+  
+  try {
+    const result = await ssm.getParameter(param.Name, { WithDecryption: true })
+    if (result.Parameter) {
+      selectedParameter.value.Value = result.Parameter.Value
+    }
+  } catch (error) {
+    console.error('Failed to load parameter value:', error)
+  }
 }
 
 async function loadParameterHistory() {
@@ -130,7 +139,7 @@ async function loadParameterHistory() {
     const result = await ssm.getParameterHistory(selectedParameter.value.Name, {
       WithDecryption: true,
     })
-    parameterHistory.value = result.Parameters || []
+    parameterHistory.value = result.Parameters || (result.Parameter ? [result.Parameter] : [])
   } catch (error) {
     uiStore.notifyError('Error', `Failed to load parameter history: ${error}`)
   } finally {
@@ -176,11 +185,18 @@ async function updateParameter() {
       Name: selectedParameter.value.Name,
       Value: newParamValue.value,
       Type: selectedParameter.value.Type,
+      Overwrite: true,
     })
     
     uiStore.notifySuccess('Success', `Parameter ${selectedParameter.value.Name} updated successfully`)
     newParamValue.value = ''
     await loadParameters()
+    
+    const updatedParam = parameters.value.find(p => p.Name === selectedParameter.value.Name)
+    if (updatedParam) {
+      selectedParameter.value = updatedParam
+      await getParameterValue(updatedParam)
+    }
   } catch (error) {
     uiStore.notifyError('Error', `Failed to update parameter: ${error}`)
   } finally {

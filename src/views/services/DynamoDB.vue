@@ -1726,7 +1726,7 @@ onMounted(() => {
           :class="scanMode === 'scan' 
             ? 'bg-blue-600 text-white' 
             : settingsStore.darkMode ? 'bg-gray-700 text-gray-300 hover:bg-gray-600' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'"
-          @click="scanMode = 'scan'; lastEvaluatedKey = null; scanOrQueryTable(exploreTableName)"
+          @click="scanMode = 'scan'; lastEvaluatedKey = null; scanOrQueryTable(exploreTableName, 'scan')"
         >
           Scan All
         </button>
@@ -1735,7 +1735,7 @@ onMounted(() => {
           :class="scanMode === 'query' 
             ? 'bg-blue-600 text-white' 
             : settingsStore.darkMode ? 'bg-gray-700 text-gray-300 hover:bg-gray-600' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'"
-          @click="scanMode = 'query'; lastEvaluatedKey = null"
+          @click="scanMode = 'query'; lastEvaluatedKey = null; items = []"
         >
           Query
         </button>
